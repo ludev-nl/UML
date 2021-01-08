@@ -1,0 +1,38 @@
+{% include 'application_header.html' with title=application.name %}
+
+<main role="main" class="container">
+    {% block content %}
+        <div class="card">
+            <div class="card-body">
+
+                <form action="/model/applications/{{ application.id }}/addclassifier" method="POST">{% csrf_token %}
+                    <label for="classifier_id">Classifier</label>
+
+                    <select id="classifier_id" name="classifier_id">
+                        {% for classifier in classifiers_to_add %}
+                            <option value="{{ classifier.id }}">{{ classifier.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+        <br>
+        <br>
+        {% for classifier in classifiers %}
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ classifier.name }}</h5>
+                    <ul class="list-group">
+                        {% for property in classifier.properties %}
+                            <li class="list-group-item">{{ property.name }} : {{ property.type }}</li>
+                        {% endfor %}
+                    </ul>
+                    <a class="btn btn-primary" href="/model/applications/{{ application.id }}/{{ classifier.id }}/properties" role="button">Link properties</a>
+                    <a class="btn btn-danger" href="/model/applications/{{ application.id }}/{{ classifier.id }}/unlink"
+                       role="button">Unlink</a>
+                </div>
+            </div>
+        {% endfor %}
+    {% endblock %}
+</main>

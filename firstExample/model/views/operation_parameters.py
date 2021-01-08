@@ -1,0 +1,29 @@
+# from django.shortcuts import render
+from django.shortcuts import redirect
+from ..models import Operation, OperationParameter
+from ..enums import Type
+
+
+def add(request):
+    operation_id = request.POST['operation_id']
+    operation = Operation.objects.get(id=operation_id)
+    return_type = request.POST['type']
+    name = request.POST['name']
+
+    if return_type is 'string':
+        return_type = Type.String
+    elif return_type is 'int':
+        return_type = Type.Int
+    elif return_type is 'bool':
+        return_type = Type.Bool
+
+    operation_parameter = OperationParameter(name=name, type=return_type, operation=operation)
+    operation_parameter.save()
+    return redirect('/model/operations/' + operation_id)
+
+
+def delete(request, operation_parameter_id):
+    operation_parameter = OperationParameter.objects.get(id=operation_parameter_id)
+    operation = operation_parameter.operation
+    operation_parameter.delete()
+    return redirect('/model/operations/' + str(operation.id))
