@@ -178,10 +178,12 @@ class PropertyGenerator:
     def __init__(self, property):
         self.property = property
 
-    def generate(self):
+    def generate(self, should_migrate=True):
         classifier = self.property.classifier
         write_to_models_file(self.property, classifier)
-        os.system('start python manage.py make_and_run_migrations')
+
+        if should_migrate:
+            os.system('start /b python manage.py make_and_run_migrations')
 
     def link_to_application(self, application):
         add_property_to_index_view(self.property, application)
@@ -191,8 +193,10 @@ class PropertyGenerator:
     def unlink_from_application(self, application):
         delete_from_view(self.property, application)
 
-    def delete(self):
+    def delete(self, should_migrate=True):
         delete_from_model(self.property)
         for application in self.property.applications.all():
             delete_from_view(self.property, application)
-        os.system('start python manage.py make_and_run_migrations')
+
+        if should_migrate:
+            os.system('start /b python manage.py make_and_run_migrations')
