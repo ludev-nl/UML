@@ -177,7 +177,7 @@ class ClassifierGenerator(object):
     def __init__(self, classifier):
         self.classifier = classifier
 
-    def generate(self):
+    def generate(self, should_migrate=True):
         if isinstance(self.classifier, Class):
             need_migration = add_class_definition(self.classifier)
         elif isinstance(self.classifier, Enumerator):
@@ -185,7 +185,7 @@ class ClassifierGenerator(object):
         else:
             raise NotImplementedError
 
-        if need_migration:
+        if need_migration & should_migrate:
             # os.system('python manage.py make_and_run_migrations &')
             os.system('start /b python manage.py make_and_run_migrations')
 
@@ -216,14 +216,16 @@ class ClassifierGenerator(object):
         f.write(contents)
         f.close()
 
-    def delete(self):
+    def delete(self, should_migrate=True):
         remove_from_models(self.classifier)
         remove_views(self.classifier)
         for application in self.classifier.application_set.all():
             remove_view_import(self.classifier, application)
         for application in self.classifier.application_set.all():
             remove_urls(self.classifier, application)
-        os.system('start /b python manage.py make_and_run_migrations')
+
+        if should_migrate:
+            os.system('start /b python manage.py make_and_run_migrations')
 
     def unlink_application(self, application):
         remove_view_import(self.classifier, application)

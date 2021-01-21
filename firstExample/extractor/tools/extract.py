@@ -351,7 +351,7 @@ def generate_uml(fp):
     # for item in clslist:
     #     classifier = Class(name=item)
     #     classifier.save()
-    #     ClassifierGenerator(classifier).generate()
+    #     ClassifierGenerator(classifier).generate(False)
     #
     # # save relation and direction into Ralph's demo
     # for item in sum:
@@ -365,7 +365,9 @@ def generate_uml(fp):
     #     # passing an instance rather than a variable
     #     relationship = Relationship(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
     #     relationship.save()
-    #     RelationshipGenerator(relationship).generate()
+    #     RelationshipGenerator(relationship).generate(False)
+    #
+    # os.system('start /b python manage.py make_and_run_migrations')
 
     return output
 

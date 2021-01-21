@@ -115,7 +115,7 @@ def add_to_models(relationship):
         end_to = relationship.end_to
         if (multiplicity_to == '1') and (multiplicity_from == '*'):
             classifier = relationship.classifier_from
-            declaration_string = '    ' + end_from + ' = models.ForeignKey(' + relationship.classifier_to.name + ', on_delete=models.CASCADE, null=True, related_name=\'' + name.lower().replace(' ', '_') + '\')\n'
+            declaration_string = '    ' + end_from + ' = models.ForeignKey(\'' + relationship.classifier_to.name + '\', on_delete=models.CASCADE, null=True, related_name=\'' + name.lower().replace(' ', '_') + '\')\n'
 
             write_to_class_model(classifier, declaration_string)
 
@@ -124,7 +124,9 @@ class RelationshipGenerator:
     def __init__(self, relationship):
         self.relationship = relationship
 
-    def generate(self):
+    def generate(self, should_migrate=True):
         add_to_models(self.relationship)
         add_to_views(self.relationship)
-        os.system('start /b python manage.py make_and_run_migrations')
+
+        if should_migrate:
+            os.system('start /b python manage.py make_and_run_migrations')
