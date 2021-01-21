@@ -111,12 +111,10 @@ def add_to_models(relationship):
         name = relationship.name
         multiplicity_from = relationship.multiplicity_from
         multiplicity_to = relationship.multiplicity_to
+        end_from = relationship.end_from
+        end_to = relationship.end_to
 
         if isinstance(relationship, Composition):
-            end_from = relationship.end_from
-            end_to = relationship.end_to
-
-        if isinstance(relationship, Association):
             end_from = relationship.end_to
             end_to = relationship.end_from
 
