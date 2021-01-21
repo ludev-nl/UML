@@ -117,3 +117,13 @@ class DirectedRelationship(Relationship):
 
 class Generalization(DirectedRelationship):
     pass
+
+
+class Composition(Relationship):
+    multiplicity_to = models.CharField(max_length=255)
+    multiplicity_from = models.CharField(max_length=255)
+    end_from = models.CharField(max_length=255, default='')
+    end_to = models.CharField(max_length=255, default='')
+
+    def __str__(self):
+        return self.name

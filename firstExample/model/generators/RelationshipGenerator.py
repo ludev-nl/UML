@@ -107,12 +107,19 @@ def add_to_views(relationship):
 
 # 注意这段代码
 def add_to_models(relationship):
-    if isinstance(relationship, Association):
+    if isinstance(relationship, Association) or isinstance(relationship, Composition):
         name = relationship.name
         multiplicity_from = relationship.multiplicity_from
         multiplicity_to = relationship.multiplicity_to
-        end_from = relationship.end_from
-        end_to = relationship.end_to
+
+        if isinstance(relationship, Composition):
+            end_from = relationship.end_from
+            end_to = relationship.end_to
+
+        if isinstance(relationship, Association):
+            end_from = relationship.end_to
+            end_to = relationship.end_from
+
         if (multiplicity_to == '1') and (multiplicity_from == '*'):
             classifier = relationship.classifier_from
             declaration_string = '    ' + end_from + ' = models.ForeignKey(\'' + relationship.classifier_to.name + '\', on_delete=models.CASCADE, null=True, related_name=\'' + name.lower().replace(' ', '_') + '\')\n'
