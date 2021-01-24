@@ -15,6 +15,7 @@ urlpatterns = [
     path('classifiers/<classifier_id>', views.classifiers.edit),
     path('classifiers/<classifier_id>/delete', views.classifiers.delete),
     path('properties/add', views.properties.add),
+    path('properties/<property_id>', views.properties.edit),
     path('properties/<property_id>/delete', views.properties.delete),
     path('operations/add', views.operations.add),
     path('operations/<operation_id>', views.operations.edit),

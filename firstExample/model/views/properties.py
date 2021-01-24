@@ -32,4 +32,26 @@ def add(request):
 
     PropertyGenerator(property).generate()
 
-    return redirect('/model/classifiers/' + classifier_id)
+    return redirect
+
+
+def edit(request, property_id):
+    property = Property.objects.get(id=property_id)
+    classifier_id = property.classifier.id
+    PropertyGenerator(property).delete()
+    property.delete()
+    prop_type = request.POST['type']
+
+    if prop_type is 'string':
+        prop_type = Type.String
+    elif prop_type is 'int':
+        prop_type = Type.Int
+    elif prop_type is 'bool':
+        prop_type = Type.Bool
+
+    property = Property(id=property_id, classifier_id=classifier_id, name=request.POST['name'], type=prop_type)
+    property.save()
+
+    PropertyGenerator(property).generate()
+
+    return redirect('/model/classifiers/' + classifier_id)('/model/classifiers/' + classifier_id)
