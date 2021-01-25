@@ -1,10 +1,12 @@
 # from django.shortcuts import render
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 from ..models import Classifier, Operation, Property
 from ..enums import Type
 from ..generators import *
 
 
+@csrf_exempt
 def delete(request, property_id):
     property = Property.objects.get(id=property_id)
     classifier_id = str(property.classifier.id)
@@ -14,8 +16,9 @@ def delete(request, property_id):
 
     return redirect('/model/classifiers/' + classifier_id)
 
-
+@csrf_exempt
 def add(request):
+    print(request.POST)
     classifier_id = request.POST['classifier_id']
     classifier = Classifier.objects.get(id=classifier_id)
     prop_type = request.POST['type']
@@ -32,9 +35,9 @@ def add(request):
 
     PropertyGenerator(property).generate()
 
-    return redirect
+    return redirect('/model/classifiers/' + classifier_id)
 
-
+@csrf_exempt
 def edit(request, property_id):
     property = Property.objects.get(id=property_id)
     classifier_id = property.classifier.id
@@ -54,4 +57,4 @@ def edit(request, property_id):
 
     PropertyGenerator(property).generate()
 
-    return redirect('/model/classifiers/' + classifier_id)('/model/classifiers/' + classifier_id)
+    return redirect('/model/classifiers/' + str(classifier_id))
