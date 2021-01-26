@@ -26,6 +26,7 @@ urlpatterns = [
     path('relationships/add', views.relationships.add),
     path('relationships/add/generalization', views.relationships.add_generalization),
     path('relationships/add/association', views.relationships.add_association),
+    path('relationships/<relationship_id>/edit', views.relationships.edit),
     path('relationships/<relationship_id>/delete', views.relationships.delete),
     path('generate', views.generate),
     path('diagram', views.diagram)
