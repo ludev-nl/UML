@@ -1,41 +1,39 @@
 from stanfordcorenlp import StanfordCoreNLP
 import logging
-from nltk.tokenize import sent_tokenize, word_tokenize
-import string
-import io
+from nltk.tokenize import sent_tokenize
 from nltk.tree import Tree
 from nltk import stem
-import re
-import json
+import os
 from model.generators.ClassifierGenerator import ClassifierGenerator
 from model.generators.RelationshipGenerator import RelationshipGenerator
-from model.models import Requirement
-from model.models import Class
-from model.models import Classifier
-from model.models import Relationship
-from model.models import DirectedRelationship
+from model.generators.PropertyGenerator import PropertyGenerator
+from model.models import Class, Classifier, Relationship, Property, Composition, Association
+
 
 
 # word lists
-stop_words =['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself', 'yourselves',
-             'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself',
-             'themselves', 'what', 'who', 'whom', 'this', 'these', 'those', 'examples',
-             'but', 'because', 'until', 'while', 'at', 'about', 'between', 'if', 'with',
-             'through', 'during', 'after', 'above', 'below', 'up', 'down', 'able', 'form', 'of',
-             'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there', 'where', 'why', 'how', 'all',
-             'both', 'each', 'few', 'most', 'other', 'some', 'no', 'nor', 'not', 'only', 'own', 'same',
-             'than', 'too', 'very', 's', 't', 'just', 'don', "don't", 'should', 'now', 'd', 'll', 'm', 'o',
-             're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', 'didn', 'doesn', "doesn't", 'hadn', 'hasn','haven', 'isn', 'ma',
-             'mightn', 'mustn', 'needn', 'shan', 'shouldn',  'wasn', "wasn t", 'weren', "weren t", 'won', "won t", 'wouldn', "wouldn t",
-             'multiple','many', 'forward', 'etc', 'shall', 'also', 'therefore', 'might', 'able', 'various', 'necessary',
-             'several', 'specific', 'usually', 'must', 'finally', 'particular', 'different', 'firstly', 'corresponding', 'enough', 'relevant', '’s', 'furthermore',
-             'desired', 'typically', 'initially', 'additional']
+stop_words = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself',
+              'yourselves', 'he', 'him', 'his', 'himself', 'she', 'her', 'hers', 'herself', 'it', 'its', 'itself',
+              'themselves', 'what', 'who', 'whom', 'this', 'these', 'those', 'examples', 'but', 'because', 'until',
+              'while', 'at', 'about', 'between', 'if', 'with', 'through', 'during', 'after', 'above', 'below', 'up',
+              'down', 'able', 'form', 'of', 'off', 'over', 'under', 'again', 'further', 'then', 'once', 'here', 'there',
+              'where', 'why', 'how', 'all', 'both', 'each', 'few', 'most', 'other', 'some', 'no', 'nor', 'not', 'only',
+              'own', 'same', 'than', 'too', 'very', 's', 't', 'just', 'don', "don't", 'should', 'now', 'd', 'll', 'm',
+              'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', 'didn', 'doesn', "doesn't", 'hadn', 'hasn',
+              'haven', 'isn', 'ma', 'mightn', 'mustn', 'needn', 'shan', 'shouldn', 'wasn', "wasn t", 'weren', 'weren t',
+              'won', 'won t', 'wouldn', 'wouldn t', 'multiple', 'many', 'forward', 'etc', 'shall', 'also', 'therefore',
+              'might', 'able', 'various', 'necessary', 'several', 'usually', 'must', 'finally', 'different', 'firstly',
+              'corresponding', 'enough', 'relevant', '’s', 'furthermore', 'desired', 'typically', 'initially',
+              'additional']
 
-sto_words_further =['their', 'such', 'as', 'them', 'will', 'that', 'when', 'they', 'for', 'may', 'types']
+sto_words_further = ['their', 'such', 'as', 'them', 'will', 'that', 'when', 'they', 'for', 'may', 'types', 'specific',
+                     'particular']
+
 
 composition_word = ['have', 'has', 'contains', 'contain', 'contained', 'composed of', 'maintain', 'maintains',
                     'maintained', 'consists of', 'hold', 'holds', 'held', 'include', 'includes', 'included',
-                    'divided to', 'has part', 'comprise', 'carry', 'involve', 'imply', 'embrace', 'is for', 'consist', 'consists']
+                    'divided to', 'has part', 'comprise', 'carry', 'involve', 'imply', 'embrace', 'is for', 'consist',
+                    'consists']
 
 # subtyping_word = ['is a', 'is a kind of', 'are', 'are classified as', 'can be', 'is classified as']
 
@@ -43,9 +41,12 @@ subtyping_word = ['is a', 'is a kind of', 'is', 'can be', 'are', 'can involve', 
 
 design_elements = ['system', 'user', 'application', 'data', 'computer', 'object', 'information', 'interface', 'online']
 
-attribute_words = ['id', 'name', 'address', 'email', 'number','no', 'code', 'date', 'type', 'volume', 'birth', 'password', 'price', 'quantity', 'location', 'resolution date',
-                   'creation date', 'crime code', 'course name', 'time slot', 'quantities', 'delivery date', 'prices', 'delivery address', 'scanner', 'till', 'illness conditions',
-                   'diagnostic result', 'suggestions']
+attribute_words = ['id', 'first name', 'last name', 'name', 'address', 'email', 'number','no', 'code', 'date', 'type',
+                   'volume', 'birth', 'password', 'price', 'quantity', 'location', 'resolution date', 'creation date',
+                   'crime code', 'course name', 'time slot', 'quantities', 'delivery date', 'prices',
+                   'delivery address', 'scanner', 'till', 'illness conditions', 'diagnostic result', 'suggestions',
+                   'birth date', 'order number', 'total cost', 'entry date', 'delivery status', 'description',
+                   'product number']
 
 # settings
 class SubStanfordCoreNLP(StanfordCoreNLP):
@@ -105,20 +106,69 @@ def get_dir2(s):
                 a.append(neww)
             b = ''.join(a)
             raw_dir.append(b)
-        dir['from'] = raw_dir[0]
-        dir['to'] = raw_dir[1]
-        return dir
+
+        # using dependency parser to check and define direction between classes
+        tri = list(s)
+        joint_s = ' '.join(tri)
+        dep = nlp.dependency_parse(joint_s)
+
+        firstelement = []
+        for d in dep:
+            if d[0] not in firstelement:
+                firstelement.append(d[0])
+
+        if raw_dir[0] != raw_dir[1]:
+            if 'nsubj' in firstelement:
+                dir['from'] = raw_dir[0]
+                dir['to'] = raw_dir[1]
+            elif 'nsubjpass' in firstelement:
+                dir['from'] = raw_dir[1]
+                dir['to'] = raw_dir[0]
+            else:
+                dir['from'] = raw_dir[0]
+                dir['to'] = raw_dir[1]
+
+            return dir
+
+        else:
+            return None
 
 
 # relationship extraction
 def get_rels2(s):
     rel = {}
-    if s[1] in composition_word:
-        rel['Composition'] = s[1]
-    elif s[1] in subtyping_word:
-        rel['Subtyping'] = ''
+    # using dependecny parser to check active and passive voice
+    tri = list(s)
+    joint_s = ' '.join(tri)
+    dep = nlp.dependency_parse(joint_s)
+
+    firstelement = []
+    for d in dep:
+        if d[0] not in firstelement:
+            firstelement.append(d[0])
+
+    convertrel = []
+    if 'nsubjpass' in firstelement:
+        pos = nlp.pos_tag(s[1])
+        for p in pos:
+            if p[1] == 'VBN':
+                convertrel.append(p[0])
+        # using lemmatizer to transfer passive verb to active
+        relname = lemmatizer.lemmatize(convertrel[0], pos='v')
+        if relname in composition_word:
+            rel['Composition'] = relname
+        elif relname in subtyping_word:
+            rel['Subtyping'] = ''
+        else:
+            rel['Association'] = relname
+
     else:
-        rel['Association'] = s[1]
+        if s[1] in composition_word:
+            rel['Composition'] = s[1]
+        elif s[1] in subtyping_word:
+            rel['Subtyping'] = ''
+        else:
+            rel['Association'] = s[1]
     return rel
 
 
@@ -134,6 +184,10 @@ def get_multi2():
     multi = {'multiplicity': ['', '']}
     return multi
 
+# composition multiplicity
+def get_multi3():
+    multi = {'multiplicity': ['1', '0..*']}
+    return multi
 
 # check if object belongs to VBN
 def obj_obj(s):
@@ -173,7 +227,7 @@ def get_triple(s):
             for vs in vbs:
                 if vs.label() in ['VP', 'NP', 'PP']:
                     qvp.append(vs)
-                elif vs.label() in ['VB', 'VBN']:
+                elif vs.label() in ['VB', 'VBN', 'VBZ']:
                     tri_lst.append(vs.leaves()[0])
                 elif vs.label() in ['NN', 'NNS', 'NNP']:
                     tri_lst.append(vs.leaves()[0])
@@ -246,7 +300,8 @@ def preprocessing(fp):
             standard_txt.append(triple)
         else:
             for eachies in process_ies:
-                standard_txt.append(eachies)
+                if eachies not in standard_txt:
+                    standard_txt.append(eachies)
 
     return standard_txt
 
@@ -258,7 +313,6 @@ def generate_uml(fp):
     sum = []
     clsoutput = ''
     sumoutput = ''
-    clslist =[]
 
     for s in data:
         check = check_attr(s)
@@ -274,7 +328,6 @@ def generate_uml(fp):
                     a.append(neww)
                 b = ''.join(a)
                 raw_dir.append(b)
-            # print(raw_dir)
             # 不在，存入
             if raw_dir[0] not in objectDict:
                 id = raw_dir[0]
@@ -317,19 +370,20 @@ def generate_uml(fp):
             if keys[0] == 'Subtyping':
                 m = get_multi2()
                 multi2 = m
+            elif keys[0] == 'Composition':
+                m = get_multi3()
+                multi2 = m
             else:
                 m = get_multi()
                 multi2 = m
             sum.append(list(rels2.items()) + list(dir2.items()) + list(multi2.items()))
 
-    nlp.close()
+    # nlp.close()
     print(sum)
     print(objectDict)
 
     # format to display in textarea
     for item in objectDict.items():
-        clslist.append(item[0])
-
         a = 'Class: ' + item[0] + '\n'
         a += '   Attribute: ' + str(item[1]['Attribute'])
         clsoutput += a + '\n'
@@ -346,28 +400,64 @@ def generate_uml(fp):
 
     print(output)
 
-    # # save into Ralph's demo
-    # # create another function??
-    # for item in clslist:
-    #     classifier = Class(name=item)
-    #     classifier.save()
-    #     ClassifierGenerator(classifier).generate(False)
-    #
-    # # save relation and direction into Ralph's demo
-    # for item in sum:
-    #     # direction
-    #     cls_from_name = item[1][1]
-    #     cls_to_name = item[2][1]
-    #     # get class name
-    #     cls_from = Classifier.objects.get(name=cls_from_name)
-    #     cls_to = Classifier.objects.get(name=cls_to_name)
-    #
-    #     # passing an instance rather than a variable
-    #     relationship = Relationship(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
-    #     relationship.save()
-    #     RelationshipGenerator(relationship).generate(False)
-    #
-    # os.system('start /b python manage.py make_and_run_migrations')
+    # save into Ralph's demo
+    for item in objectDict.items():
+        classifier = Class(name=item[0])
+        classifier.save()
+        ClassifierGenerator(classifier).generate(False)
+        # save attributes
+        if item[1]['Attribute'] != '':
+            get_cls = Classifier.objects.get(name=item[0])
+            for i in item[1]['Attribute']:
+                i = '_'.join(i.split(' '))
+                attr = Property(name=i, classifier=get_cls)
+                attr.save()
+                PropertyGenerator(attr).generate(False)
+
+    # save relation and direction into Ralph's demo
+    for item in sum:
+        # direction
+        cls_from_name = item[1][1]
+        cls_to_name = item[2][1]
+        # get class name
+        cls_from = Classifier.objects.get(name=cls_from_name)
+        cls_to = Classifier.objects.get(name=cls_to_name)
+
+        # passing an instance rather than a variable
+        # relationship = Relationship(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
+        # relationship.save()
+
+        if item[0][0] == 'Composition':
+            composition = Composition(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from,
+                                      multiplicity_to=item[3][1][1], multiplicity_from=item[3][1][0],
+                                      end_from=item[1][1], end_to=item[2][1])
+            composition.save()
+            RelationshipGenerator(composition).generate(False)
+            # if Ralph's demo cannot execute many to many, replace the above code with this:
+            # composition = Composition(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from,
+            #                           multiplicity_to='0..*', multiplicity_from='1',
+            #                           end_from=item[1][1], end_to=item[2][1])
+            # composition.save()
+            # RelationshipGenerator(composition).generate(False)
+
+        elif item[0][0] == 'Association':
+            association = Association(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from,
+                                      multiplicity_to=item[3][1][1], multiplicity_from=item[3][1][0],
+                                      end_from=item[1][1], end_to=item[2][1])
+            association.save()
+            RelationshipGenerator(association).generate(False)
+            # if Ralph's demo cannot execute many to many, replace the above code with this:
+            # association = Association(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from,
+            #                           multiplicity_to='0..*', multiplicity_from='1',
+            #                           end_from=item[1][1], end_to=item[2][1])
+            # association.save()
+            # RelationshipGenerator(association).generate(False)
+
+        else:
+            relationship = Relationship(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
+            relationship.save()
+
+    os.system('start /b python manage.py make_and_run_migrations')
 
     return output
 
