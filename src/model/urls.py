@@ -29,5 +29,6 @@ urlpatterns = [
     path('relationships/<relationship_id>/edit', views.relationships.edit),
     path('relationships/<relationship_id>/delete', views.relationships.delete),
     path('generate', views.generate),
-    path('diagram', views.diagram)
+    path('diagram', views.diagram),
+    path('data', views.data.data)
 ]
