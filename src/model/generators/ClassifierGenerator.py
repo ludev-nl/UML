@@ -11,8 +11,9 @@ def index(classifier, properties):
                     + '    for object in objects:\n'
                     + '        object.properties = []\n'
                     + '        object.properties.reverse()\n')
-    index_string += ('    context = {\'application\': __get_application(request), \'properties\': properties, \'objects\': objects, \'object_name\': \'' + classifier.name + '\', \'object_name_lower\': \'' + classifier.name.lower() + '\'}\n'
-                     + '    return render(request, \'view_list.html\', context)')
+    index_string += (
+            '    context = {\'application\': __get_application(request), \'properties\': properties, \'objects\': objects, \'object_name\': \'' + classifier.name + '\', \'object_name_lower\': \'' + classifier.name.lower() + '\'}\n'
+            + '    return render(request, \'view_list.html\', context)')
 
     return index_string
 
