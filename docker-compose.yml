@@ -9,6 +9,10 @@ services:
       MYSQL_USER: YxRF5HKA
       MYSQL_PASSWORD: RkXfK8c5
       MYSQL_DATABASE: nguml
+  corenlp:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.corenlp"
   django:
     build:
       context: "."
@@ -20,17 +24,13 @@ services:
         python manage.py runserver 0.0.0.0:8000
       "
     volumes:
-      - src:/code
+      - ./src:/code
+      - ./conf/settings.py:/code/backend/settings.py
     ports:
       - "8000:8000"
     depends_on:
       - db
-  corenlp:
-    build:
-      context: "."
-      dockerfile: "Dockerfile.corenlp"
-    ports:
-      - "9000:9000"
+      - corenlp
     
     
     

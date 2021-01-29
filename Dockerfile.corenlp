@@ -14,10 +14,6 @@ RUN for file in `find . -name "*.jar"`; do export && \
     CLASSPATH="$CLASSPATH:`realpath $file`"; done
 RUN printenv
 
-ENV PORT 9000
-
-EXPOSE $PORT
-
 #One can change the -mx4g to change the RAM allocated. For example 8gb -mx8g
 #Make sure this is also configured in the Docker settings.
 #This is explained on https://stanfordnlp.github.io/CoreNLP/download.html 

@@ -61,7 +61,7 @@ class SubStanfordCoreNLP(StanfordCoreNLP):
         return openies
 
 
-nlp = SubStanfordCoreNLP('C:\stanford-corenlp-full-2018-10-05')
+nlp = SubStanfordCoreNLP('http://corenlp', port=9000)
 
 lemmatizer = stem.WordNetLemmatizer()
 
