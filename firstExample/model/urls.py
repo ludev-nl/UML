@@ -15,6 +15,7 @@ urlpatterns = [
     path('classifiers/<classifier_id>', views.classifiers.edit),
     path('classifiers/<classifier_id>/delete', views.classifiers.delete),
     path('properties/add', views.properties.add),
+    path('properties/<property_id>/edit', views.properties.edit),
     path('properties/<property_id>/delete', views.properties.delete),
     path('operations/add', views.operations.add),
     path('operations/<operation_id>', views.operations.edit),
@@ -25,6 +26,7 @@ urlpatterns = [
     path('relationships/add', views.relationships.add),
     path('relationships/add/generalization', views.relationships.add_generalization),
     path('relationships/add/association', views.relationships.add_association),
+    path('relationships/<relationship_id>/edit', views.relationships.edit),
     path('relationships/<relationship_id>/delete', views.relationships.delete),
     path('generate', views.generate),
     path('diagram', views.diagram)

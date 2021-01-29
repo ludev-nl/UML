@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 from ..models import Classifier, Property, Operation, Class, Enumerator, OperationParameter
 from ..enums import Type
 from ..generators import *
 
 
+@csrf_exempt
 def index(request):
     classifier_list = Classifier.objects.all()
     for classifier in classifier_list:
@@ -16,6 +18,7 @@ def index(request):
     return render(request, 'classifiers.html', context)
 
 
+@csrf_exempt
 def add(request):
     if request.method == 'GET':
         context = {
@@ -41,6 +44,7 @@ def add(request):
     return redirect('/model/classifiers')
 
 
+@csrf_exempt
 def edit(request, classifier_id):
     classifier = Classifier.objects.get(id=classifier_id)
     classifier.properties = Property.objects.filter(classifier_id=classifier_id)
@@ -62,6 +66,7 @@ def edit(request, classifier_id):
     return render(request, 'edit_classifier.html', context)
 
 
+@csrf_exempt
 def delete(request, classifier_id):
     classifier = Classifier.objects.get(id=classifier_id)
 
@@ -71,6 +76,7 @@ def delete(request, classifier_id):
     return redirect('/model/classifiers')
 
 
+@csrf_exempt
 def add_operation(request, classifier_id):
     classifier = Classifier.objects.get(id=classifier_id)
     return_type = request.POST['type']

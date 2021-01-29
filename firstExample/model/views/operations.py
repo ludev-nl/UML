@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from django.shortcuts import redirect
+from django.views.decorators.csrf import csrf_exempt
 from ..models import Classifier, Operation, OperationParameter
 from ..enums import Type
 
 
+@csrf_exempt
 def edit(request, operation_id):
     operation = Operation.objects.get(id=operation_id)
     types = [type.value for type in Type]
@@ -16,6 +18,7 @@ def edit(request, operation_id):
     return render(request, 'edit_operation.html', context)
 
 
+@csrf_exempt
 def add(request):
     classifier_id = request.POST['classifier_id']
     classifier = Classifier.objects.get(id=classifier_id)
@@ -35,6 +38,7 @@ def add(request):
     return redirect('/model/classifiers/' + classifier_id)
 
 
+@csrf_exempt
 def delete(request, operation_id):
     operation = Operation.objects.get(id=operation_id)
     classifier = operation.classifier
