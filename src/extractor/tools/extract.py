@@ -7,7 +7,7 @@ import os
 from model.generators.ClassifierGenerator import ClassifierGenerator
 from model.generators.RelationshipGenerator import RelationshipGenerator
 from model.generators.PropertyGenerator import PropertyGenerator
-from model.models import Class, Classifier, Relationship, Property, Composition, Association
+from model.models import Class, Classifier, Generalization, Relationship, Property, Composition, Association
 
 
 
@@ -454,8 +454,8 @@ def generate_uml(fp):
             # RelationshipGenerator(association).generate(False)
 
         else:
-            relationship = Relationship(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
-            relationship.save()
+            generalization = Generalization(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
+            generalization.save()
 
     os.system('start /b python manage.py make_and_run_migrations')
 

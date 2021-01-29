@@ -1,6 +1,6 @@
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from ..models import Class, Classifier, Property, Operation, Generalization, OperationParameter, Association
+from ..models import Class, Classifier, Property, Operation, Generalization, OperationParameter, Association, Composition, Relationship
 from ..generators import *
 import os
 import json
@@ -87,39 +87,40 @@ def data(request):
         return processToBackend(request)
     else:
         classifiers = Class.objects.all()
-        generalizations = Generalization.objects.all()
+        compositions = Composition.objects.all()
         associations = Association.objects.all()
+        generalizations = Generalization.objects.all()
 
         nodes = dict()
         for classifier in classifiers:
             nodes[str(uuid.uuid4())] = classifierToNode(classifier)
 
         connections = dict()
-        for generalization in generalizations:
+        for composition in compositions:
             connections[str(uuid.uuid4())] = {
-                'name': str(generalization),
-                'type': 'generalization',
-                'fromLabel': '1',
-                'label': str(generalization),
-                'toLabel': '1',
+                'name': str(composition),
+                'type': 'composition',
+                'labelFrom': str(composition.multiplicity_from),
+                'label': str(composition),
+                'labelTo': str(composition.multiplicity_to),
                 'from': getUUIDfromClassifier(
-                    str(generalization.classifier_from),
+                    str(composition.classifier_from),
                     nodes
                 ),
                 'to': getUUIDfromClassifier(
-                    str(generalization.classifier_to),
+                    str(composition.classifier_to),
                     nodes
                 ),
-                'id': generalization.id
+                'id': composition.id
             }
 
         for association in associations:
             connections[str(uuid.uuid4())] = {
                 'name': str(association),
                 'type': 'association',
-                'fromLabel': str(association.multiplicity_from),
+                'labelFrom': str(association.multiplicity_from),
                 'label': str(association),
-                'toLabel': str(association.multiplicity_to),
+                'labelTo': str(association.multiplicity_to),
                 'from': getUUIDfromClassifier(
                     str(association.classifier_from),
                     nodes
@@ -129,6 +130,25 @@ def data(request):
                     nodes
                 ),
                 'id': association.id
+            }
+
+
+        for generalization in generalizations:
+            connections[str(uuid.uuid4())] = {
+                'name': str(generalization),
+                'type': 'generalization',
+                'labelFrom': '',
+                'label': str(generalization),
+                'labelTo': '',
+                'from': getUUIDfromClassifier(
+                    str(generalization.classifier_from),
+                    nodes
+                ),
+                'to': getUUIDfromClassifier(
+                    str(generalization.classifier_to),
+                    nodes
+                ),
+                'id': generalization.id
             }
 
         response = HttpResponse(str(json.dumps({
