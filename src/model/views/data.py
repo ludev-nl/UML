@@ -78,6 +78,22 @@ def processToBackend(request):
             Classifier.objects.create(
                 name=item.get('to').get('name')
             )
+        if item.get('type') == 'connection-cardinality-from':
+            if item.get('from').get('type') == 'association':
+                pk = item.get('from').get('id')
+                association = Association.objects.filter(
+                    id=pk
+                )
+                association.multiplicity_from = item.get('to')
+                association.save()
+        if item.get('type') == 'connection-cardinality-to':
+            if item.get('from').get('type') == 'association':
+                pk = item.get('from').get('id')
+                association = Association.objects.filter(
+                    id=pk
+                )
+                association.multiplicity_to = item.get('to')
+                association.save()
     print(body_data)
     return HttpResponse('OK')
 
