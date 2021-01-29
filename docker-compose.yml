@@ -1,14 +1,14 @@
 version: '3.1'
 
 services:
-  db:
-    image: mariadb
-    restart: always
-    environment:
-      MYSQL_ROOT_PASSWORD: tpYNM9hB
-      MYSQL_USER: YxRF5HKA
-      MYSQL_PASSWORD: RkXfK8c5
-      MYSQL_DATABASE: nguml
+  # db:
+  #   image: mariadb
+  #   restart: always
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: tpYNM9hB
+  #     MYSQL_USER: YxRF5HKA
+  #     MYSQL_PASSWORD: RkXfK8c5
+  #     MYSQL_DATABASE: nguml
   corenlp:
     build:
       context: "."
@@ -29,7 +29,7 @@ services:
     ports:
       - "8000:8000"
     depends_on:
-      - db
+    #  - db
       - corenlp
     
     

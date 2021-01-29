@@ -64,6 +64,20 @@ def processToBackend(request):
                 type=item.get('to').get('type'),
                 classifier=classifier
             )
+        if item.get('type') == 'delete-method':
+            Operation.objects.filter(id=item.get('id')).delete()
+        if item.get('type') == 'add-method':
+            classifier = Classifier.objects.filter(name=item.get('key').get('name'))
+            Operation.objects.create(
+                name=item.get('to').get('name'),
+                type=item.get('to').get('type'),
+                implementation=item.get('to').get('code'),
+                classifier=classifier
+            )
+        if item.get('type') == 'new-classifier':
+            Classifier.objects.create(
+                name=item.get('to').get('name')
+            )
     print(body_data)
     return HttpResponse('OK')
 
