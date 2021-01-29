@@ -1,5 +1,6 @@
 FROM python:buster
-RUN apt-get install -y libmysqlclient-dev ffmpeg
+RUN apt-get update
+RUN apt-get install -y libmariadb-dev ffmpeg
 ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 COPY src/requirements.txt /code/
