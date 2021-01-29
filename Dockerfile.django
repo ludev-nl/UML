@@ -1,6 +1,9 @@
-FROM python:latest
+FROM python:buster
+RUN apt-get install -y libmysqlclient-dev ffmpeg
 ENV PYTHONUNBUFFERED=1
 WORKDIR /code
 COPY src/requirements.txt /code/
 RUN pip install -r requirements.txt
+RUN python -m nltk.downloader punkt
+RUN python -m nltk.downloader wordnet
 COPY . /code/

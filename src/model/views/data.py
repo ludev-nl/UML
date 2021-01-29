@@ -15,7 +15,8 @@ def classifierToOperations(classifier):
         {
             'name': operation.name,
             'type': operation.type,
-            'code': operation.implementation
+            'code': operation.implementation,
+            'id': operation.id
         } for operation in operations
     ]
 
@@ -27,7 +28,8 @@ def classifierToProperties(classifier):
     return [
         {
             'name': prop.name,
-            'type': prop.type
+            'type': prop.type,
+            'id': prop.id
         } for prop in properties
     ]
 
@@ -52,6 +54,16 @@ def getUUIDfromClassifier(classifier, nodes):
 def processToBackend(request):
     body_unicode = request.body.decode('utf-8')
     body_data = json.loads(body_unicode)
+    for item in body_data:
+        if item.get('type') == 'delete-property':
+            Property.objects.filter(id=item.get('id')).delete()
+        if item.get('type') == 'add-property':
+            classifier = Classifier.objects.filter(name=item.get('key').get('name'))
+            Property.objects.create(
+                name=item.get('to').get('name'),
+                type=item.get('to').get('type'),
+                classifier=classifier
+            )
     print(body_data)
     return HttpResponse('OK')
 
@@ -90,7 +102,7 @@ def data(request):
         for association in associations:
             connections[str(uuid.uuid4())] = {
                 'name': str(association),
-                'type': 'generalization',
+                'type': 'association',
                 'fromLabel': str(association.multiplicity_from),
                 'label': str(association),
                 'toLabel': str(association.multiplicity_to),
