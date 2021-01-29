@@ -34,40 +34,40 @@ def generate_urls(application):
 
 
 def remove_urls(application):
-    f = open("firstExample/urls.py", "r")
+    f = open("backend/urls.py", "r")
     contents = f.readlines()
     value = '    path(\'' + application.name + '/\', include(\'' + application.name + '.urls\')),\n'
     f.close()
     contents.remove(value)
 
-    f = open("firstExample/urls.py", "w")
+    f = open("backend/urls.py", "w")
     contents = "".join(contents)
     f.write(contents)
     f.close()
 
 
 def generate_installed_app(application):
-    f = open("firstExample/settings.py", "r")
+    f = open("backend/settings.py", "r")
     contents = f.readlines()
     index = contents.index('INSTALLED_APPS = [\n') + 1
     f.close()
     value = '    \'' + application.name + '.apps.' + application.name.capitalize() + 'Config\',\n'
     contents.insert(index, value)
 
-    f = open("firstExample/settings.py", "w")
+    f = open("backend/settings.py", "w")
     contents = "".join(contents)
     f.write(contents)
     f.close()
 
 
 def remove_installed_app(application):
-    f = open("firstExample/settings.py", "r")
+    f = open("backend/settings.py", "r")
     contents = f.readlines()
     value = '    \'' + application.name + '.apps.' + application.name.capitalize() + 'Config\',\n'
     f.close()
     contents.remove(value)
 
-    f = open("firstExample/settings.py", "w")
+    f = open("backend/settings.py", "w")
     contents = "".join(contents)
     f.write(contents)
     f.close()
