@@ -9,6 +9,8 @@ services:
       MYSQL_USER: YxRF5HKA
       MYSQL_PASSWORD: RkXfK8c5
       MYSQL_DATABASE: nguml
+    volumes:
+      - ./db:/var/lib/mysql
   corenlp:
     build:
       context: "."
