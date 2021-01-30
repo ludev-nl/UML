@@ -16,8 +16,8 @@ def write_to_class_model(classifier, declaration_string):
 
 
 def add_to_index_view(relationship):
-    classifier_to_name = relationship.classifier_to.name
-    classifier_from_name = relationship.classifier_from.name
+    classifier_from_name = relationship.classifier_to.name
+    classifier_to_name = relationship.classifier_from.name
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
     index = contents.index('def index(request):\n') + 5
@@ -41,8 +41,8 @@ def add_to_index_view(relationship):
 
 
 def add_to_add_view(relationship):
-    classifier_from_name = relationship.classifier_from.name
-    classifier_to_name = relationship.classifier_to.name
+    classifier_to_name = relationship.classifier_from.name
+    classifier_from_name = relationship.classifier_to.name
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
     for line in contents:
@@ -75,8 +75,8 @@ def add_to_add_view(relationship):
 
 
 def add_to_edit_view(relationship):
-    classifier_from_name = relationship.classifier_from.name
-    classifier_to_name = relationship.classifier_to.name
+    classifier_to_name = relationship.classifier_from.name
+    classifier_from_name = relationship.classifier_to.name
     value = '    properties.append({\'type\': \'association\', \'name\': \'' + classifier_to_name.lower() + '\', \'value\': ' + classifier_from_name.lower() + '.' + classifier_to_name.lower() + '.__str__})\n'
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
@@ -111,8 +111,8 @@ def add_to_models(relationship):
         name = relationship.name
         multiplicity_from = relationship.multiplicity_from
         multiplicity_to = relationship.multiplicity_to
-        end_from = relationship.end_from
-        end_to = relationship.end_to
+        end_to = relationship.end_from.lower()
+        end_from = relationship.end_to.lower()
 
         if (multiplicity_to == '1') and (multiplicity_from == '*'):
             classifier = relationship.classifier_from

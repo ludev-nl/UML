@@ -457,7 +457,7 @@ def generate_uml(fp):
             generalization = Generalization(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
             generalization.save()
 
-    os.system('start /b python manage.py make_and_run_migrations')
+    os.system('python manage.py make_and_run_migrations &')
 
     return output
 

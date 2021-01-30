@@ -43,10 +43,10 @@ def clear(request):
         c.delete()
     for r in Relationship.objects.all():
         r.delete()
-    #ar = autoreload.restart_with_reloader()
+    ar = autoreload.restart_with_reloader()
+    sys.exit(ar)
     # -> THIS RESTARTS THE SERVER BUT THE PORT WILL BE IN USE
     # -> POSSIBLE FIX?
-    #sys.exit(ar)
     return redirect('/model')
     
 def generate(request):

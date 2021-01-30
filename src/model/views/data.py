@@ -179,7 +179,7 @@ class FrontendInterface:
             RelationshipGenerator(c).generate(False)
         if obj_type == 'method':
             c = Class.objects.get(
-                name=obj.get('name')
+                name=key.get('name')
             )
             oper = Operation.objects.create(
                 name=obj.get('name'),
@@ -214,24 +214,39 @@ class FrontendInterface:
             prop.save()
 
     def modifyConnection(self, action, obj):
-        relation = Relationship.objects.get(
-            id=obj.get('id')
-        )
-        if action == 'mirror':
+        if obj.get('type') == 'generalization':
+            relation = Generalization.objects.get(
+                relationship_ptr_id=obj.get('id')
+            )
+        if obj.get('type') == 'association':
+            relation = Association.objects.get(
+                relationship_ptr_id=obj.get('id')
+            )
+        if obj.get('type') == 'composition':
+            relation = Composition.objects.get(
+                relationship_ptr_id=obj.get('id')
+            )
+        if relation and action == 'mirror':
             old_from = relation.classifier_from
             old_to = relation.classifier_to
+            old_mfrom = relation.multiplicity_from or ''
+            old_mto = relation.multiplicity_to or ''
             relation.classifier_to = old_from
             relation.classifier_from = old_to
+            relation.multiplicity_from = old_mto
+            relation.multiplicity_to = old_mfrom
             relation.save()
-        if action == 'rename':
+        if relation and action == 'rename':
             relation.name = obj.label
             relation.save()
-        if action == 'cardinality-from':
-            relation.multiplicity_from = obj.labelFrom
+        if relation and action == 'cardinality-from':
+            relation.multiplicity_from = obj.get('labelFrom')
             relation.save()
-        if action == 'cardinality-to':
-            relation.multiplicity_to = obj.labelTo
+        if relation and action == 'cardinality-to':
+            relation.multiplicity_to = obj.get('labelTo')
             relation.save()
+        if relation:
+            RelationshipGenerator(relation).generate(False)
 
     def push(self, request):
         body = request.body.decode('utf-8')
@@ -264,7 +279,7 @@ class FrontendInterface:
                 if len(cmd) == 3:
                     self.modifyConnection(
                         cmd[1] + '-' + cmd[2],
-                        item.get('to')
+                        item.get('from')
                     )
                 if len(cmd) == 2:
                     self.modifyConnection(
