@@ -10,7 +10,7 @@
             {% for property in classifier.properties %}
             <tr>
                 <td>
-                    {{ property.name }}
+                    {{ property.name }} : {{ property.type }}
                 </td>
                 <td align="right">
                     <a class="btn btn-danger btn-sm" href="/model/properties/{{ property.id }}/delete" role="button">Delete</a>

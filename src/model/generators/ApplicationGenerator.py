@@ -8,14 +8,14 @@ def generate_urls(application):
     copyfile('model/templates/files/template_urls.py', application.name + '/urls.py')
     copyfile('model/templates/files/template_views_init.py', application.name + '/views/__init__.py')
 
-    f = open("thesis/urls.py", "r")
+    f = open("backend/urls.py", "r")
     contents = f.readlines()
     index = contents.index(']\n')
     f.close()
     value = '    path(\'' + application.name + '/\', include(\'' + application.name + '.urls\')),\n'
     contents.insert(index, value)
 
-    f = open("thesis/urls.py", "w")
+    f = open("backend/urls.py", "w")
     contents = "".join(contents)
     f.write(contents)
     f.close()
