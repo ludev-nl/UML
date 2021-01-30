@@ -15,9 +15,7 @@ def write_to_class_model(classifier, declaration_string):
     f.close()
 
 
-def add_to_index_view(relationship):
-    classifier_from_name = relationship.classifier_to.name
-    classifier_to_name = relationship.classifier_from.name
+def add_to_index_view(classifier_from_name, classifier_to_name):
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
     index = contents.index('def index(request):\n') + 5
@@ -34,15 +32,13 @@ def add_to_index_view(relationship):
     contents.insert(index, value)
     contents.insert(index2, value2)
 
-    f = open("shared/views/" + relationship.classifier_from.name.lower() + ".py", "w")
+    f = open("shared/views/" + classifier_from_name.lower() + ".py", "w")
     contents = "".join(contents)
     f.write(contents)
     f.close()
 
 
-def add_to_add_view(relationship):
-    classifier_to_name = relationship.classifier_from.name
-    classifier_from_name = relationship.classifier_to.name
+def add_to_add_view(classifier_from_name, classifier_to_name):
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
     for line in contents:
@@ -74,9 +70,7 @@ def add_to_add_view(relationship):
     f.close()
 
 
-def add_to_edit_view(relationship):
-    classifier_to_name = relationship.classifier_from.name
-    classifier_from_name = relationship.classifier_to.name
+def add_to_edit_view(classifier_from_name, classifier_to_name):
     value = '    properties.append({\'type\': \'association\', \'name\': \'' + classifier_to_name.lower() + '\', \'value\': ' + classifier_from_name.lower() + '.' + classifier_to_name.lower() + '.__str__})\n'
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
@@ -100,9 +94,16 @@ def add_to_edit_view(relationship):
 
 
 def add_to_views(relationship):
-    add_to_index_view(relationship)
-    add_to_add_view(relationship)
-    add_to_edit_view(relationship)
+    if isinstance(relationship, Association) or isinstance(relationship, Composition):
+        if (relationship.multiplicity_to == '1') and (relationship.multiplicity_from == '*'):
+            classifier_to_name = relationship.classifier_to.name
+            classifier_from_name = relationship.classifier_from.name
+        if (relationship.multiplicity_to == '*') and (relationship.multiplicity_from == '1'):
+            classifier_to_name = relationship.classifier_from.name
+            classifier_from_name = relationship.classifier_to.name
+        add_to_index_view(classifier_from_name, classifier_to_name)
+        add_to_add_view(classifier_from_name, classifier_to_name)
+        add_to_edit_view(classifier_from_name, classifier_to_name)
 
 
 # 注意这段代码
@@ -131,9 +132,10 @@ class RelationshipGenerator:
     def __init__(self, relationship):
         self.relationship = relationship
 
-    def generate(self, should_migrate=True):
+    def generate(self, should_migrate=True, should_add_to_view=False):
         add_to_models(self.relationship)
-        add_to_views(self.relationship)
+        if should_add_to_view:
+            add_to_views(self.relationship)
 
         if should_migrate:
             os.system('start /b python manage.py make_and_run_migrations')

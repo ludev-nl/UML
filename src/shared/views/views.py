@@ -14,4 +14,4 @@ def index(request):
         'application': application,
         'classifiers': classifiers
     }
-    return render(request, 'index.html', context)
+    return render(request, 'index3.html', context)
