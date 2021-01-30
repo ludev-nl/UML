@@ -133,13 +133,114 @@ class FrontendInterface:
             ClassifierGenerator(c).delete(False)
             c.delete()
 
-    def new(self, obj_type, obj):
-        print(obj_type)
-        print(obj)
+    def newRelationship(self, obj):
+        classifier_from = Class.objects.get(
+            id=self.nodes.get(obj.get('from')).get('id')
+        )
+
+        classifier_to = Class.objects.get(
+            id=self.nodes.get(obj.get('to')).get('id')
+        )
+
+        if (obj.get('type') == 'generalization'):
+            return Generalization.objects.create(
+                name=obj.get('label'),
+                classifier_from=classifier_from,
+                classifier_to=classifier_to
+            )
+
+        if (obj.get('type') == 'association'):
+            return Association.objects.create(
+                name=obj.get('label'),
+                classifier_from=classifier_from,
+                classifier_to=classifier_to,
+                multiplicity_from=obj.get('labelFrom'),
+                multiplicity_to=obj.get('labelTo')
+            )
+
+        if (obj.get('type') == 'composition'):
+            return Composition.objects.create(
+                name=obj.get('label'),
+                classifier_from=classifier_from,
+                classifier_to=classifier_to,
+                multiplicity_from=obj.get('labelFrom'),
+                multiplicity_to=obj.get('labelTo')
+            )
+
+    def new(self, obj_type, key, obj):
+        if obj_type == 'classifier':
+            c = Class.objects.create(
+                name=obj.get('name')
+            )
+            self.nodes[key] = {'id': c.id}
+            ClassifierGenerator(c).generate(False)
+        if obj_type == 'connection':
+            c = self.newRelationship(obj)
+            RelationshipGenerator(c).generate(False)
+        if obj_type == 'method':
+            c = Class.objects.get(
+                name=obj.get('name')
+            )
+            oper = Operation.objects.create(
+                name=obj.get('name'),
+                implementation=obj.get('code'),
+                classifier=c,
+                type=obj.get('type')
+            )
+            # METHOD GENERATION?
+        if obj_type == 'property':
+            c = Class.objects.get(
+                name=key.get('name')
+            )
+            prop = Property.objects.create(
+                name=obj.get('name'),
+                classifier=c,
+                type=obj.get('type')
+            )
+            PropertyGenerator(prop).generate(False)
+
+    def retype(self, obj_type, obj):
+        if obj_type == 'method':
+            op = Operation.objects.get(
+                id=obj.get('id')
+            )
+            op.type = obj.get('type')
+            op.save()
+        if obj_type == 'property':
+            prop = Property.objects.get(
+                id=obj.get('id')
+            )
+            prop.type = obj.get('type')
+            prop.save()
+
+    def modifyConnection(self, action, obj):
+        relation = Relationship.objects.get(
+            id=obj.get('id')
+        )
+        if action == 'mirror':
+            old_from = relation.classifier_from
+            old_to = relation.classifier_to
+            relation.classifier_to = old_from
+            relation.classifier_from = old_to
+            relation.save()
+        if action == 'rename':
+            relation.name = obj.label
+            relation.save()
+        if action == 'cardinality-from':
+            relation.multiplicity_from = obj.labelFrom
+            relation.save()
+        if action == 'cardinality-to':
+            relation.multiplicity_to = obj.labelTo
+            relation.save()
 
     def push(self, request):
-        body_unicode = request.body.decode('utf-8')
-        self.changes = json.loads(body_unicode)
+        body = request.body.decode('utf-8')
+        body_data = json.loads(body)
+
+        self.changes = body_data.get('changes')
+        self.nodes = body_data.get('nodes')
+        self.connections = body_data.get('connections')
+
         for item in self.changes:
             action = item.get('type')
             if action.startswith('delete'):
@@ -147,56 +248,30 @@ class FrontendInterface:
                     action.split('-')[1],
                     item.get('to').get('id')
                 )
+            if action.startswith('new'):
+                self.new(
+                    action.split('-')[1],
+                    item.get('key') or item.get('nodeKey'),
+                    item.get('to')
+                )
+            if action.startswith('retype'):
+                self.retype(
+                    action.split('-')[1],
+                    item.get('to')
+                )
+            if action.startswith('connection'):
+                cmd = action.split('-')
+                if len(cmd) == 3:
+                    self.modifyConnection(
+                        cmd[1] + '-' + cmd[2],
+                        item.get('to')
+                    )
+                if len(cmd) == 2:
+                    self.modifyConnection(
+                        cmd[1],
+                        item.get('from')
+                    )
         return HttpResponse('OK')
-
-
-'''
-def processToBackend(request):
-    body_unicode = request.body.decode('utf-8')
-    body_data = json.loads(body_unicode)
-    for item in body_data:
-        if item.get('type') == 'delete-property':
-            Property.objects.filter(id=item.get('id')).delete()
-        if item.get('type') == 'add-property':
-            classifier = Classifier.objects.filter(name=item.get('key').get('name'))
-            Property.objects.create(
-                name=item.get('to').get('name'),
-                type=item.get('to').get('type'),
-                classifier=classifier
-            )
-        if item.get('type') == 'delete-method':
-            Operation.objects.filter(id=item.get('id')).delete()
-        if item.get('type') == 'add-method':
-            classifier = Classifier.objects.filter(name=item.get('key').get('name'))
-            Operation.objects.create(
-                name=item.get('to').get('name'),
-                type=item.get('to').get('type'),
-                implementation=item.get('to').get('code'),
-                classifier=classifier
-            )
-        if item.get('type') == 'new-classifier':
-            Classifier.objects.create(
-                name=item.get('to').get('name')
-            )
-        if item.get('type') == 'connection-cardinality-from':
-            if item.get('from').get('type') == 'association':
-                pk = item.get('from').get('id')
-                association = Association.objects.filter(
-                    id=pk
-                )
-                association.multiplicity_from = item.get('to')
-                association.save()
-        if item.get('type') == 'connection-cardinality-to':
-            if item.get('from').get('type') == 'association':
-                pk = item.get('from').get('id')
-                association = Association.objects.filter(
-                    id=pk
-                )
-                association.multiplicity_to = item.get('to')
-                association.save()
-    print(body_data)
-    return HttpResponse('OK')
-'''
 
 @csrf_exempt
 def data(request):
