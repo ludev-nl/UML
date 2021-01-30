@@ -174,8 +174,8 @@ def get_rels2(s):
 
 # multiplicity extraction
 def get_multi():
-    # set default multiplicity results as the widest range '0..*'
-    multi = {'multiplicity': ['0..*', '0..*']}
+    # set default multiplicity results as the widest range '*'
+    multi = {'multiplicity': ['*', '*']}
     return multi
 
 
@@ -186,7 +186,7 @@ def get_multi2():
 
 # composition multiplicity
 def get_multi3():
-    multi = {'multiplicity': ['1', '0..*']}
+    multi = {'multiplicity': ['1', '*']}
     return multi
 
 # check if object belongs to VBN
@@ -435,7 +435,7 @@ def generate_uml(fp):
             RelationshipGenerator(composition).generate(False)
             # if Ralph's demo cannot execute many to many, replace the above code with this:
             # composition = Composition(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from,
-            #                           multiplicity_to='0..*', multiplicity_from='1',
+            #                           multiplicity_to='*', multiplicity_from='1',
             #                           end_from=item[1][1], end_to=item[2][1])
             # composition.save()
             # RelationshipGenerator(composition).generate(False)
@@ -448,7 +448,7 @@ def generate_uml(fp):
             RelationshipGenerator(association).generate(False)
             # if Ralph's demo cannot execute many to many, replace the above code with this:
             # association = Association(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from,
-            #                           multiplicity_to='0..*', multiplicity_from='1',
+            #                           multiplicity_to='*', multiplicity_from='1',
             #                           end_from=item[1][1], end_to=item[2][1])
             # association.save()
             # RelationshipGenerator(association).generate(False)
