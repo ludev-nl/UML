@@ -6,3 +6,4 @@ from . import properties
 from . import operation_parameters
 from . import applications
 from . import data 
+from . import manage

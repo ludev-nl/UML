@@ -114,3 +114,9 @@ db/*
 **/migrations/**
 !**/migrations
 !**/migrations/__init__.py
+
+**/shared/models.py
+**/shared/views/**
+!**/shared/views/newclassifier.py
+!**/shared/views/otherclassifier.py
+!**/shared/views/views.py
