@@ -120,6 +120,12 @@ def add_to_models(relationship):
 
             write_to_class_model(classifier, declaration_string)
 
+        if (multiplicity_to == '*') and (multiplicity_from == '1'):
+            classifier = relationship.classifier_to
+            declaration_string = '    ' + end_to + ' = models.ForeignKey(\'' + relationship.classifier_from.name + '\', on_delete=models.CASCADE, null=True, related_name=\'' + name.lower().replace(' ', '_') + '\')\n'
+
+            write_to_class_model(classifier, declaration_string)
+
 
 class RelationshipGenerator:
     def __init__(self, relationship):
