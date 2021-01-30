@@ -1,176 +1,282 @@
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from ..models import Class, Classifier, Property, Operation, Generalization, OperationParameter, Association, Composition, Relationship
+from ..models import *
 from ..generators import *
 import os
 import json
 import uuid
 
-def classifierToOperations(classifier):
-    operations = Operation.objects.filter(
-        classifier=classifier
-    )
+class FrontendInterface:
+    def __init__(self):
+        self.nodes = dict()
+        self.connections = dict()
+        self.changes = dict()
 
-    return [
-        {
-            'name': operation.name,
-            'type': operation.type,
-            'code': operation.implementation,
-            'id': operation.id
-        } for operation in operations
-    ]
+    def classifierOperations(self, classifier):
+        operations = Operation.objects.filter(
+            classifier=classifier
+        )
 
-def classifierToProperties(classifier):
-    properties = Property.objects.filter(
-        classifier=classifier
-    )
+        return [
+            {
+                'name': operation.name,
+                'type': operation.type,
+                'code': operation.implementation,
+                'id': operation.id
+            } for operation in operations
+        ]
 
-    return [
-        {
-            'name': prop.name,
-            'type': prop.type,
-            'id': prop.id
-        } for prop in properties
-    ]
+    def classifierProperties(self, classifier):
+        properties = Property.objects.filter(
+            classifier=classifier
+        )
 
-def classifierToNode(classifier):
-    return {
-        'type': 'Class',
-        'name': str(classifier),
-        'data': {
-            'properties': classifierToProperties(classifier),
-            'methods': classifierToOperations(classifier)
-        },
-        'instances': {},
-        'id': classifier.id
-    }
+        return [
+            {
+                'name': prop.name,
+                'type': prop.type,
+                'id': prop.id
+            } for prop in properties
+        ]
 
-def getUUIDfromClassifier(classifier, nodes):
-    for key, value in nodes.items():
-        if value.get('name') == classifier:
-            return key
-    return ''
+    def node(self, classifier):
+        return {
+            'type': 'Class',
+            'name': str(classifier),
+            'data': {
+                'properties': self.classifierProperties(classifier),
+                'methods': self.classifierOperations(classifier)
+            },
+            'instances': {},
+            'id': classifier.id
+        }
 
-def processToBackend(request):
-    body_unicode = request.body.decode('utf-8')
-    body_data = json.loads(body_unicode)
-    for item in body_data:
-        if item.get('type') == 'delete-property':
-            Property.objects.filter(id=item.get('id')).delete()
-        if item.get('type') == 'add-property':
-            classifier = Classifier.objects.filter(name=item.get('key').get('name'))
-            Property.objects.create(
-                name=item.get('to').get('name'),
-                type=item.get('to').get('type'),
-                classifier=classifier
-            )
-        if item.get('type') == 'delete-method':
-            Operation.objects.filter(id=item.get('id')).delete()
-        if item.get('type') == 'add-method':
-            classifier = Classifier.objects.filter(name=item.get('key').get('name'))
-            Operation.objects.create(
-                name=item.get('to').get('name'),
-                type=item.get('to').get('type'),
-                implementation=item.get('to').get('code'),
-                classifier=classifier
-            )
-        if item.get('type') == 'new-classifier':
-            Classifier.objects.create(
-                name=item.get('to').get('name')
-            )
-        if item.get('type') == 'connection-cardinality-from':
-            if item.get('from').get('type') == 'association':
-                pk = item.get('from').get('id')
-                association = Association.objects.filter(
-                    id=pk
-                )
-                association.multiplicity_from = item.get('to')
-                association.save()
-        if item.get('type') == 'connection-cardinality-to':
-            if item.get('from').get('type') == 'association':
-                pk = item.get('from').get('id')
-                association = Association.objects.filter(
-                    id=pk
-                )
-                association.multiplicity_to = item.get('to')
-                association.save()
-    print(body_data)
-    return HttpResponse('OK')
+    def connection(self, relation, relation_type):
+        if relation_type == 'generalization':
+            m_from = ''
+            m_to = ''
+        else:
+            m_from = relation.multiplicity_from
+            m_to = relation.multiplicity_to
+        return dict({
+            str(uuid.uuid4()): {
+                'name': str(relation),
+                'type': relation_type,
+                'labelFrom': str(m_from),
+                'label': str(relation),
+                'labelTo': str(m_to),
+                'from': self.nodeUUID(
+                    str(relation.classifier_from)
+                ),
+                'to': self.nodeUUID(
+                    str(relation.classifier_to)
+                ),
+                'id': relation.id
+            }
+        })
+    
+    def populateNodes(self):
+        for classifier in Classifier.objects.all():
+            self.nodes[str(uuid.uuid4())] = self.node(classifier)
+    
+    def nodeUUID(self, name):
+        for key, value in self.nodes.items():
+            if value.get('name') == name:
+                return key
+        return ''
 
-@csrf_exempt
-def data(request):
-    if request.method == 'POST':
-        return processToBackend(request)
-    else:
-        classifiers = Class.objects.all()
+    def populateConnections(self):
         compositions = Composition.objects.all()
         associations = Association.objects.all()
         generalizations = Generalization.objects.all()
 
-        nodes = dict()
-        for classifier in classifiers:
-            nodes[str(uuid.uuid4())] = classifierToNode(classifier)
-
-        connections = dict()
-        for composition in compositions:
-            connections[str(uuid.uuid4())] = {
-                'name': str(composition),
-                'type': 'composition',
-                'labelFrom': str(composition.multiplicity_from),
-                'label': str(composition),
-                'labelTo': str(composition.multiplicity_to),
-                'from': getUUIDfromClassifier(
-                    str(composition.classifier_from),
-                    nodes
-                ),
-                'to': getUUIDfromClassifier(
-                    str(composition.classifier_to),
-                    nodes
-                ),
-                'id': composition.id
+        for relation in compositions:
+            self.connections = {
+                **self.connections,
+                **self.connection(relation, 'composition')
             }
 
-        for association in associations:
-            connections[str(uuid.uuid4())] = {
-                'name': str(association),
-                'type': 'association',
-                'labelFrom': str(association.multiplicity_from),
-                'label': str(association),
-                'labelTo': str(association.multiplicity_to),
-                'from': getUUIDfromClassifier(
-                    str(association.classifier_from),
-                    nodes
-                ),
-                'to': getUUIDfromClassifier(
-                    str(association.classifier_to),
-                    nodes
-                ),
-                'id': association.id
+        for relation in associations:
+            self.connections = {
+                **self.connections,
+                **self.connection(relation, 'association')
             }
 
-
-        for generalization in generalizations:
-            connections[str(uuid.uuid4())] = {
-                'name': str(generalization),
-                'type': 'generalization',
-                'labelFrom': '',
-                'label': str(generalization),
-                'labelTo': '',
-                'from': getUUIDfromClassifier(
-                    str(generalization.classifier_from),
-                    nodes
-                ),
-                'to': getUUIDfromClassifier(
-                    str(generalization.classifier_to),
-                    nodes
-                ),
-                'id': generalization.id
+        for relation in generalizations:
+            self.connections = {
+                **self.connections,
+                **self.connection(relation, 'generalization')
             }
 
+    def request(self):
+        self.populateNodes()
+        self.populateConnections()
         response = HttpResponse(str(json.dumps({
-                'nodes': nodes,
-                'connections': connections
+                'nodes': self.nodes,
+                'connections': self.connections
             }))
         )
         response["Access-Control-Allow-Origin"] = "*"
         return response
+
+    def delete(self, obj_type, pk):
+        if obj_type == 'property' or obj_type == 'method':
+            p = Property.objects.get(id=pk)
+            print(p)
+            PropertyGenerator(p).delete(False)
+            p.delete()
+        if obj_type == 'connection':
+            r = Relationship.objects.get(id=pk)
+            r.delete()
+        if obj_type == 'classifier':
+            c = Classifier.objects.get(id=pk)
+            ClassifierGenerator(c).delete(False)
+            c.delete()
+
+    def newRelationship(self, obj):
+        classifier_from = Class.objects.get(
+            id=self.nodes.get(obj.get('from')).get('id')
+        )
+
+        classifier_to = Class.objects.get(
+            id=self.nodes.get(obj.get('to')).get('id')
+        )
+
+        if (obj.get('type') == 'generalization'):
+            return Generalization.objects.create(
+                name=obj.get('label'),
+                classifier_from=classifier_from,
+                classifier_to=classifier_to
+            )
+
+        if (obj.get('type') == 'association'):
+            return Association.objects.create(
+                name=obj.get('label'),
+                classifier_from=classifier_from,
+                classifier_to=classifier_to,
+                multiplicity_from=obj.get('labelFrom'),
+                multiplicity_to=obj.get('labelTo')
+            )
+
+        if (obj.get('type') == 'composition'):
+            return Composition.objects.create(
+                name=obj.get('label'),
+                classifier_from=classifier_from,
+                classifier_to=classifier_to,
+                multiplicity_from=obj.get('labelFrom'),
+                multiplicity_to=obj.get('labelTo')
+            )
+
+    def new(self, obj_type, key, obj):
+        if obj_type == 'classifier':
+            c = Class.objects.create(
+                name=obj.get('name')
+            )
+            self.nodes[key] = {'id': c.id}
+            ClassifierGenerator(c).generate(False)
+        if obj_type == 'connection':
+            c = self.newRelationship(obj)
+            RelationshipGenerator(c).generate(False)
+        if obj_type == 'method':
+            c = Class.objects.get(
+                name=obj.get('name')
+            )
+            oper = Operation.objects.create(
+                name=obj.get('name'),
+                implementation=obj.get('code'),
+                classifier=c,
+                type=obj.get('type')
+            )
+            # METHOD GENERATION?
+        if obj_type == 'property':
+            c = Class.objects.get(
+                name=key.get('name')
+            )
+            prop = Property.objects.create(
+                name=obj.get('name'),
+                classifier=c,
+                type=obj.get('type')
+            )
+            PropertyGenerator(prop).generate(False)
+
+    def retype(self, obj_type, obj):
+        if obj_type == 'method':
+            op = Operation.objects.get(
+                id=obj.get('id')
+            )
+            op.type = obj.get('type')
+            op.save()
+        if obj_type == 'property':
+            prop = Property.objects.get(
+                id=obj.get('id')
+            )
+            prop.type = obj.get('type')
+            prop.save()
+
+    def modifyConnection(self, action, obj):
+        relation = Relationship.objects.get(
+            id=obj.get('id')
+        )
+        if action == 'mirror':
+            old_from = relation.classifier_from
+            old_to = relation.classifier_to
+            relation.classifier_to = old_from
+            relation.classifier_from = old_to
+            relation.save()
+        if action == 'rename':
+            relation.name = obj.label
+            relation.save()
+        if action == 'cardinality-from':
+            relation.multiplicity_from = obj.labelFrom
+            relation.save()
+        if action == 'cardinality-to':
+            relation.multiplicity_to = obj.labelTo
+            relation.save()
+
+    def push(self, request):
+        body = request.body.decode('utf-8')
+        body_data = json.loads(body)
+
+        self.changes = body_data.get('changes')
+        self.nodes = body_data.get('nodes')
+        self.connections = body_data.get('connections')
+
+        for item in self.changes:
+            action = item.get('type')
+            if action.startswith('delete'):
+                self.delete(
+                    action.split('-')[1],
+                    item.get('to').get('id')
+                )
+            if action.startswith('new'):
+                self.new(
+                    action.split('-')[1],
+                    item.get('key') or item.get('nodeKey'),
+                    item.get('to')
+                )
+            if action.startswith('retype'):
+                self.retype(
+                    action.split('-')[1],
+                    item.get('to')
+                )
+            if action.startswith('connection'):
+                cmd = action.split('-')
+                if len(cmd) == 3:
+                    self.modifyConnection(
+                        cmd[1] + '-' + cmd[2],
+                        item.get('to')
+                    )
+                if len(cmd) == 2:
+                    self.modifyConnection(
+                        cmd[1],
+                        item.get('from')
+                    )
+        return HttpResponse('OK')
+
+@csrf_exempt
+def data(request):
+    frontend_interface = FrontendInterface()
+    if request.method == 'POST':
+        return frontend_interface.push(request)
+    else:
+        return frontend_interface.request()

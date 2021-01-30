@@ -30,5 +30,7 @@ urlpatterns = [
     path('relationships/<relationship_id>/delete', views.relationships.delete),
     path('generate', views.generate),
     path('diagram', views.diagram),
-    path('data', views.data.data)
+    path('data', views.data.data),
+    path('manage/clear', views.manage.clear),
+    path('manage/generate', views.manage.generate)
 ]
