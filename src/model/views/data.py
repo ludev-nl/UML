@@ -1,56 +1,156 @@
 from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from ..models import Class, Classifier, Property, Operation, Generalization, OperationParameter, Association, Composition, Relationship
+from ..models import *
 from ..generators import *
 import os
 import json
 import uuid
 
-def classifierToOperations(classifier):
-    operations = Operation.objects.filter(
-        classifier=classifier
-    )
+class FrontendInterface:
+    def __init__(self):
+        self.nodes = dict()
+        self.connections = dict()
+        self.changes = dict()
 
-    return [
-        {
-            'name': operation.name,
-            'type': operation.type,
-            'code': operation.implementation,
-            'id': operation.id
-        } for operation in operations
-    ]
+    def classifierOperations(self, classifier):
+        operations = Operation.objects.filter(
+            classifier=classifier
+        )
 
-def classifierToProperties(classifier):
-    properties = Property.objects.filter(
-        classifier=classifier
-    )
+        return [
+            {
+                'name': operation.name,
+                'type': operation.type,
+                'code': operation.implementation,
+                'id': operation.id
+            } for operation in operations
+        ]
 
-    return [
-        {
-            'name': prop.name,
-            'type': prop.type,
-            'id': prop.id
-        } for prop in properties
-    ]
+    def classifierProperties(self, classifier):
+        properties = Property.objects.filter(
+            classifier=classifier
+        )
 
-def classifierToNode(classifier):
-    return {
-        'type': 'Class',
-        'name': str(classifier),
-        'data': {
-            'properties': classifierToProperties(classifier),
-            'methods': classifierToOperations(classifier)
-        },
-        'instances': {},
-        'id': classifier.id
-    }
+        return [
+            {
+                'name': prop.name,
+                'type': prop.type,
+                'id': prop.id
+            } for prop in properties
+        ]
 
-def getUUIDfromClassifier(classifier, nodes):
-    for key, value in nodes.items():
-        if value.get('name') == classifier:
-            return key
-    return ''
+    def node(self, classifier):
+        return {
+            'type': 'Class',
+            'name': str(classifier),
+            'data': {
+                'properties': self.classifierProperties(classifier),
+                'methods': self.classifierOperations(classifier)
+            },
+            'instances': {},
+            'id': classifier.id
+        }
 
+    def connection(self, relation, relation_type):
+        if relation_type == 'generalization':
+            m_from = ''
+            m_to = ''
+        else:
+            m_from = relation.multiplicity_from
+            m_to = relation.multiplicity_to
+        return dict({
+            str(uuid.uuid4()): {
+                'name': str(relation),
+                'type': relation_type,
+                'labelFrom': str(m_from),
+                'label': str(relation),
+                'labelTo': str(m_to),
+                'from': self.nodeUUID(
+                    str(relation.classifier_from)
+                ),
+                'to': self.nodeUUID(
+                    str(relation.classifier_to)
+                ),
+                'id': relation.id
+            }
+        })
+    
+    def populateNodes(self):
+        for classifier in Classifier.objects.all():
+            self.nodes[str(uuid.uuid4())] = self.node(classifier)
+    
+    def nodeUUID(self, name):
+        for key, value in self.nodes.items():
+            if value.get('name') == name:
+                return key
+        return ''
+
+    def populateConnections(self):
+        compositions = Composition.objects.all()
+        associations = Association.objects.all()
+        generalizations = Generalization.objects.all()
+
+        for relation in compositions:
+            self.connections = {
+                **self.connections,
+                **self.connection(relation, 'composition')
+            }
+
+        for relation in associations:
+            self.connections = {
+                **self.connections,
+                **self.connection(relation, 'association')
+            }
+
+        for relation in generalizations:
+            self.connections = {
+                **self.connections,
+                **self.connection(relation, 'generalization')
+            }
+
+    def request(self):
+        self.populateNodes()
+        self.populateConnections()
+        response = HttpResponse(str(json.dumps({
+                'nodes': self.nodes,
+                'connections': self.connections
+            }))
+        )
+        response["Access-Control-Allow-Origin"] = "*"
+        return response
+
+    def delete(self, obj_type, pk):
+        if obj_type == 'property' or obj_type == 'method':
+            p = Property.objects.get(id=pk)
+            print(p)
+            PropertyGenerator(p).delete(False)
+            p.delete()
+        if obj_type == 'connection':
+            r = Relationship.objects.get(id=pk)
+            r.delete()
+        if obj_type == 'classifier':
+            c = Classifier.objects.get(id=pk)
+            ClassifierGenerator(c).delete(False)
+            c.delete()
+
+    def new(self, obj_type, obj):
+        print(obj_type)
+        print(obj)
+
+    def push(self, request):
+        body_unicode = request.body.decode('utf-8')
+        self.changes = json.loads(body_unicode)
+        for item in self.changes:
+            action = item.get('type')
+            if action.startswith('delete'):
+                self.delete(
+                    action.split('-')[1],
+                    item.get('to').get('id')
+                )
+        return HttpResponse('OK')
+
+
+'''
 def processToBackend(request):
     body_unicode = request.body.decode('utf-8')
     body_data = json.loads(body_unicode)
@@ -96,81 +196,12 @@ def processToBackend(request):
                 association.save()
     print(body_data)
     return HttpResponse('OK')
+'''
 
 @csrf_exempt
 def data(request):
+    frontend_interface = FrontendInterface()
     if request.method == 'POST':
-        return processToBackend(request)
+        return frontend_interface.push(request)
     else:
-        classifiers = Class.objects.all()
-        compositions = Composition.objects.all()
-        associations = Association.objects.all()
-        generalizations = Generalization.objects.all()
-
-        nodes = dict()
-        for classifier in classifiers:
-            nodes[str(uuid.uuid4())] = classifierToNode(classifier)
-
-        connections = dict()
-        for composition in compositions:
-            connections[str(uuid.uuid4())] = {
-                'name': str(composition),
-                'type': 'composition',
-                'labelFrom': str(composition.multiplicity_from),
-                'label': str(composition),
-                'labelTo': str(composition.multiplicity_to),
-                'from': getUUIDfromClassifier(
-                    str(composition.classifier_from),
-                    nodes
-                ),
-                'to': getUUIDfromClassifier(
-                    str(composition.classifier_to),
-                    nodes
-                ),
-                'id': composition.id
-            }
-
-        for association in associations:
-            connections[str(uuid.uuid4())] = {
-                'name': str(association),
-                'type': 'association',
-                'labelFrom': str(association.multiplicity_from),
-                'label': str(association),
-                'labelTo': str(association.multiplicity_to),
-                'from': getUUIDfromClassifier(
-                    str(association.classifier_from),
-                    nodes
-                ),
-                'to': getUUIDfromClassifier(
-                    str(association.classifier_to),
-                    nodes
-                ),
-                'id': association.id
-            }
-
-
-        for generalization in generalizations:
-            connections[str(uuid.uuid4())] = {
-                'name': str(generalization),
-                'type': 'generalization',
-                'labelFrom': '',
-                'label': str(generalization),
-                'labelTo': '',
-                'from': getUUIDfromClassifier(
-                    str(generalization.classifier_from),
-                    nodes
-                ),
-                'to': getUUIDfromClassifier(
-                    str(generalization.classifier_to),
-                    nodes
-                ),
-                'id': generalization.id
-            }
-
-        response = HttpResponse(str(json.dumps({
-                'nodes': nodes,
-                'connections': connections
-            }))
-        )
-        response["Access-Control-Allow-Origin"] = "*"
-        return response
+        return frontend_interface.request()
