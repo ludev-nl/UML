@@ -21,7 +21,7 @@ services:
     command: >
       sh -c "
         python manage.py migrate --noinput && 
-        python manage.py runserver --noreload 0.0.0.0:8000
+        gunicorn --bind :8000 --workers 3 --log-level debug backend.wsgi:application
       "
     volumes:
       - ./src:/code
