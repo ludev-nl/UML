@@ -83,11 +83,3 @@ class NewClassifier(models.Model):
 
 class OtherClassifier(models.Model):
     pass
-
-
-class newNode(models.Model):
-    pass
-
-
-class otherNode(models.Model):
-    pass
