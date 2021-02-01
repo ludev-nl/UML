@@ -80,7 +80,7 @@ class ApplicationGenerator:
         self.application = application
 
     def generate(self):
-        management.call_command('startapp', self.application)
+        management.call_command('startapp', self.application.name)
         generate_urls(self.application)
         generate_installed_app(self.application)
 
