@@ -109,12 +109,15 @@ def add_to_views(relationship):
         if (relationship.multiplicity_to == '1') and (relationship.multiplicity_from == '*'):
             classifier_to_name = relationship.classifier_to.name
             classifier_from_name = relationship.classifier_from.name
+            add_to_index_view(classifier_from_name, classifier_to_name)
+            add_to_add_view(classifier_from_name, classifier_to_name)
+            add_to_edit_view(classifier_from_name, classifier_to_name)
         if (relationship.multiplicity_to == '*') and (relationship.multiplicity_from == '1'):
             classifier_to_name = relationship.classifier_from.name
             classifier_from_name = relationship.classifier_to.name
-        add_to_index_view(classifier_from_name, classifier_to_name)
-        add_to_add_view(classifier_from_name, classifier_to_name)
-        add_to_edit_view(classifier_from_name, classifier_to_name)
+            add_to_index_view(classifier_from_name, classifier_to_name)
+            add_to_add_view(classifier_from_name, classifier_to_name)
+            add_to_edit_view(classifier_from_name, classifier_to_name)
 
 
 # 注意这段代码
