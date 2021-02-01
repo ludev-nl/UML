@@ -1,5 +1,6 @@
-from ..models import Classifier, Class, Enumerator, Property, Application
 import os
+from ..models import Classifier, Class, Enumerator, Property, Application
+from django.core import management
 from shutil import copyfile
 from shutil import rmtree
 from .PropertyGenerator import PropertyGenerator
@@ -188,8 +189,7 @@ class ClassifierGenerator(object):
             raise NotImplementedError
 
         if need_migration & should_migrate:
-            # os.system('python manage.py make_and_run_migrations &')
-            os.system('start /b python manage.py make_and_run_migrations')
+            management.call_command('make_and_run_migrations')
 
         generate_crud_views(self.classifier)
 
@@ -232,7 +232,7 @@ class ClassifierGenerator(object):
             remove_urls(self.classifier, application)
 
         if should_migrate:
-            os.system('start /b python manage.py make_and_run_migrations')
+            management.call_command('make_and_run_migrations')
 
     def unlink_application(self, application):
         remove_view_import(self.classifier, application)
