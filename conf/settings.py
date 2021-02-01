@@ -24,11 +24,7 @@ SECRET_KEY = 'nch50cvx)0an6kvcp39je!w5z&a*77bap6g!bcis#t)k3ec&qz'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 ALLOWED_HOSTS = [
-    '127.0.0.1',
-    'localhost',
-    'nguml.com',
-    'nextgenu.ml',
-    'nextgenuml.com'
+    '*'
 ]
 
 # Application definition
