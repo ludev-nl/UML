@@ -25,13 +25,14 @@ def add(classifier, properties):
                   + '    properties = []\n')
     add_string += '    if request.method == \'GET\':\n' \
                   '        properties.reverse()\n' \
-                  '        context = {\n' \
+                  '        add_objects = []\n' \
+                  '        add_context = {\n' \
                   '             \'application\': __get_application(request),\n' \
                   '             \'properties\': properties,\n' \
                   '             \'object_name\': \'' + classifier.name + '\',\n' \
                   '             \'object_name_lower\': \'' + classifier.name.lower() + '\'\n' \
                   '        }\n' \
-                  '        return render(request, \'add_object.html\', context)\n\n'
+                  '        return render(request, \'add_object.html\', add_context)\n\n'
     add_string += '    ' + classifier.name.lower() + ' = ' + classifier.name + '('
     add_string += ')\n    ' + classifier.name.lower() \
                   + '.save()\n\n    return redirect(\'/\' + __get_application(request).name + \'/' + classifier.name.lower() + '\')'
@@ -52,14 +53,15 @@ def edit(classifier, properties):
     edit_string += '    ' + classifier.name.lower() + ' = ' + classifier.name + '.objects.get(id=id)\n'
     edit_string += '    if request.method == \'GET\':\n' \
                    '        properties.reverse()\n' \
-                   '        context = {\n' \
+                   '        edit_objects = []\n' \
+                   '        edit_context = {\n' \
                    '             \'application\': __get_application(request),\n' \
                    '             \'object_id\': id,\n' \
                    '             \'properties\': properties,\n' \
                    '             \'object_name\': \'' + classifier.name + '\',\n' \
                    '             \'object_name_lower\': \'' + classifier.name.lower() + '\'\n' \
                    '        }\n' \
-                   '        return render(request, \'edit_object.html\', context)\n\n'
+                   '        return render(request, \'edit_object.html\', edit_context)\n\n'
     edit_string += '    ' + classifier.name.lower() \
                    + '.save()\n\n    return redirect(\'/\' + __get_application(request).name + \'/' + classifier.name.lower() + '\')'
     return edit_string

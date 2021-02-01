@@ -169,6 +169,10 @@ def delete_from_view(property, application):
     contents[contructor_index] = contents[contructor_index].replace(property.name + '=' + property.name, '')
     if contents[contructor_index].__contains__(', )'):
         contents[contructor_index] = contents[contructor_index].replace(', )', ')')
+    if contents[contructor_index].__contains__(', ,'):
+        contents[contructor_index] = contents[contructor_index].replace(', ,', ',')
+    if contents[contructor_index].__contains__('(,'):
+        contents[contructor_index] = contents[contructor_index].replace('(,', '(')
 
     f = open(application.name + "/views/" + classifier.name.lower() + ".py", "w")
     f.write("".join(contents))
