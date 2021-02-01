@@ -25,25 +25,36 @@
                 class="btn btn-primary" 
                 onClick="
                 fetch('/model/manage/restart')
-                .then(response => response.body)
-                .then(response => alert(response))
+                .then(response => response.json())
+                .then(data => alert(data))
                 " 
                 role="button"
             >Restart</button>
             <button 
+                class="btn btn-info" 
+                onClick="
+                fetch('/model/manage/migrate')
+                .then(response => response.json())
+                .then(data => alert(data))
+                " 
+                role="button"
+            >Run Migrations</button>
+            <button 
                 class="btn btn-warning" 
                 onClick="
                 fetch('/model/manage/generate')
-                .then(response => response.body)
-                .then(response => alert(response))
+                .then(response => response.json())
+                .then(data => alert(data))
                 " 
                 role="button"
-            >Force Generation & Migration</button>
+            >Run Generations</button>
             <button 
                 class="btn btn-danger" 
                 onClick="
                 confirm('Are you sure?') ? 
-                fetch('/model/manage/clear').then(response => response.body).then(response => alert(response)) 
+                fetch('/model/manage/clear')
+                .then(response => response.json())
+                .then(data => alert(data)) 
                 : 
                 null" 
                 role="button"

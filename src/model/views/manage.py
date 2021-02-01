@@ -65,5 +65,10 @@ def generate(request):
         PropertyGenerator(p).generate(True)
     for a in Application.objects.all():
         ApplicationGenerator(a).generate()
+    management.call_command('make_and_run_migrations')
     restart(True)
     return HttpResponse(json.dumps('Running Generations & Migrations...'))
+
+def migrate(request):
+    management.call_command('make_and_run_migrations')
+    return HttpResponse(json.dumps('Making and Running Migrations...'))

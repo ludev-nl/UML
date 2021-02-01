@@ -33,5 +33,6 @@ urlpatterns = [
     path('data', views.data.data),
     path('manage/clear', views.manage.clear),
     path('manage/generate', views.manage.generate),
-    path('manage/restart', views.manage.restart)
+    path('manage/restart', views.manage.restart),
+    path('manage/migrate', views.manage.migrate)
 ]
