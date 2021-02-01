@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from django.views.decorators.csrf import csrf_exempt
 from ..models import Classifier, Operation, OperationParameter
 from ..enums import Type
+from ..generators.OperationGenerator import OperationGenerator
 
 
 @csrf_exempt
@@ -34,6 +35,7 @@ def add(request):
         return_type = Type.Bool
 
     operation = Operation(name=name, type=return_type, implementation=implementation, classifier=classifier)
+    OperationGenerator(operation).generate()
     operation.save()
     return redirect('/model/classifiers/' + classifier_id)
 
@@ -42,5 +44,6 @@ def add(request):
 def delete(request, operation_id):
     operation = Operation.objects.get(id=operation_id)
     classifier = operation.classifier
+    OperationGenerator(operation).delete()
     operation.delete()
     return redirect('/model/classifiers/' + str(classifier.id))
