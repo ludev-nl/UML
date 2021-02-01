@@ -3,13 +3,11 @@ import logging
 from nltk.tokenize import sent_tokenize
 from nltk.tree import Tree
 from nltk import stem
-import os
+from django.core import management
 from model.generators.ClassifierGenerator import ClassifierGenerator
 from model.generators.RelationshipGenerator import RelationshipGenerator
 from model.generators.PropertyGenerator import PropertyGenerator
 from model.models import Class, Classifier, Generalization, Relationship, Property, Composition, Association
-
-
 
 # word lists
 stop_words = ['i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', 'your', 'yours', 'yourself',
@@ -50,9 +48,9 @@ attribute_words = ['id', 'first name', 'last name', 'name', 'address', 'email', 
 
 # settings
 class SubStanfordCoreNLP(StanfordCoreNLP):
-    def __init__(self, path_or_host, port=None, memory='4g', lang='en', timeout=1500, quiet=True,
+    def __init__(self, path_or_host, port=None, memory='4g', lang='en', quiet=True,
                  logging_level=logging.WARNING):
-        super(SubStanfordCoreNLP, self).__init__(path_or_host, port, memory, lang, timeout, quiet, logging_level)
+        super(SubStanfordCoreNLP, self).__init__(path_or_host, port, memory, lang, quiet, logging_level)
 
     def open_ie(self, sentence):
         r_dict = self._request('openie', sentence)
@@ -410,7 +408,7 @@ def generate_uml(fp):
             get_cls = Classifier.objects.get(name=item[0])
             for i in item[1]['Attribute']:
                 i = '_'.join(i.split(' '))
-                attr = Property(name=i, classifier=get_cls)
+                attr = Property(name=i, classifier=get_cls, type='string')
                 attr.save()
                 PropertyGenerator(attr).generate(False)
 
@@ -457,7 +455,7 @@ def generate_uml(fp):
             generalization = Generalization(name=item[0][1], classifier_to=cls_to, classifier_from=cls_from)
             generalization.save()
 
-    os.system('python manage.py make_and_run_migrations &')
+    management.call_command('make_and_run_migrations')
 
     return output
 

@@ -1,5 +1,6 @@
-from ..models import Type, Class
 import os
+from ..models import Type, Class
+from django.core import management
 
 
 def add_property_to_index_view(property, application):
@@ -183,7 +184,7 @@ class PropertyGenerator:
         write_to_models_file(self.property, classifier)
 
         if should_migrate:
-            os.system('start /b python manage.py make_and_run_migrations')
+            management.call_command('make_and_run_migrations')
 
     def link_to_application(self, application):
         add_property_to_index_view(self.property, application)
@@ -199,4 +200,4 @@ class PropertyGenerator:
             delete_from_view(self.property, application)
 
         if should_migrate:
-            os.system('start /b python manage.py make_and_run_migrations')
+            management.call_command('make_and_run_migrations')

@@ -18,4 +18,4 @@ RUN printenv
 #Make sure this is also configured in the Docker settings.
 #This is explained on https://stanfordnlp.github.io/CoreNLP/download.html 
 # 	at step 5 of 'steps to setup from the offical release'
-CMD java -cp "*" -mx4g edu.stanford.nlp.pipeline.StanfordCoreNLPServer
+CMD java -cp "*" -mx4g edu.stanford.nlp.pipeline.StanfordCoreNLPServer -timeout 600000

@@ -16,7 +16,7 @@ def generate(request):
         'classifiers': classifiers
     }
 
-    os.system('python manage.py generate &')
+    management.call_command('generate')
     return redirect('/model/classifiers')
 
 

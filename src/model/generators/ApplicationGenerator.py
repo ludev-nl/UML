@@ -1,6 +1,8 @@
 import os
 from shutil import copyfile
 from shutil import rmtree
+import threading
+from django.core import management
 
 
 def generate_urls(application):
@@ -78,7 +80,7 @@ class ApplicationGenerator:
         self.application = application
 
     def generate(self):
-        os.system('python manage.py startapp ' + self.application.name)
+        management.call_command('startapp', self.application)
         generate_urls(self.application)
         generate_installed_app(self.application)
 

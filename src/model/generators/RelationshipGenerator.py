@@ -1,5 +1,6 @@
-from ..models import *
 import os
+from ..models import *
+from django.core import management
 
 
 def write_to_class_model(classifier, declaration_string):
@@ -138,4 +139,4 @@ class RelationshipGenerator:
             add_to_views(self.relationship)
 
         if should_migrate:
-            os.system('start /b python manage.py make_and_run_migrations')
+            management.call_command('make_and_run_migrations')

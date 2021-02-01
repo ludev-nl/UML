@@ -49,4 +49,4 @@ class Command(BaseCommand):
         generate_classifier(classifiers, model_file)
         model_file.close()
         call_command('generate_views')
-        os.system('python manage.py makemigrations && python manage.py migrate')
+        call_command('make_and_run_migrations')
