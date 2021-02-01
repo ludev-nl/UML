@@ -2,6 +2,7 @@ from ..models import Classifier, Class, Enumerator, Property, Application
 import os
 from shutil import copyfile
 from shutil import rmtree
+from .PropertyGenerator import PropertyGenerator
 
 
 def index(classifier, properties):
@@ -216,6 +217,11 @@ class ClassifierGenerator(object):
         contents = "".join(contents)
         f.write(contents)
         f.close()
+
+        properties = Property.objects.filter(classifier_id=self.classifier.id)
+        for prop in properties:
+            prop.applications.add(application)
+            PropertyGenerator(prop).link_to_application(application)
 
     def delete(self, should_migrate=True):
         remove_from_models(self.classifier)
