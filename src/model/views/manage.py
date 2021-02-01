@@ -11,6 +11,7 @@ from django.conf import settings
 from django.utils import autoreload
 from django.core import management
 import time
+import json
 
 def restart(request):
     for thread in threading.enumerate():
