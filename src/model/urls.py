@@ -32,5 +32,6 @@ urlpatterns = [
     path('diagram', views.diagram),
     path('data', views.data.data),
     path('manage/clear', views.manage.clear),
-    path('manage/generate', views.manage.generate)
+    path('manage/generate', views.manage.generate),
+    path('manage/restart', views.manage.restart)
 ]

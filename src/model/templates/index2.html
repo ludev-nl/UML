@@ -15,9 +15,39 @@
             <h5 class="card-title">Application model</h5>
             <br>
             <a class="btn btn-primary" href="/model/applications" role="button">Applications</a>
-            <a class="btn btn-danger" href="/model/manage/clear" role="button">Clear Application</a>
-            <a class="btn btn-success" href="/model/manage/generate" role="button">Generate Application</a>
         </div>
-
+    </div>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Daemon Control</h5>
+            <br>
+            <button 
+                class="btn btn-primary" 
+                onClick="
+                fetch('/model/manage/restart')
+                .then(response => response.body)
+                .then(response => alert(response))
+                " 
+                role="button"
+            >Restart</button>
+            <button 
+                class="btn btn-warning" 
+                onClick="
+                fetch('/model/manage/generate')
+                .then(response => response.body)
+                .then(response => alert(response))
+                " 
+                role="button"
+            >Force Generation & Migration</button>
+            <button 
+                class="btn btn-danger" 
+                onClick="
+                confirm('Are you sure?') ? 
+                fetch('/model/manage/clear').then(response => response.body).then(response => alert(response)) 
+                : 
+                null" 
+                role="button"
+            >Clear (Destructive)</button>
+        </div>
     </div>
 {% endblock %}

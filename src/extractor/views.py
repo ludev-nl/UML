@@ -3,6 +3,7 @@ from extractor.forms import UploadForm
 from extractor.forms import SelectTitleForm
 from extractor.tools.FileTools import *
 from extractor.tools.extract import *
+import threading
 from model.models import *
 import speech_recognition as sr
 from pydub import AudioSegment
@@ -127,10 +128,9 @@ def upload_file(request):
                 ftxt = path + '.txt'
                 requirement = Requirement(title=title, raw_text=txt)
                 requirement.save()
-
                 save_text(ftxt, txt)
                 uml = generate_uml(ftxt)
-                return render(request, 'index.html', {'form': form, 'result': uml, 'text': txt})
+                return render(request, 'index.html', {'form': form, 'msg': 'Dispatched to CoreNLP Thread.', 'result': uml, 'text': txt})
 
     else:
         form = UploadForm()
