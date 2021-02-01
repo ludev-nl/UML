@@ -24,10 +24,15 @@
                             {% elif property.type == 'association' %}
                                 <select name="{{ property.name }}" id="{{ property.name }}">
                                     {% for object in objects %}
-                                        <option value="{{ object.id }}">{{ object }}</option>
+                                        {% if object.name == property.name %}
+                                            {% for value in object.values %}
+                                                <option value="{{ value.id }}">{{ value }}</option>
+                                            {% endfor %}
+                                        {% endif %}
                                     {% endfor %}
                                 </select>
                             {% endif %}
+                            <br>
                         {% endfor %}
                     </div>
                     <button type="submit" class="btn btn-primary">Save</button>

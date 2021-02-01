@@ -51,8 +51,13 @@ def add_to_add_view(classifier_from_name, classifier_to_name):
             constructor_index = contents.index(line)
             contents.remove(line)
             contents.insert(constructor_index, line2)
-        if line.startswith('        context = {'):
-            replacement = line + '            \'objects\': ' + classifier_to_name + '.objects.all(),\n'
+        if line.startswith('        add_objects = ['):
+            replacement = line + '        add_objects.append({\'name\': \'' + classifier_to_name.lower() + '\', \'values\': ' + classifier_to_name + '.objects.all()})\n'
+            repl_index = contents.index(line)
+            contents.remove(line)
+            contents.insert(repl_index, replacement)
+        if line.startswith('        add_context = {'):
+            replacement = line + '             \'objects\': add_objects,\n'
             repl_index = contents.index(line)
             contents.remove(line)
             contents.insert(repl_index, replacement)
@@ -76,8 +81,13 @@ def add_to_edit_view(classifier_from_name, classifier_to_name):
     f = open("shared/views/" + classifier_from_name.lower() + ".py", "r")
     contents = f.readlines()
     for line in contents:
-        if line.startswith('        context = {'):
-            replacement = line + '            \'objects\': ' + classifier_to_name + '.objects.all(),\n'
+        if line.startswith('        edit_objects = ['):
+            replacement = line + '        edit_objects.append({\'name\': \'' + classifier_to_name.lower() + '\', \'values\': ' + classifier_to_name + '.objects.all()})\n'
+            repl_index = contents.index(line)
+            contents.remove(line)
+            contents.insert(repl_index, replacement)
+        if line.startswith('        edit_context = {'):
+            replacement = line + '             \'objects\': edit_objects,\n'
             repl_index = contents.index(line)
             contents.remove(line)
             contents.insert(repl_index, replacement)
@@ -113,8 +123,8 @@ def add_to_models(relationship):
         name = relationship.name
         multiplicity_from = relationship.multiplicity_from
         multiplicity_to = relationship.multiplicity_to
-        end_to = relationship.end_from.lower()
-        end_from = relationship.end_to.lower()
+        end_to = relationship.end_to.lower()
+        end_from = relationship.end_from.lower()
 
         if (multiplicity_to == '1') and (multiplicity_from == '*'):
             classifier = relationship.classifier_from
@@ -133,10 +143,9 @@ class RelationshipGenerator:
     def __init__(self, relationship):
         self.relationship = relationship
 
-    def generate(self, should_migrate=True, should_add_to_view=False):
+    def generate(self, should_migrate=True):
         add_to_models(self.relationship)
-        if should_add_to_view:
-            add_to_views(self.relationship)
+        add_to_views(self.relationship)
 
         if should_migrate:
             management.call_command('make_and_run_migrations')
