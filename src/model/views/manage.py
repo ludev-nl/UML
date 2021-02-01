@@ -19,7 +19,11 @@ def restart(request):
             thread.native_id,
             signal.SIGHUP
         )
-    return HttpResponse(json.dumps('Restarting Gunicorn...'))
+    return HttpResponse(
+        str(
+            json.dumps('Restarting Gunicorn...')
+        )
+    )
 
 def clear(request):
     for c in Classifier.objects.all():
@@ -55,7 +59,11 @@ def clear(request):
                     settings.BASE_DIR + '/shared/views/' + f
                 )
     restart(True)
-    return HttpResponse(json.dumps('Restarting Server...'))
+    return HttpResponse(
+        str(
+            json.dumps('Restarting Server...')
+        )
+    )
 
 def generate(request):
     for c in Classifier.objects.all():
@@ -68,8 +76,16 @@ def generate(request):
         ApplicationGenerator(a).generate()
     management.call_command('make_and_run_migrations')
     restart(True)
-    return HttpResponse(json.dumps('Running Generations & Migrations...'))
+    return HttpResponse(
+        str(
+            json.dumps('Running Generations & Migrations...')
+        )
+    )
 
 def migrate(request):
     management.call_command('make_and_run_migrations')
-    return HttpResponse(json.dumps('Making and Running Migrations...'))
+    return HttpResponse(
+        str(
+            json.dumps('Making and Running Migrations...')
+        )
+    )
