@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+{% load env_extras %}
 
 <head>
     <meta charset="utf-8">
@@ -99,7 +100,7 @@
         </button>
     </nav>
     
-    {% if get_env_var 'NGUML_NEEDS_RESTART' == 'true' %}
+    {% if needs_restart %}
     <div class="container mt-3 mb-4">
         <div class="alert d-flex flex-row justify-content-between align-items-center alert-success">
             <span>
