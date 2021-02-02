@@ -83,3 +83,4 @@ class NewClassifier(models.Model):
 
 class OtherClassifier(models.Model):
     pass
+

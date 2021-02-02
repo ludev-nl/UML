@@ -25,5 +25,4 @@ urlpatterns = [
     path('model/', include('model.urls')),
     # test
     # path('managere/', views.test_req_man),
-
 ]
