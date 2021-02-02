@@ -41,7 +41,7 @@ def write_to_models_file(operation, classifier):
 class OperationGenerator:
     def __init__(self, operation):
         self.operation = operation
-        os.environ['NGUML_NEEDS_RESTART'] = True
+        os.environ['NGUML_NEEDS_RESTART'] = 'true'
 
     def generate(self):
         classifier = self.operation.classifier

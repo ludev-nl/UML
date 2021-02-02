@@ -180,7 +180,7 @@ def remove_urls(classifier, application):
 class ClassifierGenerator(object):
     def __init__(self, classifier):
         self.classifier = classifier
-        os.environ['NGUML_NEEDS_RESTART'] = True
+        os.environ['NGUML_NEEDS_RESTART'] = 'true'
 
     def generate(self, should_migrate=True):
         if isinstance(self.classifier, Class):

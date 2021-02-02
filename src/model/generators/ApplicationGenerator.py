@@ -78,7 +78,7 @@ def remove_installed_app(application):
 class ApplicationGenerator:
     def __init__(self, application):
         self.application = application
-        os.environ['NGUML_NEEDS_RESTART'] = True
+        os.environ['NGUML_NEEDS_RESTART'] = 'true'
 
     def generate(self):
         management.call_command('startapp', self.application.name)

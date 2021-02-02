@@ -99,7 +99,7 @@
         </button>
     </nav>
     
-    {% if os.environ.NEEDS_RESTART %}
+    {% if os.environ.NGUML_NEEDS_RESTART == 'true' %}
     <div class="container mt-3 mb-4">
         <div class="alert d-flex flex-row justify-content-between align-items-center alert-success">
             <span>
