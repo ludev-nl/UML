@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 {% load env_extras %}
 
 <head>
@@ -102,33 +103,27 @@
     
     {% if needs_restart %}
     <div class="container mt-3 mb-4">
-        <div class="alert d-flex flex-row justify-content-between align-items-center alert-success">
+        <div class="alert d-flex flex-row justify-content-between align-items-center alert-info">
             <span>
-                Files were changed, daemon needs to be restarted
+                Application was changed, please refresh server
             </span>
             <button onClick="
-                document.getElementById('loadingScreen').className = 'd-block'
-                fetch('/model/manage/restart')
-                .then(response => response.json())
-                .then(data => {
-                    setTimeout(
-                        () => { location.reload() },
-                        3500
-                    );
-                ))
-            " class="btn btn-sm btn-success">
-                Restart
+            () => {
+                document.getElementById('loadingScreen').className = 'd-block';
+            }
+            " class="btn btn-sm btn-info">
+                Refresh
             </button>
         </div>
     </div>
     {% else %}
     <div class="my-3"></div>
-    {% endif %}
-    
+
     <main role="main" class="container">
         {% block content %}
         {% endblock %}
     </main>
+    {% endif %}
 </body>
 
 </html>
