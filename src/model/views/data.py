@@ -129,7 +129,7 @@ class FrontendInterface:
             r = Relationship.objects.get(id=pk)
             r.delete()
         if obj_type == 'classifier':
-            c = Classifier.objects.get(id=pk)
+            c = Class.objects.get(id=pk)
             ClassifierGenerator(c).delete(False)
             c.delete()
 

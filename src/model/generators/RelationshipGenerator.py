@@ -145,6 +145,7 @@ def add_to_models(relationship):
 class RelationshipGenerator:
     def __init__(self, relationship):
         self.relationship = relationship
+        os.environ['NGUML_NEEDS_RESTART'] = True
 
     def generate(self, should_migrate=True):
         add_to_models(self.relationship)

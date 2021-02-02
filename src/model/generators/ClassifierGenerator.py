@@ -178,9 +178,9 @@ def remove_urls(classifier, application):
 
 
 class ClassifierGenerator(object):
-    # 定义类的参数
     def __init__(self, classifier):
         self.classifier = classifier
+        os.environ['NGUML_NEEDS_RESTART'] = True
 
     def generate(self, should_migrate=True):
         if isinstance(self.classifier, Class):
