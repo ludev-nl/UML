@@ -80,8 +80,14 @@
             fetch('/model/manage/restart').then(
                 response => {
                     setTimeout(() => {
-                        location.reload()
-                    }, 3000)
+                        fetch('/model/manage/restart').then(
+                            response => {
+                                setTimeout(() => {
+                                    location.reload()
+                                }, 2000)
+                            }
+                        )
+                    }, 2000)
                 }
             )
         }
