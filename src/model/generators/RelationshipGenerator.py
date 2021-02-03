@@ -145,7 +145,11 @@ def add_to_models(relationship):
 class RelationshipGenerator:
     def __init__(self, relationship):
         self.relationship = relationship
-        os.environ['NGUML_NEEDS_RESTART'] = 'true'
+        obj = KVStorage.objects.get_or_create(
+            key='needs_restart'
+        )
+        obj.value = 'true'
+        obj.save()
 
     def generate(self, should_migrate=True):
         add_to_models(self.relationship)

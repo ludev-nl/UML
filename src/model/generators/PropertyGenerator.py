@@ -1,5 +1,5 @@
 import os
-from ..models import Type, Class
+from ..models import Type, Class, KVStorage
 from django.core import management
 
 
@@ -182,7 +182,11 @@ def delete_from_view(property, application):
 class PropertyGenerator:
     def __init__(self, property):
         self.property = property
-        os.environ['NGUML_NEEDS_RESTART'] = 'true'
+        obj = KVStorage.objects.get_or_create(
+            key='needs_restart'
+        )
+        obj.value = 'true'
+        obj.save()
 
     def generate(self, should_migrate=True):
         classifier = self.property.classifier

@@ -3,6 +3,7 @@ from shutil import copyfile
 from shutil import rmtree
 import threading
 from django.core import management
+from ..models import KVStorage
 
 
 def generate_urls(application):
@@ -78,7 +79,11 @@ def remove_installed_app(application):
 class ApplicationGenerator:
     def __init__(self, application):
         self.application = application
-        os.environ['NGUML_NEEDS_RESTART'] = 'true'
+        obj = KVStorage.objects.get_or_create(
+            key='needs_restart'
+        )
+        obj.value = 'true'
+        obj.save()
 
     def generate(self):
         management.call_command('startapp', self.application.name)

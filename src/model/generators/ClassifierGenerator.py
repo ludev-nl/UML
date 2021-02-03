@@ -1,5 +1,5 @@
 import os
-from ..models import Classifier, Class, Enumerator, Property, Application
+from ..models import Classifier, Class, Enumerator, Property, Application, KVStorage
 from django.core import management
 from shutil import copyfile
 from shutil import rmtree
@@ -180,7 +180,11 @@ def remove_urls(classifier, application):
 class ClassifierGenerator(object):
     def __init__(self, classifier):
         self.classifier = classifier
-        os.environ['NGUML_NEEDS_RESTART'] = 'true'
+        obj = KVStorage.objects.get_or_create(
+            key='needs_restart'
+        )
+        obj.value = 'true'
+        obj.save()
 
     def generate(self, should_migrate=True):
         if isinstance(self.classifier, Class):
