@@ -22,7 +22,7 @@ def restart(request):
         )
     return HttpResponse(
         str(
-            json.dumps('Restarting Gunicorn...')
+            json.dumps('Restarting Application Server...')
         )
     )
 
