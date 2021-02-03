@@ -26,7 +26,6 @@
                                 {% endif %}
                                 <input name="{{ property.name }}Hidden" id="{{ property.name }}Hidden"
                                        class="form-control" type="hidden" value="off">
-                            {% endif %}
                             {% elif property.type == 'association' %}
                                 <select name="{{ property.name }}" id="{{ property.name }}">
                                     {% for object in objects %}
