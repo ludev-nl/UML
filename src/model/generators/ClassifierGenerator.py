@@ -180,11 +180,6 @@ def remove_urls(classifier, application):
 class ClassifierGenerator(object):
     def __init__(self, classifier):
         self.classifier = classifier
-        obj = KVStorage.objects.get_or_create(
-            key='needs_restart'
-        )
-        obj.value = 'true'
-        obj.save()
 
     def generate(self, should_migrate=True):
         if isinstance(self.classifier, Class):

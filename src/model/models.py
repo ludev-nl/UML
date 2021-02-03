@@ -127,7 +127,3 @@ class Composition(Relationship):
 
     def __str__(self):
         return self.name
-
-class KVStorage(models.Model):
-    key = models.CharField(max_length=255, unique=True)
-    value = models.CharField(max_length=255)

@@ -42,11 +42,6 @@ def write_to_models_file(operation, classifier):
 class OperationGenerator:
     def __init__(self, operation):
         self.operation = operation
-        obj = KVStorage.objects.get_or_create(
-            key='needs_restart'
-        )
-        obj.value = 'true'
-        obj.save()
 
     def generate(self):
         classifier = self.operation.classifier

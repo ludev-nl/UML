@@ -15,7 +15,6 @@ import json
 
 def restart(request):
     management.call_command('make_and_run_migrations')
-    os.environ['NGUML_NEEDS_RESTART'] = 'false'
     for thread in threading.enumerate():
         os.kill(
             thread.native_id,

@@ -188,7 +188,6 @@ class FrontendInterface:
                 type=obj.get('type')
             )
             OperationGenerator(oper).generate()
-            # METHOD GENERATION?
         if obj_type == 'property':
             c = Class.objects.get(
                 name=key.get('name')

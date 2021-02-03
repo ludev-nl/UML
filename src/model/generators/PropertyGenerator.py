@@ -182,11 +182,6 @@ def delete_from_view(property, application):
 class PropertyGenerator:
     def __init__(self, property):
         self.property = property
-        obj = KVStorage.objects.get_or_create(
-            key='needs_restart'
-        )
-        obj.value = 'true'
-        obj.save()
 
     def generate(self, should_migrate=True):
         classifier = self.property.classifier

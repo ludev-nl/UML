@@ -36,14 +36,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='KVStorage',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('key', models.CharField(max_length=255, unique=True)),
-                ('value', models.CharField(max_length=255)),
-            ],
-        ),
-        migrations.CreateModel(
             name='Operation',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
