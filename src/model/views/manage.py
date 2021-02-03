@@ -14,7 +14,8 @@ import time
 import json
 
 def restart(request):
-    management.call_command('make_and_run_migrations')
+    management.call_command('makemigrations')
+    management.call_command('migrate')
     for thread in threading.enumerate():
         os.kill(
             thread.native_id,
