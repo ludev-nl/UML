@@ -1,5 +1,4 @@
 import os
-from ..models import KVStorage
 
 
 def generate_operation_declaration(name, implementation):

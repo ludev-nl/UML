@@ -3,7 +3,6 @@ from shutil import copyfile
 from shutil import rmtree
 import threading
 from django.core import management
-from ..models import KVStorage
 
 
 def generate_urls(application):

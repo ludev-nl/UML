@@ -1,5 +1,5 @@
 import os
-from ..models import Type, Class, KVStorage
+from ..models import Type, Class
 from django.core import management
 
 

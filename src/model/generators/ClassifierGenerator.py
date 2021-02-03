@@ -1,5 +1,5 @@
 import os
-from ..models import Classifier, Class, Enumerator, Property, Application, KVStorage
+from ..models import Classifier, Class, Enumerator, Property, Application
 from django.core import management
 from shutil import copyfile
 from shutil import rmtree
