@@ -1,8 +1,6 @@
 <!doctype html>
 <html lang="en">
 
-{% load env_extras %}
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
@@ -89,7 +87,7 @@
             >
             </div>
             <span class="text-light p-4 loadingDots">
-                Restarting server
+                Restarting Application Server
             </span>
         </div>
     </div>
@@ -99,24 +97,15 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-    </nav>
-    
-    {% if needs_restart %}
-    <div class="container mt-3 mb-4">
-        <div class="alert d-flex flex-row justify-content-between align-items-center alert-info">
-            <span>
-                Application was changed, please refresh server
-            </span>
-            <button onClick="
+        <button onClick="
             () => {
                 document.getElementById('loadingScreen').className = 'd-block';
             }
             " class="btn btn-sm btn-info">
                 Refresh
-            </button>
-        </div>
-    </div>
-    {% else %}
+        </button>
+    </nav>
+
     <div class="my-3"></div>
 
     <main role="main" class="container">
