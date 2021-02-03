@@ -74,6 +74,18 @@
         }
 
     </style>
+    <script>
+        var refreshPage = function () {
+            document.getElementById('loadingScreen').className = 'd-block';
+            fetch('/model/manage/restart').then(
+                response => {
+                    setTimeout(() => {
+                        location.reload()
+                    }, 3000)
+                }
+            )
+        }
+    </script>
 </head>
 
 <body id="main">
@@ -97,12 +109,8 @@
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
         </button>
-        <button onClick="
-            () => {
-                document.getElementById('loadingScreen').className = 'd-block';
-            }
-            " class="btn btn-sm btn-info">
-                Refresh
+        <button onClick="refreshPage()" class="btn btn-sm btn-light">
+                &#x21bb;
         </button>
     </nav>
 
