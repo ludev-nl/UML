@@ -5,6 +5,7 @@ from ..generators import *
 import os
 import json
 import uuid
+from ..views.activityInterface import ActivityFrontendInterface
 
 class FrontendInterface:
     def __init__(self):
@@ -291,7 +292,16 @@ class FrontendInterface:
 @csrf_exempt
 def data(request):
     frontend_interface = FrontendInterface()
+    activity = ActivityFrontendInterface()
     if request.method == 'POST':
-        return frontend_interface.push(request)
+        if request.GET.get('uml-type','') == 'activity':
+            return activity.push(request)
+        else:
+            return frontend_interface.push(request)
     else:
-        return frontend_interface.request()
+        if request.GET.get('uml-type','') == 'activity':
+            return activity.request()
+        else:
+            return frontend_interface.request()
+    
+    
