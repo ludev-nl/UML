@@ -1,3 +1,10 @@
+"""ActivityInterface to define an interface for the Activity Model.
+
+This is a description todo based on https://sphinxcontrib-napoleon.readthedocs.io/en/latest/example_google.html
+
+Todo: 
+    * Finish documentation.
+"""
 from django.shortcuts import HttpResponse
 from ..models import *
 import os
@@ -5,10 +12,21 @@ import json
 import uuid
 
 class ActivityFrontendInterface():
+    """The ActivityFrontendInterface class defines the interface for Activities.
+
+    The class does not take any inputs.
+
+    """
+    
     def __init__(self):
+        """Init method for the class.
+
+        Initializes all the nodes, connections, changes and activities. The predefined nodeTypes are also defined here.
+        """
         self.nodes=dict()
         self.connections=dict()
         self.changes=dict()
+        self.activities=dict()
         self.nodeTypes = ['initial','flowFinal','activityFinal','fork','merge','join','decision','action']
 
     def test1(self):
@@ -76,16 +94,22 @@ class ActivityFrontendInterface():
             if value.get('id') == node_id:
                 return key
         return ''
-
-    def populateNodes(self):
-        ''' Function to populate the different nodes.
-
-        Creates a dictionary with all the types as key and the object set as value. Than for
-        each of the object sets the nodes are added to the self.nodes
-        '''
-        #Activity nodes are not added. Should we add them? -> important for the zooming in.
+    
+    def activity(self,activity_obj):
+        return {
+            'id': activity_obj.id,
+            'name': str(activity_obj.name),
+            'condition': {
+                'pre-condition': activity_obj.precondition,
+                'post-condition': activity_obj.postcondition
+            },
+            'isReadOnly': activity_obj.isReadOnly,
+            'isSingleExecution': activity_obj.isSingleExecution,
+            'callBehaviorAction_id': activity_obj.callBehaviorAction_id
+        }
+    
+    def getAllNodes(self):
         listOfNodes = {}
-
         listOfNodes['initial'] = InitialNode.objects.all()
         listOfNodes['flowFinal'] = FlowFinalNode.objects.all()
         listOfNodes['activityFinal'] = ActivityFinalNode.objects.all()
@@ -94,6 +118,45 @@ class ActivityFrontendInterface():
         listOfNodes['join'] = JoinNode.objects.all()
         listOfNodes['decision'] = DecisionNode.objects.all()
         listOfNodes['action'] = Action.objects.all()
+        return listOfNodes
+    
+    def getNodesById(self,activity_id):
+        listOfNodes = {}
+        try:
+            activity = Activity.objects.get(id=activity_id)
+        except:
+            activity = None
+        if not activity:
+            return listOfNodes
+        listOfNodes['initial'] = InitialNode.objects.filter(activity=activity)
+        listOfNodes['flowFinal'] = FlowFinalNode.objects.filter(activity=activity)
+        listOfNodes['activityFinal'] = ActivityFinalNode.objects.filter(activity=activity)
+        listOfNodes['fork'] = ForkNode.objects.filter(activity=activity)
+        listOfNodes['merge'] = MergeNode.objects.filter(activity=activity)
+        listOfNodes['join'] = JoinNode.objects.filter(activity=activity)
+        listOfNodes['decision'] = DecisionNode.objects.filter(activity=activity)
+        listOfNodes['action'] = Action.objects.filter(activity=activity)
+        return listOfNodes
+
+
+    def populateNodes(self,activity_id):
+        """Populate the different nodes.
+
+        Creates a dictionary with all the types as key and the object set as value. Than for
+        each of the object sets the nodes are added to the self.nodes
+        """
+        listOfNodes = {}    
+
+        if activity_id == -1:
+            listOfNodes = self.getAllNodes()
+        elif activity_id == 0:
+            # find first activity with no callbehaviorAction id
+            firstAct = Activity.objects.filter(callBehaviorAction_id__exact=None).first()
+            if not firstAct:
+                firstAct = Activity.objects.first() 
+            listOfNodes = self.getNodesById(firstAct.id)
+        else:
+            listOfNodes = self.getNodesById(activity_id)
 
         for key, value in listOfNodes.items():
             for node in value:
@@ -102,24 +165,55 @@ class ActivityFrontendInterface():
                 self.nodes[str(uuid.uuid4())] = self.node(node,key,nodeId,activityId)
 
 
-    def populateConnections(self):
+    def populateConnections(self,activity_id):
         # implement control and objectflow
-        for edge in ActivityEdge.objects.all():
+        if activity_id == -1:
+            edges = ActivityEdge.objects.all()
+        elif activity_id == 0:
+            activity = Activity.objects.filter(callBehaviorAction_id__exact=None).first()
+            if not activity:
+                activity = Activity.objects.first()
+            edges = ActivityEdge.objects.filter(activity=activity)
+        else:
+            try:
+                activity = Activity.objects.get(id=activity_id)
+            except:
+                activity = None
+            edges = ActivityEdge.objects.filter(activity=activity)
+        for edge in edges:
             self.connections = {
                 **self.connections,
                 **self.connection(edge)
             }
+    
+    def populateActivities(self):
+        for activity_obj in Activity.objects.all():
+            self.activities[str(uuid.uuid4())] = self.activity(activity_obj)
 
-    def request(self):
-        self.populateNodes()
-        self.populateConnections()
-        print(self.nodes)
-        print(self.connections)
-        response = HttpResponse(str(json.dumps({
-                'nodes': self.nodes,
-                'connections': self.connections
-            }))
-        )
+    def request(self, request_type, activity_id):
+        if request_type == 'activities':
+            # Return a list of activities
+            self.populateActivities()
+            print(self.activities)
+            response = HttpResponse(str(json.dumps({
+                    'activities': self.activities
+                }))
+            )
+        else:
+            if activity_id != '':
+                ac_id = int(activity_id)
+                self.populateNodes(ac_id)
+                self.populateConnections(ac_id)
+            else:
+                self.populateNodes(-1)
+                self.populateConnections(-1)
+            print(self.nodes)
+            print(self.connections)
+            response = HttpResponse(str(json.dumps({
+                    'nodes': self.nodes,
+                    'connections': self.connections
+                }))
+            )
         response["Access-Control-Allow-Origin"] = "*"
         return response
 
@@ -149,6 +243,7 @@ class ActivityFrontendInterface():
         #TODO
         activity = None
         if activity_id is None:
+            print("Activity id is None")
             return
         else:
             activity = Activity.objects.get(id=activity_id)

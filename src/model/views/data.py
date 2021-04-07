@@ -300,7 +300,9 @@ def data(request):
             return frontend_interface.push(request)
     else:
         if request.GET.get('uml-type','') == 'activity':
-            return activity.request()
+            request_type = request.GET.get('request-type','')
+            activity_id = request.GET.get('activity-id', '')
+            return activity.request(request_type, activity_id)
         else:
             return frontend_interface.request()
     

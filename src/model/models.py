@@ -134,9 +134,8 @@ class Composition(Relationship):
 #################################################
 
 # TODO
-# - implement ValueSpecification
-# - implement Behavior 
 # - implement Operation
+# - implement CallOperationAction
 
 class Activity(models.Model):
     name = models.CharField(max_length=255, unique=False)
@@ -144,6 +143,13 @@ class Activity(models.Model):
     postcondition = models.CharField(max_length=255, unique=False)
     isReadOnly = models.BooleanField(default=False)
     isSingleExecution = models.BooleanField(default=False)
+    callBehaviorAction = models.ForeignKey(
+        'Action',
+        on_delete=models.CASCADE,
+        related_name='callBehaviorAction',
+        blank=True,
+        null=True
+    )
 
 class ActivityNode(models.Model):
     name = models.CharField(max_length=255, unique=False)
@@ -165,8 +171,6 @@ class ActivityNode(models.Model):
     # )
 
 class ActivityEdge(models.Model):
-    # Implement value specification
-    # should be of type ValueSpecification
     guard = models.CharField(max_length=255, unique=False)
     weight = models.CharField(max_length=255, unique=False)
 
