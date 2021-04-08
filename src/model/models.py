@@ -152,23 +152,17 @@ class Activity(models.Model):
     )
 
 class ActivityNode(models.Model):
+    """ActivityNode to model the Activity Node."""
+    
     name = models.CharField(max_length=255, unique=False)
     description = models.CharField(max_length=255, unique=False)
+    xpos = models.IntegerField(null=True, blank=True)
+    ypos = models.IntegerField(null=True, blank=True)
     activity = models.ForeignKey(
         Activity,
         on_delete=models.CASCADE,
         related_name='activitynode_activity'
     )
-    # target_edge = models.ForeignKey(
-    #     ActivityEdge,
-    #     on_delete=models.CASCADE,
-    #     related_name='target_edge'
-    # )
-    # source_edge = models.ForeignKey(
-    #     ActivityEdge,
-    #     on_delete=models.CASCADE,
-    #     related_name='source_edge'
-    # )
 
 class ActivityEdge(models.Model):
     guard = models.CharField(max_length=255, unique=False)

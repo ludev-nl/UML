@@ -4,8 +4,7 @@ This is a description todo based on https://sphinxcontrib-napoleon.readthedocs.i
 
 Todo: 
     * Finish documentation.
-    * Control Flow
-    * Object Node
+    * Object Flow & Object Node (future dev.)
 """
 from django.shortcuts import HttpResponse
 from ..models import *
@@ -98,7 +97,8 @@ class ActivityFrontendInterface():
         
         Returns:
             id of the activity, if it had a FK to the given node.
-            0, if there is no activity for the given node."""
+            0, if there is no activity for the given node.
+        """
         try:
             action = Action.objects.get(id=node.id)
             behAction = Activity.objects.filter(
@@ -121,7 +121,9 @@ class ActivityFrontendInterface():
                 'description': nodeInfo.description,
                 'activity_id': node_activity_id,
                 'operations': self.ActionOperations(nodeInfo),
-                'callBehaviorAction': self.nodeCallBehaviorAction(nodeInfo)
+                'callBehaviorAction': self.nodeCallBehaviorAction(nodeInfo),
+                'x': nodeInfo.xpos,
+                'y': nodeInfo.ypos
             },
             'instances': {},
             'id': node_id
@@ -166,17 +168,27 @@ class ActivityFrontendInterface():
             'callBehaviorAction_id': activity_obj.callBehaviorAction_id
         }
     
+    def generateControlNodeObjects(self):
+        """Return Dict of control node objects."""
+        nodeObjects = {}
+        nodeObjects['initial'] = InitialNode.objects
+        nodeObjects['flowFinal'] = FlowFinalNode.objects
+        nodeObjects['activityFinal'] = ActivityFinalNode.objects
+        nodeObjects['fork'] = ForkNode.objects
+        nodeObjects['merge'] = MergeNode.objects
+        nodeObjects['join'] = JoinNode.objects
+        nodeObjects['decision'] = DecisionNode.objects
+        return nodeObjects
+
     def getAllNodes(self):
         """Return a Dict of all nodes."""
         listOfNodes = {}
-        listOfNodes['initial'] = InitialNode.objects.all()
-        listOfNodes['flowFinal'] = FlowFinalNode.objects.all()
-        listOfNodes['activityFinal'] = ActivityFinalNode.objects.all()
-        listOfNodes['fork'] = ForkNode.objects.all()
-        listOfNodes['merge'] = MergeNode.objects.all()
-        listOfNodes['join'] = JoinNode.objects.all()
-        listOfNodes['decision'] = DecisionNode.objects.all()
+        listOfNodes = self.generateControlNodeObjects()
+        for key, value in listOfNodes.items():
+            listOfNodes[key] = value.all()
+        
         listOfNodes['action'] = Action.objects.all()
+
         return listOfNodes
     
     def getNodesById(self,activity_id):
@@ -188,14 +200,13 @@ class ActivityFrontendInterface():
             activity = None
         if not activity:
             return listOfNodes
-        listOfNodes['initial'] = InitialNode.objects.filter(activity=activity)
-        listOfNodes['flowFinal'] = FlowFinalNode.objects.filter(activity=activity)
-        listOfNodes['activityFinal'] = ActivityFinalNode.objects.filter(activity=activity)
-        listOfNodes['fork'] = ForkNode.objects.filter(activity=activity)
-        listOfNodes['merge'] = MergeNode.objects.filter(activity=activity)
-        listOfNodes['join'] = JoinNode.objects.filter(activity=activity)
-        listOfNodes['decision'] = DecisionNode.objects.filter(activity=activity)
-        listOfNodes['action'] = Action.objects.filter(activity=activity)
+        
+        listOfNodes = self.generateControlNodeObjects()
+        listOfNodes['action'] = Action.objects
+
+        for key, value in listOfNodes.items():
+            listOfNodes[key] = value.filter(activity=activity)
+        
         return listOfNodes
 
 
@@ -335,7 +346,7 @@ class ActivityFrontendInterface():
         if obj_type == 'activity':
             a = Activity.objects.get(id=pk)
             a.delete()
-    
+
     def newNode(self,obj_type,key,obj,activity_id):
         """Create a node for the defined node type.
 
@@ -351,27 +362,21 @@ class ActivityFrontendInterface():
             return
         else:
             activity = Activity.objects.get(id=activity_id)
-
-        if obj_type == 'initial':
-            node = InitialNode.objects.create(activity=activity) 
-        if obj_type == 'flowFinal':
-            node = FlowFinalNode.objects.create(activity=activity)
-        if obj_type == 'activityFinal':
-            node = ActivityFinalNode.objects.create(activity=activity)
-        if obj_type == 'fork':
-            node = ForkNode.objects.create(activity=activity)
-        if obj_type == 'merge':
-            node = MergeNode.objects.create(activity=activity)
-        if obj_type == 'join':
-            node = JoinNode.objects.create(activity=activity)
-        if obj_type == 'decision':
-            node = DecisionNode.objects.create(activity=activity)
-        if obj_type == 'action':
+        
+        if obj_type in self.nodeTypes and obj_type != 'action':
+            listObjects = self.generateControlNodeObjects()
+            node = listObjects[obj_type].create(activity = activity)
+        elif obj_type == 'action':
             node = Action.objects.create(
                 name=obj.get('name'),
                 description=obj.get('description'),
                 activity=activity
             )
+        ac_node = ActivityNode.objects.get(pk=node.id)
+        ac_node.xpos = obj.get('x')
+        ac_node.ypos = obj.get('y')
+        ac_node.save()
+
         print("nodeID: {}".format(node.id))
         self.nodes[key] = {'id': node.id}
     
@@ -473,6 +478,10 @@ class ActivityFrontendInterface():
             node.save()
         if obj.get('retype') == 'description':
             node.description = obj.get('description')
+            node.save()
+        if obj.get('retype') == 'position':
+            node.xpos = obj.get('x')
+            node.ypos = obj.get('y')
             node.save()
     
     def retypeConnection(self, obj_type, obj):
