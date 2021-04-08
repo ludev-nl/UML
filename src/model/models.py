@@ -197,6 +197,7 @@ class ControlNode(ActivityNode):
 
 class InitialNode(ControlNode):
     def parentId(self):
+        """Return the parent id of the node."""
         return self.controlnode_ptr_id
 
 class FinalNode(ControlNode):
@@ -205,25 +206,30 @@ class FinalNode(ControlNode):
 
 class FlowFinalNode(FinalNode):
     def parentId(self):
+        """Return the parent id of the node."""
         return self.finalnode_ptr_id
-        #return self.FinalNode.id
 
 class ActivityFinalNode(FinalNode):
     def parentId(self):
+        """Return the parent id of the node."""
+        
         return self.finalnode_ptr_id
 
 class ForkNode(ControlNode):
     def parentId(self):
+        """Return the parent id of the node."""
         return self.controlnode_ptr_id
 
 class MergeNode(ControlNode):
     def parentId(self):
+        """Return the parent id of the node."""
         return self.controlnode_ptr_id
 
 class JoinNode(ControlNode):
     joinSpec = models.CharField(max_length=255, unique=False)
     isCombineDuplicate = models.BooleanField(default=True)
     def parentId(self):
+        """Return the parent id of the node."""
         return self.controlnode_ptr_id
 
 class DecisionNode(ControlNode):
@@ -232,6 +238,7 @@ class DecisionNode(ControlNode):
     # Should be objectFlow needs to be implemented
     decisionInputFlow = models.CharField(max_length=255,unique=False)
     def parentId(self):
+        """Return the parent id of the node."""
         return self.controlnode_ptr_id
 
 class ExecutableNode(ActivityNode):
@@ -241,7 +248,26 @@ class Action(ExecutableNode):
     localPrecondition = models.CharField(max_length=255, unique=False)
     localPostcondition = models.CharField(max_length=255, unique=False)
     body = models.CharField(max_length=255, unique=False)
-    #Todo Operation
     def parentId(self):
+        """Return the parent id of the node."""
         return self.executablenode_ptr_id
+
+class OperationAction(models.Model):
+    """Class to model the Operation class."""
+
+    #Called OperationAction, as Operation already existed in the class model
+    name = models.CharField(max_length=255, unique=False)
+    type = models.CharField(
+        max_length=20,
+        choices=Type.choices(),
+        default=None
+    )
+    implementation = models.TextField(default='raise NotImplementedError')
+    callOperationAction = models.ForeignKey(
+        Action,
+        on_delete=models.CASCADE,
+        related_name='action',
+        blank=True,
+        null=True
+    )
 
