@@ -4,6 +4,8 @@ This is a description todo based on https://sphinxcontrib-napoleon.readthedocs.i
 
 Todo: 
     * Finish documentation.
+    * Control Flow
+    * Object Node
 """
 from django.shortcuts import HttpResponse
 from ..models import *
@@ -88,6 +90,26 @@ class ActivityFrontendInterface():
             } for operation in operations
         ]
 
+    def nodeCallBehaviorAction(self,node):
+        """Return callbehavioraction id if it exists.
+        
+        Args:
+            node (): The node for which the operations are generated.
+        
+        Returns:
+            id of the activity, if it had a FK to the given node.
+            0, if there is no activity for the given node."""
+        try:
+            action = Action.objects.get(id=node.id)
+            behAction = Activity.objects.filter(
+                callBehaviorAction_id=action.id
+            ).first()
+        except:
+            return 0
+        if behAction:
+            return behAction.id
+        else:
+            return 0
 
     def node(self, activityNode, node_type,node_id,node_activity_id):
         """Create a node that can be returned."""
@@ -98,7 +120,8 @@ class ActivityFrontendInterface():
             'data': {
                 'description': nodeInfo.description,
                 'activity_id': node_activity_id,
-                'operations': self.ActionOperations(nodeInfo)
+                'operations': self.ActionOperations(nodeInfo),
+                'callBehaviorAction': self.nodeCallBehaviorAction(nodeInfo)
             },
             'instances': {},
             'id': node_id
