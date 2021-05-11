@@ -189,10 +189,21 @@ def get_multi3():
 
 # check if object belongs to VBN
 def obj_obj(s):
+    """Check object of sentence.
+
+    Remove the object if it is a verb past participle (VBN)
+
+    Args:
+        s (arr[str]): with subject, action and object of the sentence
+    
+    Returns:
+        update (arr[str]): subject, action and if it exists an object.
+    """
     new = []
     update =[]
     lst =[s[0], s[1]]
     obj = nlp.pos_tag(s[2])
+
     # print(obj)
     for i in obj:
         if i[1] != 'VBN':
@@ -238,6 +249,16 @@ def get_triple(s):
 # Read file
 # lowercase, and concatenating paragraphs
 def get_lines(file_path):
+    """Retrieve lines from file.
+
+        Reads the file and lowercases everything and concatenates the different paragraphs.
+
+    Args:
+        file_path (str): path to the file with text.
+    
+    Returns:
+        str: Containing all the text.
+    """
     with open(file_path, 'r') as f:
         raw_data = f.read().lower()
     lines = raw_data.split('\n')
@@ -246,9 +267,44 @@ def get_lines(file_path):
     print(initial_text)
     return initial_text
 
+def remove_design_elements(sent):
+    """Remove design elements from the sentence."""
+    tokens = nlp.word_tokenize(sent)
+    print(tokens)
+    filtered_tokens = [token for token in tokens if token not in design_elements]
+    line = ' '.join(filtered_tokens)
+    return line
+
+def remove_stopwords(line):
+    """Remove stopwords for openie."""
+    word = nlp.word_tokenize(line)
+    filtered_stop = [w for w in word if w not in stop_words]
+    ie_sent = ' '.join(filtered_stop)
+    print(ie_sent)
+    return ie_sent
+
+def remove_other_stopwords(item):
+    """Remove other stopwords from openie item."""
+    new_item = []
+    for word in item:
+        filtered_word = nlp.word_tokenize(word)
+        update_word = [i for i in filtered_word if i not in sto_words_further]
+
+        update_tri = ' '.join(update_word)
+        new_item.append(update_tri)
+    return new_item
 
 # text pre-processing
 def preprocessing(fp):
+    """Preprocess the input text.
+
+        Remove stopwords, design elements and more stopwords
+    Args:
+        fp (str): filepath of the requirements file.
+    
+    Returns:
+        standard_txt (str): text removed from the stop words and design elements.
+    """
     standard_txt = []
 
     initial_text = get_lines(fp)
@@ -256,29 +312,13 @@ def preprocessing(fp):
 
     # preprocessing sentence by sentence
     for s in sents:
-        tokens = nlp.word_tokenize(s)
-        print(tokens)
-        filtered_tokens = [token for token in tokens if token not in design_elements]
-        line = ' '.join(filtered_tokens)
-
-        # remove stopwords for openie
-        word = nlp.word_tokenize(line)
-        filtered_stop = [w for w in word if w not in stop_words]
-        ie_sent = ' '.join(filtered_stop)
-        print(ie_sent)
-
+        line = remove_design_elements(s)
+        ie_sent = remove_stopwords(line)
         ies = nlp.open_ie(ie_sent)
         print(ies)
-
         process_ies = []
         for item in ies:
-            new_item = []
-            for word in item:
-                filtered_word = nlp.word_tokenize(word)
-                update_word = [i for i in filtered_word if i not in sto_words_further]
-
-                update_tri = ' '.join(update_word)
-                new_item.append(update_tri)
+            new_item = remove_other_stopwords(item)
 
             if '' not in new_item:
                 #
@@ -306,6 +346,11 @@ def preprocessing(fp):
 
 # add
 def generate_uml(fp):
+    """
+
+    Args:
+        fp (str): Filepath of the requirements text file
+    """
     data = preprocessing(fp)
     objectDict = {}
     sum = []
@@ -314,6 +359,7 @@ def generate_uml(fp):
 
     for s in data:
         check = check_attr(s)
+        # s looks like it is an open ie
 
         if isinstance(check, dict):
             raw_cls = [check['Class']]
