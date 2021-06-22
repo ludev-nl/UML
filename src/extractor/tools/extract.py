@@ -66,6 +66,11 @@ lemmatizer = stem.WordNetLemmatizer()
 
 # check attribute and return in dic or lst
 def check_attr(s):
+    """Check if subject or object belongs to attribute and act accordingly.
+    
+    Args:
+        - s (tuple): [0]: subject, [1]: relation, [2]: object
+    """
     cls = {'Class': set(), 'Attribute': []}
     # check if object belongs to attribute and subject doesn't belong to attribute
     if s[0] in attribute_words and s[0] not in cls['Attribute']:
@@ -81,6 +86,7 @@ def check_attr(s):
         cls['Class'] = c
         return cls
     else:
+        # Both are not a attribute so return two classes
         c1 = lemmatizer.lemmatize(s[0], pos='n').capitalize()
         c2 = lemmatizer.lemmatize(s[2], pos='n').capitalize()
         return [{'Class': c1, 'Attribute': []}, {'Class': c2, 'Attribute': []}]
@@ -88,6 +94,7 @@ def check_attr(s):
 
 # direction extract
 def get_dir2(s):
+    """Get direction for relations."""
     dir = {'from': set(), 'to': set()}
     raw_cls = [s[0], s[2]]
     raw_dir = []
@@ -134,6 +141,11 @@ def get_dir2(s):
 
 # relationship extraction
 def get_rels2(s):
+    """Define the relations for sentences.
+
+    Args:
+        - s (string): sentence with relations.
+    """
     rel = {}
     # using dependecny parser to check active and passive voice
     tri = list(s)
@@ -365,6 +377,7 @@ def generate_uml(fp):
             raw_cls = [check['Class']]
             raw_dir = []
             for words in raw_cls:
+                # get lemmatization of each word in class
                 words = words.split(' ')
                 a = []
                 for w in words:
