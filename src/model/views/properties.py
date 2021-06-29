@@ -23,11 +23,11 @@ def add(request):
     classifier = Classifier.objects.get(id=classifier_id)
     prop_type = request.POST['type']
 
-    if prop_type is 'string':
+    if prop_type == 'string':
         prop_type = Type.String
-    elif prop_type is 'int':
+    elif prop_type == 'int':
         prop_type = Type.Int
-    elif prop_type is 'bool':
+    elif prop_type == 'bool':
         prop_type = Type.Bool
 
     property = Property(name=request.POST['name'], type=prop_type, classifier=classifier)
@@ -45,11 +45,11 @@ def edit(request, property_id):
     property.delete()
     prop_type = request.POST['type']
 
-    if prop_type is 'string':
+    if prop_type == 'string':
         prop_type = Type.String
-    elif prop_type is 'int':
+    elif prop_type == 'int':
         prop_type = Type.Int
-    elif prop_type is 'bool':
+    elif prop_type == 'bool':
         prop_type = Type.Bool
 
     property = Property(id=property_id, classifier_id=classifier_id, name=request.POST['name'], type=prop_type)

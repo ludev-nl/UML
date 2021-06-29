@@ -27,9 +27,25 @@ class Classifier(models.Model):
         return self.name
 
 
+class Category(models.Model):
+    name = models.CharField(max_length=255)
+
+
 class Application(models.Model):
     name = models.CharField(max_length=255, unique=True)
     classifiers = models.ManyToManyField(Classifier)
+    categories = models.ManyToManyField(Category)
+
+
+class Section(Application):
+    type = models.CharField(max_length=255)
+    content = models.TextField()
+
+
+class Page(Application):
+    type = models.CharField(max_length=255)
+    query = models.CharField(max_length=255)
+    category = models.ManyToManyField(Category)
 
 
 class Class(Classifier):
@@ -155,7 +171,7 @@ class ActivityNode(models.Model):
     """ActivityNode to model the Activity Node."""
     
     name = models.CharField(max_length=255, unique=False)
-    description = models.CharField(max_length=255, unique=False)
+    description = models.CharField(max_length=255, unique=False, null=True, blank=True)
     xpos = models.IntegerField(null=True, blank=True)
     ypos = models.IntegerField(null=True, blank=True)
     activity = models.ForeignKey(
@@ -165,8 +181,8 @@ class ActivityNode(models.Model):
     )
 
 class ActivityEdge(models.Model):
-    guard = models.CharField(max_length=255, unique=False)
-    weight = models.CharField(max_length=255, unique=False)
+    guard = models.CharField(max_length=255, unique=False, null=True, blank=True)
+    weight = models.CharField(max_length=255, unique=False, null=True, blank=True)
 
     # In the class diagram there are multiple incoming and outgoing activities
     incoming_node = models.ForeignKey(

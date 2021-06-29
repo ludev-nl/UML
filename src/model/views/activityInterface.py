@@ -28,7 +28,8 @@ class ActivityFrontendInterface():
         self.connections=dict()
         self.changes=dict()
         self.activities=dict()
-        self.nodeTypes = ['initial','flowFinal','activityFinal','fork','merge','join','decision','action']
+        self.activityName = str
+        self.nodeTypes = ['Initial','FlowFinal','ActivityFinal','Fork','Merge','Join','Decision','Action']
 
     def test1(self):
         """Create a test set of activities."""
@@ -122,11 +123,13 @@ class ActivityFrontendInterface():
                 'activity_id': node_activity_id,
                 'operations': self.ActionOperations(nodeInfo),
                 'callBehaviorAction': self.nodeCallBehaviorAction(nodeInfo),
-                'x': nodeInfo.xpos,
-                'y': nodeInfo.ypos
             },
             'instances': {},
-            'id': node_id
+            'id': node_id,
+            'position': {
+                'x': nodeInfo.xpos,
+                'y': nodeInfo.ypos
+            }
         }
     
     def connection(self, edge):
@@ -143,6 +146,7 @@ class ActivityFrontendInterface():
                 'to': self.nodeUUID(
                     edge.outgoing_node_id
                 ),
+                'type': 'edge',
                 'id': edge.id
             }
         })
@@ -171,13 +175,13 @@ class ActivityFrontendInterface():
     def generateControlNodeObjects(self):
         """Return Dict of control node objects."""
         nodeObjects = {}
-        nodeObjects['initial'] = InitialNode.objects
-        nodeObjects['flowFinal'] = FlowFinalNode.objects
-        nodeObjects['activityFinal'] = ActivityFinalNode.objects
-        nodeObjects['fork'] = ForkNode.objects
-        nodeObjects['merge'] = MergeNode.objects
-        nodeObjects['join'] = JoinNode.objects
-        nodeObjects['decision'] = DecisionNode.objects
+        nodeObjects['Initial'] = InitialNode.objects
+        nodeObjects['FlowFinal'] = FlowFinalNode.objects
+        nodeObjects['ActivityFinal'] = ActivityFinalNode.objects
+        nodeObjects['Fork'] = ForkNode.objects
+        nodeObjects['Merge'] = MergeNode.objects
+        nodeObjects['Join'] = JoinNode.objects
+        nodeObjects['Decision'] = DecisionNode.objects
         return nodeObjects
 
     def getAllNodes(self):
@@ -187,7 +191,7 @@ class ActivityFrontendInterface():
         for key, value in listOfNodes.items():
             listOfNodes[key] = value.all()
         
-        listOfNodes['action'] = Action.objects.all()
+        listOfNodes['Action'] = Action.objects.all()
 
         return listOfNodes
     
@@ -202,7 +206,7 @@ class ActivityFrontendInterface():
             return listOfNodes
         
         listOfNodes = self.generateControlNodeObjects()
-        listOfNodes['action'] = Action.objects
+        listOfNodes['Action'] = Action.objects
 
         for key, value in listOfNodes.items():
             listOfNodes[key] = value.filter(activity=activity)
@@ -363,18 +367,18 @@ class ActivityFrontendInterface():
         else:
             activity = Activity.objects.get(id=activity_id)
         
-        if obj_type in self.nodeTypes and obj_type != 'action':
+        if obj_type in self.nodeTypes and obj_type != 'Action':
             listObjects = self.generateControlNodeObjects()
-            node = listObjects[obj_type].create(activity = activity)
-        elif obj_type == 'action':
+            node = listObjects[obj_type].create(activity=activity, name=obj.get('name'))
+        elif obj_type == 'Action':
             node = Action.objects.create(
                 name=obj.get('name'),
                 description=obj.get('description'),
                 activity=activity
             )
         ac_node = ActivityNode.objects.get(pk=node.id)
-        ac_node.xpos = obj.get('x')
-        ac_node.ypos = obj.get('y')
+        ac_node.xpos = obj['position'].get('x')
+        ac_node.ypos = obj['position'].get('y')
         ac_node.save()
 
         print("nodeID: {}".format(node.id))
@@ -407,7 +411,7 @@ class ActivityFrontendInterface():
         Args:
             obj (json): json object representing the information for the activity.
         """
-        if obj.get('action') != '':    
+        if obj.get('action') != '':
             action_id = self.nodes.get(obj.get('action')).get('id')
             try:
                 action = Action.objects.get(id=action_id)
@@ -417,12 +421,13 @@ class ActivityFrontendInterface():
             action = None
         activity = Activity.objects.create(
             name=obj.get('name'),
-            precondition=obj.get('precondition'),
-            postcondition=obj.get('postcondition'),
-            isReadOnly=obj.get('isReadOnly'),
-            isSingleExecution=obj.get('isSingleExecution'),
+            precondition=obj.get('precondition') or '',
+            postcondition=obj.get('postcondition') or '',
+            isReadOnly=obj.get('isReadOnly') or False,
+            isSingleExecution=obj.get('isSingleExecution') or False ,
             callBehaviorAction_id=action
         )
+        return activity
 
     
     def newOperation(self, obj):
@@ -443,7 +448,7 @@ class ActivityFrontendInterface():
             callOperationAction=action,
             type=obj.get('type')
         )
-        
+
     
     def new(self, obj_type, key, obj):
         """Orchestrate the creation of new objects.
@@ -454,8 +459,8 @@ class ActivityFrontendInterface():
             obj (json): json object representing the information of the new object.
         """
         activity_id = obj.get('activity_id')
-        if obj_type in self.nodeTypes:
-            self.newNode(obj_type,key,obj,activity_id)
+        if obj.get('type') in self.nodeTypes:
+            self.newNode(obj.get('type'), key, obj, activity_id)
         if obj_type == 'connection':
             self.newRelationship(obj,activity_id)
         if obj_type == 'operation':
@@ -580,7 +585,8 @@ class ActivityFrontendInterface():
             activity.save()
         if retype == 'isSingleExecution':
             activity.isSingleExecution = obj.get('isSingleExecution')
-            activity.save()            
+            activity.save()
+        return activity
 
     def retype(self, obj_type, obj):
         """Retype certain properties of nodes and connections.
@@ -612,23 +618,39 @@ class ActivityFrontendInterface():
         self.changes = body_data.get('changes')
         self.nodes = body_data.get('nodes')
         self.connections = body_data.get('connections')
+        item = self.changes[0]
+        action = item.get('type')
+        if action.startswith('new'):
+            activity = self.newActivity(
+                item.get('to')
+            )
+        if action.startswith('retype'):
+            activity = self.retypeActivity(
+                item.get('to')
+            )
+        print(self.changes[0])
+        print(activity)
+        del self.changes[0];
 
         for item in self.changes:
             action = item.get('type')
+            to = item.get('to')
+            if to.get('activity_id') is None:
+                to['activity_id'] = activity.id
             if action.startswith('delete'):
                  self.delete(
                      action.split('-')[1],
                      item.get('key').get('id')
-                )
+                 )
             if action.startswith('new'):
                 self.new(
                     action.split('-')[1],
                     item.get('key') or item.get('nodeKey'),
-                    item.get('to')
+                    to
                 )
             if action.startswith('retype'):
                 self.retype(
                     action.split('-')[1],
-                    item.get('to')
+                    to
                 )
         return HttpResponse('OK')

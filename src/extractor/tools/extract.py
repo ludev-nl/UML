@@ -40,7 +40,7 @@ subtyping_word = ['is a', 'is a kind of', 'is', 'can be', 'are', 'can involve', 
 design_elements = ['system', 'user', 'application', 'data', 'computer', 'object', 'information', 'interface', 'online']
 
 attribute_words = ['id', 'first name', 'last name', 'name', 'address', 'email', 'number','no', 'code', 'date', 'type',
-                   'volume', 'birth', 'password', 'price', 'quantity', 'location', 'resolution date', 'creation date',
+                   'volume', 'birth', 'password', 'price', 'quantity', 'location', 'maximum temperature', 'resolution date', 'creation date',
                    'crime code', 'course name', 'time slot', 'quantities', 'delivery date', 'prices',
                    'delivery address', 'scanner', 'till', 'illness conditions', 'diagnostic result', 'suggestions',
                    'birth date', 'order number', 'total cost', 'entry date', 'delivery status', 'description',
@@ -264,13 +264,13 @@ def get_lines(file_path):
     lines = raw_data.split('\n')
     filtered_lines = [s for s in lines if s != '']
     initial_text = ' '.join(filtered_lines)
-    print(initial_text)
+    # print(initial_text)
     return initial_text
 
 def remove_design_elements(sent):
     """Remove design elements from the sentence."""
     tokens = nlp.word_tokenize(sent)
-    print(tokens)
+    # print(tokens)
     filtered_tokens = [token for token in tokens if token not in design_elements]
     line = ' '.join(filtered_tokens)
     return line
@@ -280,7 +280,7 @@ def remove_stopwords(line):
     word = nlp.word_tokenize(line)
     filtered_stop = [w for w in word if w not in stop_words]
     ie_sent = ' '.join(filtered_stop)
-    print(ie_sent)
+    # print(ie_sent)
     return ie_sent
 
 def remove_other_stopwords(item):
@@ -315,7 +315,7 @@ def preprocessing(fp):
         line = remove_design_elements(s)
         ie_sent = remove_stopwords(line)
         ies = nlp.open_ie(ie_sent)
-        print(ies)
+        # print(ies)
         process_ies = []
         for item in ies:
             new_item = remove_other_stopwords(item)
@@ -327,7 +327,7 @@ def preprocessing(fp):
                     new1 = tuple(new)
                     process_ies.append(new1)
 
-        print(process_ies)
+        # print(process_ies)
 
         # if openie fails
         if len(ies) == 0:
@@ -356,6 +356,7 @@ def generate_uml(fp):
     sum = []
     clsoutput = ''
     sumoutput = ''
+    subtypes = {}
 
     for s in data:
         check = check_attr(s)
@@ -414,6 +415,7 @@ def generate_uml(fp):
             if keys[0] == 'Subtyping':
                 m = get_multi2()
                 multi2 = m
+                subtypes[str(dir2['from'])] = dir2['to']
             elif keys[0] == 'Composition':
                 m = get_multi3()
                 multi2 = m
@@ -423,8 +425,8 @@ def generate_uml(fp):
             sum.append(list(rels2.items()) + list(dir2.items()) + list(multi2.items()))
 
     # nlp.close()
-    print(sum)
-    print(objectDict)
+    # print(sum)
+    # print(objectDict)
 
     # format to display in textarea
     for item in objectDict.items():
@@ -442,13 +444,21 @@ def generate_uml(fp):
 
     output = clsoutput + sumoutput
 
-    print(output)
+    # print(output)
+    # print(subtypes)
 
     # save into Ralph's demo
     for item in objectDict.items():
         classifier = Class(name=item[0])
         classifier.save()
-        ClassifierGenerator(classifier).generate(False)
+        ClassifierGenerator(classifier, subtypes[item[0]] if item[0] in subtypes else '').generate(False)
+        # add attributes of parent class
+        if item[0] in subtypes:
+            parent = Class.objects.filter(name=subtypes[item[0]]).get()
+            properties = Property.objects.filter(classifier=parent).all()
+            for property in properties:
+                attribute = Property(name=property.name,classifier=classifier, type='string')
+                attribute.save()
         # save attributes
         if item[1]['Attribute'] != '':
             get_cls = Classifier.objects.get(name=item[0])

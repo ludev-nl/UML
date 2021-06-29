@@ -1,0 +1,130 @@
+<link rel="stylesheet" href="/static/wysiwyg/style.css">
+<div class="editor">
+  <div class="toolbar">
+    <div class="line">
+
+      <div class="box">
+        <span class="btn icon smaller" data-action="bold" data-tag-name="b" title="Bold">
+          <img src="https://image.flaticon.com/icons/svg/25/25432.svg">
+        </span>
+        <span class="btn icon smaller" data-action="italic" data-tag-name="i" title="Italic">
+          <img src="https://image.flaticon.com/icons/svg/25/25392.svg">
+        </span>
+        <span class="btn icon smaller" data-action="underline" data-tag-name="u" title="Underline">
+          <img src="https://image.flaticon.com/icons/svg/25/25433.svg">
+        </span>
+        <span class="btn icon smaller" data-action="strikeThrough" data-tag-name="strike" title="Strike through">
+          <img src="https://image.flaticon.com/icons/svg/25/25626.svg">
+        </span>
+      </div>
+
+      <div class="box">
+        <span class="btn icon has-submenu">
+          <img src="https://image.flaticon.com/icons/svg/25/25351.svg">
+          <div class="submenu">
+            <span class="btn icon" data-action="justifyLeft" data-style="textAlign:left" title="Justify left">
+              <img src="https://image.flaticon.com/icons/svg/25/25351.svg">
+            </span>
+            <span class="btn icon" data-action="justifyCenter" data-style="textAlign:center" title="Justify center">
+              <img src="https://image.flaticon.com/icons/svg/25/25440.svg">
+            </span>
+            <span class="btn icon" data-action="justifyRight" data-style="textAlign:right" title="Justify right">
+              <img src="https://image.flaticon.com/icons/svg/25/25288.svg">
+            </span>
+            <span class="btn icon" data-action="formatBlock" data-style="textAlign:justify" title="Justify block">
+              <img src="https://image.flaticon.com/icons/svg/25/25181.svg">
+            </span>
+          </div>
+        </span>
+        <span class="btn icon" data-action="insertOrderedList" data-tag-name="ol" title="Insert ordered list">
+          <img src="https://image.flaticon.com/icons/svg/25/25242.svg">
+        </span>
+        <span class="btn icon" data-action="insertUnorderedList" data-tag-name="ul" title="Insert unordered list">
+          <img src="https://image.flaticon.com/icons/svg/25/25648.svg">
+        </span>
+        <span class="btn icon" data-action="outdent" title="Outdent">
+          <img src="https://image.flaticon.com/icons/svg/25/25410.svg">
+        </span>
+        <span class="btn icon" data-action="indent" title="Indent">
+          <img src="https://image.flaticon.com/icons/svg/25/25233.svg">
+        </span>
+
+      </div>
+      <div class="box">
+        <span class="btn icon" data-action="insertHorizontalRule" title="Insert horizontal rule">
+          <img src="https://image.flaticon.com/icons/svg/25/25232.svg">
+        </span>
+      </div>
+
+    </div>
+    <div class="line">
+      <div class="box">
+        <span class="btn icon smaller" data-action="undo" title="Undo">
+          <img src="https://image.flaticon.com/icons/svg/25/25249.svg">
+        </span>
+        <span class="btn icon" data-action="removeFormat" title="Remove format">
+          <img src="https://image.flaticon.com/icons/svg/25/25454.svg">
+        </span>
+      </div>
+
+      <div class="box">
+        <span class="btn icon smaller" data-action="createLink" title="Insert Link">
+          <img src="https://image.flaticon.com/icons/svg/25/25385.svg">
+        </span>
+        <span class="btn icon smaller" data-action="unlink" data-tag-name="a" title="Unlink">
+          <img src="https://image.flaticon.com/icons/svg/25/25341.svg">
+        </span>
+      </div>
+
+      <div class="box">
+        <span class="btn icon" data-action="code" title="Show HTML-Code">
+          <img src="https://image.flaticon.com/icons/svg/25/25185.svg">
+        </span>
+      </div>
+
+      <div class="box">
+
+        <span class="btn icon has-submenu">
+          <img src="https://image.flaticon.com/icons/svg/25/25351.svg">
+          <div class="submenu">
+            <span class="btn icon" data-action="justifyLeft" data-style="textAlign:left" title="Justify left">
+              <img src="https://image.flaticon.com/icons/svg/25/25351.svg">
+            </span>
+            <span class="btn icon" data-action="justifyCenter" data-style="textAlign:center" title="Justify center">
+              <img src="https://image.flaticon.com/icons/svg/25/25440.svg">
+            </span>
+            <span class="btn icon" data-action="justifyRight" data-style="textAlign:right" title="Justify right">
+              <img src="https://image.flaticon.com/icons/svg/25/25288.svg">
+            </span>
+            <span class="btn icon" data-action="formatBlock" data-style="textAlign:justify" title="Justify block">
+              <img src="https://image.flaticon.com/icons/svg/25/25181.svg">
+            </span>
+          </div>
+        </span>
+      </div>
+    </div>
+  </div>
+  <div class="content-area">
+    <div class="visual-view" contenteditable>
+        <p></p>
+    </div>
+    <textarea class="html-view"></textarea>
+  </div>
+</div>
+
+<div class="modal">
+  <div class="modal-bg"></div>
+  <div class="modal-wrapper">
+    <div class="close">✖</div>
+    <div class="modal-content" id="modalCreateLink">
+      <h3>Insert Link</h3>
+      <input type="text" id="linkValue" placeholder="Link (example: https://google.com/)">
+      <div class="row">
+        <input type="checkbox" id="new-tab">
+        <label for="new-tab">Open in new Tab?</label>
+      </div>
+      <button class="done">Done</button>
+    </div>
+  </div>
+</div>
+<script src="/static/wysiwyg/main.js"></script>

@@ -5,5 +5,6 @@ from . import operations
 from . import properties
 from . import operation_parameters
 from . import applications
-from . import data 
+from . import pages
+from . import data
 from . import manage

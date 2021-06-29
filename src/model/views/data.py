@@ -2,10 +2,13 @@ from django.shortcuts import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from ..models import *
 from ..generators import *
+from django.core import management
 import os
 import json
 import uuid
 from ..views.activityInterface import ActivityFrontendInterface
+from threading import Thread
+from django.apps import apps as django_apps
 
 class FrontendInterface:
     def __init__(self):
@@ -28,6 +31,8 @@ class FrontendInterface:
         ]
 
     def classifierProperties(self, classifier):
+        var = django_apps.get_model('shared', classifier.name)
+        inherited = var.get_deferred_fields(var)
         properties = Property.objects.filter(
             classifier=classifier
         )
@@ -37,7 +42,7 @@ class FrontendInterface:
                 'name': prop.name,
                 'type': prop.type,
                 'id': prop.id
-            } for prop in properties
+            } for prop in properties if prop.name not in inherited
         ]
 
     def node(self, classifier):
@@ -287,7 +292,16 @@ class FrontendInterface:
                         cmd[1],
                         item.get('from')
                     )
+        Thread(target=systemcall()).start()
+        #use threading to call the migrations while we continue on
         return HttpResponse('OK')
+
+
+def systemcall():
+    # use systemcall to get around process caching
+    os.system('python manage.py makemigrations --noinput && python manage.py migrate --noinput ')
+    return
+
 
 @csrf_exempt
 def data(request):
@@ -300,7 +314,7 @@ def data(request):
             return frontend_interface.push(request)
     else:
         if request.GET.get('uml-type','') == 'activity':
-            request_type = request.GET.get('request-type','')
+            request_type = request.GET.get('request-type', '')
             activity_id = request.GET.get('activity-id', '')
             return activity.request(request_type, activity_id)
         else:

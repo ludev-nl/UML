@@ -12,9 +12,10 @@ services:
     restart: always
     command: >
       sh -c "
-        python manage.py migrate --noinput && 
-        gunicorn --bind :8000 --workers 5 --threads 10 --timeout 600 --log-level debug backend.wsgi:application
+        python manage.py makemigrations --noinput && python manage.py migrate --noinput &&
+        gunicorn --bind :8000 --workers 5 --threads 10 --timeout 600 --log-level debug backend.wsgi:application --reload
       "
+# python manage.py flush --noinput && python manage.py makemigrations --noinput &&
     ports:
       - 8000:8000
     volumes:

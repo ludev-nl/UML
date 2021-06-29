@@ -96,7 +96,11 @@ def generate_crud_views(classifier):
 def add_class_definition(classifier):
     model_file = open('shared/models.py', 'a+')
     if 'class ' + classifier.name + '(' not in model_file.read():
-        model_file.write('\n\nclass ' + classifier.name + '(models.Model):\n    pass\n')
+        if classifier.subtypeOf != '' :
+            basemodel = classifier.subtypeOf
+        else:
+            basemodel = "models.Model"
+        model_file.write('\n\nclass ' + classifier.name + '(' + basemodel + '):\n    pass\n')
         model_file.close()
         return True
     else:
@@ -178,8 +182,9 @@ def remove_urls(classifier, application):
 
 
 class ClassifierGenerator(object):
-    def __init__(self, classifier):
+    def __init__(self, classifier, subtypeof =""):
         self.classifier = classifier
+        self.classifier.subtypeOf = subtypeof
 
     def generate(self, should_migrate=True):
         if isinstance(self.classifier, Class):

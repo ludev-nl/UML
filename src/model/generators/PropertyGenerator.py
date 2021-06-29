@@ -102,7 +102,8 @@ def generate_property_declaration(name, type):
 def write_to_models_file(property, classifier):
     f = open("shared/models.py", "r")
     contents = f.readlines()
-    index = contents.index('class ' + classifier.name + '(models.Model):\n') + 1
+    index = next(k for k,v in enumerate(contents) if classifier.name in v) + 1
+    # index = contents.index('class ' + classifier.name + '(models.Model):\n') + 1
     value = generate_property_declaration(property.name, property.type)
     f.close()
     contents.insert(index, value)
@@ -111,6 +112,7 @@ def write_to_models_file(property, classifier):
     contents = "".join(contents)
     f.write(contents)
     f.close()
+    print("i just changed a property, hopefully the migration will be done later")
 
 
 def delete_from_model(property):

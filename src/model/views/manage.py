@@ -12,15 +12,16 @@ from django.utils import autoreload
 from django.core import management
 import time
 import json
+from threading import Thread
 
 def restart(request):
     management.call_command('makemigrations')
     management.call_command('migrate')
-    for thread in threading.enumerate():
-        os.kill(
-            thread.native_id,
-            signal.SIGHUP
-        )
+    # for thread in threading.enumerate():
+    #     os.kill(
+    #         thread.native_id,
+    #         signal.SIGHUP
+    #     )
     return HttpResponse(
         str(
             json.dumps('Restarting Application Server...')
@@ -60,7 +61,7 @@ def clear(request):
                 os.remove(
                     settings.BASE_DIR + '/shared/views/' + f
                 )
-    restart(True)
+    Thread(target=restart,args=(True, )).start()
     return HttpResponse(
         str(
             json.dumps('Restarting Server...')
@@ -89,5 +90,14 @@ def migrate(request):
     return HttpResponse(
         str(
             json.dumps('Making and Running Migrations...')
+        )
+    )
+
+def reset(request):
+    management.call_command("flush","--noinput")
+    management.call_command("make_and_run_migrations")
+    return HttpResponse(
+        str(
+            json.dumps('emptying database')
         )
     )

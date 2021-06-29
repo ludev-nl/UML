@@ -12,11 +12,11 @@ def add(request):
     return_type = request.POST['type']
     name = request.POST['name']
 
-    if return_type is 'string':
+    if return_type == 'string':
         return_type = Type.String
-    elif return_type is 'int':
+    elif return_type == 'int':
         return_type = Type.Int
-    elif return_type is 'bool':
+    elif return_type == 'bool':
         return_type = Type.Bool
 
     operation_parameter = OperationParameter(name=name, type=return_type, operation=operation)
