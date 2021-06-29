@@ -28,7 +28,6 @@ urlpatterns = [
     path('model/', include('model.urls')),
     # test
     # path('managere/', views.test_req_man),
-    path('orderapp/', include('orderapp.urls')),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
