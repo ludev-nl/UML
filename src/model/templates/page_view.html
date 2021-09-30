@@ -1,0 +1,12 @@
+{% include 'application_header.html' with title=application.name %}
+
+<main role="main" class="container">
+    {% block content %}
+        {{ html | safe }}
+    {% endblock %}
+</main>
+
+
+{% block javascript %}
+
+{% endblock %}

@@ -5,6 +5,7 @@
         <form action="/model/applications/{{ application.id }}/page/{{ page.id }}/properties"
               method="POST">{% csrf_token %}
             <div class="form-group">
+            <div class="col-xs-12"><p style="color: red;">{{msg}}</p></div>
             {% for classifier in classifiers %}
                 <div class="card">
                     <div class="card-body">
@@ -12,17 +13,15 @@
                         {% for property in classifier.properties %}
                             <div class="card">
                                 <div class="card-body row">
-                                    <label for="{{ property.name }}">{{ property.name }}</label>
+                                    <label for="{{ classifier.name }}-{{ property.name }}">{{ property.name }}</label>
 
                                     {% if property.linked == True %}
-                                        <input class="custom-control custom-checkbox" name="{{ property.name }}"
-                                               id="{{ property.name }}" type="checkbox" checked>
+                                        <input class="custom-control custom-checkbox" name="{{ classifier.name }}-{{ property.name }}"
+                                               id="{{ classifier.name }}-{{ property.name }}" type="checkbox" checked>
                                     {% else %}
-                                        <input class="custom-control custom-checkbox" name="{{ property.name }}"
-                                               id="{{ property.name }}" type="checkbox">
+                                        <input class="custom-control custom-checkbox" name="{{ classifier.name }}-{{ property.name }}"
+                                               id="{{ classifier.name }}-{{ property.name }}" type="checkbox">
                                     {% endif %}
-                                    <input name="{{ property.name }}Hidden" id="{{ property.name }}Hidden"
-                                           class="form-control" type="hidden" value="off">
                                 </div>
                             </div>
                         {% endfor %}

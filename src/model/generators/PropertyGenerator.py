@@ -112,7 +112,6 @@ def write_to_models_file(property, classifier):
     contents = "".join(contents)
     f.write(contents)
     f.close()
-    print("i just changed a property, hopefully the migration will be done later")
 
 
 def delete_from_model(property):

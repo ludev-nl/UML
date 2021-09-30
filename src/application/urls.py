@@ -1,0 +1,35 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+
+    path('', views.index),
+    path('order/', views.order.index),
+    path('order/add', views.order.add),
+    path('order/<id>', views.order.edit),
+    path('order/<id>/delete', views.order.delete),
+    path('customer/', views.customer.index),
+    path('customer/add', views.customer.add),
+    path('customer/<id>', views.customer.edit),
+    path('customer/<id>/delete', views.customer.delete),
+    path('lineitem/', views.lineitem.index),
+    path('lineitem/add', views.lineitem.add),
+    path('lineitem/<id>', views.lineitem.edit),
+    path('lineitem/<id>/delete', views.lineitem.delete),
+    path('product/', views.product.index),
+    path('product/add', views.product.add),
+    path('product/<id>', views.product.edit),
+    path('product/<id>/delete', views.product.delete),
+    path('flammableproduct/', views.flammableproduct.index),
+    path('flammableproduct/add', views.flammableproduct.add),
+    path('flammableproduct/<id>', views.flammableproduct.edit),
+    path('flammableproduct/<id>/delete', views.flammableproduct.delete),
+    path('restrictedproduct/', views.restrictedproduct.index),
+    path('restrictedproduct/add', views.restrictedproduct.add),
+    path('restrictedproduct/<id>', views.restrictedproduct.edit),
+    path('restrictedproduct/<id>/delete', views.restrictedproduct.delete),
+    path('deliverycompany/', views.deliverycompany.index),
+    path('deliverycompany/add', views.deliverycompany.add),
+    path('deliverycompany/<id>', views.deliverycompany.edit),
+    path('deliverycompany/<id>/delete', views.deliverycompany.delete),
+]
