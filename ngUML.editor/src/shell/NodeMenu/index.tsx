@@ -84,7 +84,15 @@ export const NodeMenu: React.FC = (props) => {
                     >
                         FlowFinal
                     </SideNavMenuItem>
-                </SideNavMenu> 
+                </SideNavMenu>
+
+                <SideNavMenu
+                    renderIcon={Feather.Plus}
+                    title="Rule model"
+                    defaultExpanded={true}
+                >
+
+                </SideNavMenu>
 
             </SideNavItems>
         </SideNav>
