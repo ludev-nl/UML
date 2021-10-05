@@ -1,0 +1,32 @@
+<section classes="div1">
+	<manual html>
+		user input html
+	</manual html>
+	<section classes="div2">
+		<manual html>
+			more user input html
+		</manual html>
+	</section>
+	<table>
+		{{Users.getFullName()}}
+		{{Inspections.date | editable}}
+	</table>
+</section>
+
+
+
+
+
+
+=========
+
+<div class="div1">
+	user input html
+	<div class="div2">
+		more user input html
+	</div>
+	<table>
+		{{context.Users.getFullName()}}
+		{{context.Inspections.date | editable}}
+	</table>
+</div>
