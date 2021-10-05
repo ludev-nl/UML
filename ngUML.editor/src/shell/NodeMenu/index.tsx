@@ -91,7 +91,14 @@ export const NodeMenu: React.FC = (props) => {
                     title="Rule model"
                     defaultExpanded={true}
                 >
-
+                    <input
+                        type="text"
+                        className='inputBox'
+                    >
+                    </input>
+                    <SideNavMenuItem>
+                        Add Rule
+                    </SideNavMenuItem>
                 </SideNavMenu>
 
             </SideNavItems>
