@@ -91,11 +91,11 @@ export const NodeMenu: React.FC = (props) => {
                     title="Rule model"
                     defaultExpanded={true}
                 >
-                    <input
-                        type="text"
+
+                    <textarea
                         className='inputBox'
                     >
-                    </input>
+                    </textarea>
                     <SideNavMenuItem>
                         Add Rule
                     </SideNavMenuItem>
