@@ -122,6 +122,3 @@ db/*
 !**/shared/views/newclassifier.py
 !**/shared/views/otherclassifier.py
 !**/shared/views/views.py
-
-#ignore urls.py because it might include current build applications
-src/backend/urls.py

@@ -1,7 +1,5 @@
 from django.db import models
 from .enums import Type
-import json
-from django.forms.models import model_to_dict
 
 
 class Document(models.Model):
@@ -39,21 +37,15 @@ class Application(models.Model):
     categories = models.ManyToManyField(Category)
 
 
+class Section(Application):
+    type = models.CharField(max_length=255)
+    content = models.TextField()
+
+
 class Page(Application):
     type = models.CharField(max_length=255)
     query = models.CharField(max_length=255)
     category = models.ManyToManyField(Category)
-    data_paths = models.TextField()
-
-
-class Section(Application):
-    classes = models.CharField(max_length=255)
-    sorting = models.CharField(max_length=255)
-    content = models.TextField()
-    linked_page = models.ForeignKey(
-        Page,
-        on_delete=models.CASCADE,
-        related_name='linked_page')
 
 
 class Class(Classifier):

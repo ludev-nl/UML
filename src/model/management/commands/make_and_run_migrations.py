@@ -5,7 +5,8 @@ import os
 
 class Command(BaseCommand):
     def runCommands(self):
-        os.system('python manage.py makemigrations --noinput && python manage.py migrate --noinput ')
+        management.call_command('makemigrations')
+        management.call_command('migrate')
 
     def handle(self, *args, **options):
         th = threading.Thread(target=self.runCommands)

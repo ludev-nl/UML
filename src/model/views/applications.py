@@ -7,14 +7,8 @@ import pprint
 
 def index(request):
     application_list = Application.objects.all()
-    sections = Section.objects
-    pages = Page.objects
-    applications = []
-    # for prop in properties if prop.name not in inherited
-    for application in [application for application in application_list if not sections.filter(id=application.id).exists() and not pages.filter(id=application.id).exists()] :
-        applications.append(application)
     context = {
-        'applications': applications
+        'applications': application_list
     }
     return render(request, 'applications.html', context)
 
