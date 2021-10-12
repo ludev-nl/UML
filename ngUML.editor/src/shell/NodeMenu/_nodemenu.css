@@ -4,5 +4,6 @@
 }
 
 .RuleMenuExtended{
-	width: 384px !important; 
+	width: 384px !important;
+	transition: width 0.3s; 
 }

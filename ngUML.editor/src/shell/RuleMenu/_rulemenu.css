@@ -6,4 +6,5 @@
 	top: 3rem;
 	height: 100vh;
 	right: 0;
+	transition: width 0.3s;
 }
