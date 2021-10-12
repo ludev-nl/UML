@@ -3,7 +3,8 @@ import {
     SideNav, 
     SideNavItems, 
     SideNavMenu, 
-    SideNavMenuItem 
+    SideNavMenuItem,
+    SideNavLink
 } from 'carbon-components-react'
 import * as Feather from 'react-feather';
 import './_nodemenu.css'
@@ -84,23 +85,17 @@ export const NodeMenu: React.FC = (props) => {
                     >
                         FlowFinal
                     </SideNavMenuItem>
-                </SideNavMenu>
-
-                <SideNavMenu
+                </SideNavMenu> 
+                <SideNavLink
                     renderIcon={Feather.Plus}
-                    title="Rule model"
-                    defaultExpanded={true}
+                    onClick={() => {
+                        const ruleMenuObject = document.getElementById("RuleMenu");
+                        ruleMenuObject?.classList.toggle("RuleMenuExtended")
+                        }
+                    }
                 >
-
-                    <textarea
-                        className='inputBox'
-                    >
-                    </textarea>
-                    <SideNavMenuItem>
-                        Add Rule
-                    </SideNavMenuItem>
-                </SideNavMenu>
-
+                    Rule Menu
+                </SideNavLink>
             </SideNavItems>
         </SideNav>
     )

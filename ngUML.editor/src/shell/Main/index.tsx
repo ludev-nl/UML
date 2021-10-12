@@ -1,15 +1,16 @@
 import React from 'react'
 import { EditorStateProvider } from '../../hooks/editorState'
 import { EditorDataProvider } from '../../hooks/editorData'
-import { TopMenu, NodeMenu, ContextMenu, Canvas } from '..'
+import { TopMenu, NodeMenu, ContextMenu, Canvas, RuleMenu } from '..'
 import './_main.css'
 
 export const Main: React.FC = () => {
     return (
         <EditorStateProvider>
             <EditorDataProvider>
-                <TopMenu/>
-                <NodeMenu/>
+                <RuleMenu />
+                <TopMenu />
+                <NodeMenu />
                 <ContextMenu/>
                 <Canvas/>
             </EditorDataProvider>

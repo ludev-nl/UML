@@ -1,0 +1,9 @@
+#RuleMenu{
+	position: fixed;
+	z-index: 8000;
+	background-color: #ccc;
+	width: 0px;
+	top: 3rem;
+	height: 100vh;
+	right: 0;
+}
