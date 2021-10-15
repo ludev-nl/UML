@@ -1,0 +1,10 @@
+FROM python:buster
+RUN apt-get update
+RUN apt-get install -y libmariadb-dev ffmpeg
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+WORKDIR /code
+COPY ./src/requirements.txt /code/
+RUN pip install -r requirements.txt
+RUN python -m nltk.downloader punkt
+RUN python -m nltk.downloader wordnet
