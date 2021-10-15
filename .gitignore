@@ -8,6 +8,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+envBackend/
 .Python
 env/
 build/
