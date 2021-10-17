@@ -1,0 +1,40 @@
+README:
+We probably need to setup a Postman API workspace, that is easier than this, but for now this is where we can save API calls.
+But we need to setup a Postman API workspace as soon as possible.
+
+Example:
+3: Title
+Type:       GET/POST
+Address:    /rules/
+Fields:     {}
+Returns:    None
+
+Hoe je makkelijk API calls kan testen:
+Option 1: Use Postman Agent (Desktop application of Postman)
+Option 2: Use your own Python script (Also useful if you repeatedly need to make several API calls to test)
+Option 3: You could also just use your browser, but this gets tedious.
+
+Additional information: POST calls are used to post information to the API, this information is provided in the body of the POST request (form-data in Postman)
+
+=======================================
+List of currently implemented API Calls
+=======================================
+
+1: Return all currently saved rules
+Type:       GET
+Address:    /rules/
+Fields:     None
+Returns:    JSON With list of all currently saved rules
+
+2: Return all currently saved rules, but also perform some processing on them
+Type:       GET
+Address:    /rules/modified/
+Fields:     None
+Returns:    JSON With list of all currently saved rules. Rules are split into properties as a dictionary.
+
+3: Add a rule to database
+Type:       POST
+Address:    /rules/add/
+Fields:     {"rule": "Rule as text"}
+Returns:    True or an error message   
+

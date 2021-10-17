@@ -1,1 +1,8 @@
-#TODO: Add all pages and api calls to rules
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.index),
+    path('add/', views.add),
+    path('modified/', views.get_modified_rules)
+]

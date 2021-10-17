@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'model.apps.ModelConfig',
     'shared.apps.SharedConfig',
     'extractor.apps.ExtractorConfig',
+    'rules.apps.RulesConfig',
     'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -41,7 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     #rules
-    'rest_framework'
+    #'rest_framework'
 ]
 
 MIDDLEWARE = [
