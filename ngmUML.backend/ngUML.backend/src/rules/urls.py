@@ -1,0 +1,1 @@
+#TODO: Add all pages and api calls to rules
