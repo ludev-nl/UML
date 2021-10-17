@@ -16,3 +16,18 @@
 	font-size: 1.25rem;
 	font-weight: 600;
 }
+
+li::before{
+	visibility: hidden;
+}
+
+#BadRules{
+	color: red;
+	display: block;
+	margin-top: 5px;
+	visibility: hidden;
+}
+
+.BadRulesShown{
+	visibility: visible !important;
+}
