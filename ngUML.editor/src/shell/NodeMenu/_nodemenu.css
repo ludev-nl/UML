@@ -23,3 +23,9 @@ hr{
 	border-top: 2px solid #aaa;
 	width: 90%;
 }
+
+ol{
+	width: 80%;
+	margin-left: 10% !important;
+	text-align: left;
+}
