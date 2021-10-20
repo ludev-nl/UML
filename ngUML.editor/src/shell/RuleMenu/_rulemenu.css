@@ -1,0 +1,33 @@
+#RuleMenu{
+	position: fixed;
+	z-index: 8000;
+	background-color: #ccc;
+	width: 0px;
+	top: 3rem;
+	right: 0;
+	height: 100vh;
+	transition: width 0.3s;
+	text-align: center;
+	padding-top: 5px;
+	border-left: 1px solid #bbb;
+}
+
+#Header{
+	font-size: 1.25rem;
+	font-weight: 600;
+}
+
+li::before{
+	visibility: hidden;
+}
+
+#BadRules{
+	color: red;
+	display: block;
+	margin-top: 5px;
+	visibility: hidden;
+}
+
+.BadRulesShown{
+	visibility: visible !important;
+}
