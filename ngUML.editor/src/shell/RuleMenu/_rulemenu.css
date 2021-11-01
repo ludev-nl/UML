@@ -31,3 +31,15 @@ li::before{
 .BadRulesShown{
 	visibility: visible !important;
 }
+
+#populateButton{
+	margin-top: 5px;
+}
+
+.tooltip{
+	z-index: 8001 !important;
+}
+
+.deleteButton{
+	float: right;
+}

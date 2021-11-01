@@ -4,7 +4,8 @@ import {
     TextArea,
     Button,
     OrderedList,
-    ListItem
+    ListItem,
+    Tooltip
 } from 'carbon-components-react'
 
 		
@@ -22,6 +23,20 @@ export const RuleMenu: React.FC = () => {
         rulesToComponents()
     }
 
+    function addRule(textArea: string){
+        let textAreaObject = document.getElementById(textArea) as HTMLInputElement
+        let valueOfTextArea = textAreaObject.value
+        let badrule = document.getElementById("BadRules")
+        if (valueOfTextArea.includes("bad")) {
+            badrule?.classList.add("BadRulesShown")
+        }
+        else {
+            addToRules(valueOfTextArea)
+            badrule?.classList.remove("BadRulesShown")
+        }
+        console.log(valueOfTextArea)
+    }
+
     function addToRules(toAdd: string) {
         var rules = rulesStringState
         rules.push(toAdd)
@@ -29,10 +44,35 @@ export const RuleMenu: React.FC = () => {
         rulesToComponents()
     }
 
+    function deleteFromRules(toDelete: string){
+        var rules = rulesStringState
+        var index = 0
+        for(let rule of rules){
+            if (rule === toDelete){
+                rules.splice(index, 1)
+            }
+            index++
+        }
+        setRulesStringState(rules)
+        rulesToComponents()
+    }
+
     function rulesToComponents() {
         var rulesComponents: JSX.Element[] = []
         for (let rule of rulesStringState) {
-            let ruleComponent: JSX.Element = <ListItem key={rule}>{rule}</ListItem>
+            let ruleComponent: JSX.Element = <ListItem key={rule}>{rule}
+                <Tooltip className="tooltip">Do you want to edit or delete this rule?
+                <Button onClick={() => {
+                    deleteFromRules(rule)
+                    addRule("editTextArea")
+                    }}
+                >Edit</Button><Button className="deleteButton" onClick={() => {deleteFromRules(rule)}}>Delete</Button>
+                <TextArea
+                    labelText=""
+                    id="editTextArea"
+                    defaultValue={rule}
+                ></TextArea>
+                </Tooltip></ListItem>
             rulesComponents.push(ruleComponent)
         }
         setRulesState(rulesComponents)
@@ -56,19 +96,7 @@ export const RuleMenu: React.FC = () => {
             </TextArea>
             <Button
                 id="AddRuleButton"
-                onClick={() => {
-                    let textAreaObject = document.getElementById("RuleTextArea") as HTMLInputElement
-                    let valueOfTextArea = textAreaObject.value
-                    let badrule = document.getElementById("BadRules")
-                    if (valueOfTextArea.includes("bad")) {
-                        badrule?.classList.add("BadRulesShown")
-                    }
-                    else {
-                        addToRules(valueOfTextArea)
-                        badrule?.classList.remove("BadRulesShown")
-                    }
-                    console.log(valueOfTextArea)
-                }}
+                onClick={() => {addRule("RuleTextArea")}}
             >
                 Add rule
             </Button>
@@ -85,6 +113,11 @@ export const RuleMenu: React.FC = () => {
                 }}
             >
                 Get rules from database
+            </Button>
+            <Button
+                id="populateButton"
+            >
+                Populate database
             </Button>
             <OrderedList
                 id="ruleList"
