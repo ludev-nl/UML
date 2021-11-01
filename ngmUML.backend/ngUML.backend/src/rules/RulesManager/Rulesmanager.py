@@ -1,4 +1,4 @@
-''' RulesManager manages everything rules: managing rules database, 
+''' RulesManager manages everything rules: managing rules database,
 adding new rules, finding rules, calls TextProcessor and MappingProcessor to make sure rules are correct'''
 #Like: addRule(attributes...), removeRule(id), editRule(request), getAllRules(), getRule(id)
 
@@ -54,8 +54,15 @@ class RulesFactory:
             return numericalRule(text_rule)
         elif(type == Constraints.ATTR_EQ_STR):
             return stringRule(text_rule)
+        elif(type == Constraints.MAX_SYMBOL):
+            return maxSymbolRule(text_rule)
+        elif(type == Constraints.SPECIFIC_CHAR):
+            return specificCharacterTypeRule(text_rule)
+        elif(type == Constraints.ORDER_CHAR):
+            return characterOrderRule(text_rule)
+        elif(type == Constraints.NULL):
+            return nullRule(text_rule)
+        elif(type == Constraints.ATTRIBUTES_EQ_NUM):
+            return attributesEqualValueRule(text_rule)
         else:
             raise Exception("Error: can't create rule of type: " + type)
-
-
-
