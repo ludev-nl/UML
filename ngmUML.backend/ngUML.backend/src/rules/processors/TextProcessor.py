@@ -63,7 +63,8 @@ def split_rule(text):
     if component[-1].isnumeric():
         text = component[2] + ' ' + component[0] + ' ' + component[5] + component[-1]
         if (numericalRule.check_rule(text)):
-            return Constraints.UNKNOWN_TYPE
+            return Constraints.ATTR_OP_NUM
+    #return Constraints.UNKNOWN_TYPE
     raise Exception("Can't parse into constraint: '" + text + "'")
 
 #Each rule itself knows when the processed_text can be converted into that rule
