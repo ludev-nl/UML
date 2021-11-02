@@ -2,6 +2,7 @@ import shlex #for splitting on spaces but preserving quotation marks
 from .Enums import Constraints
 from abc import ABC, abstractmethod
 
+#TODO: Add id field
 class Rule:
     @abstractmethod
     def __init__(self, text_rule):
@@ -67,8 +68,18 @@ class numericalRule(Rule):
     #the rule should be added to the list of validators for the relevant field in the model
     # so if string total should not exceed 100 in the model Order, then in models.py do:
     # class Order(models.Model):
-    #   total = models.IntegerField(validators=[(__logic to get right rule__).get_as_validator()]) 
-    # returns validator as anonymous function
+    #   total = models.IntegerField(validators=[%FindRule.getRuleFunctionName()];
+    # Example of generated function for numericalRule:
+    # """def rule_[id](inputvalue_of_field):
+    #     if inputvalue_of_field [operator] [number]:
+    #         raise ValidationError(
+    #             '%(inputvalue_of_field)s is not %([operator])s %([number]s) 
+    #              params={'value': inputvalue_of_field)}) """
+    #         
+    # from django.core.exceptions import ValidationError
+    #    this should be put in the file where the function is inserted
+
+    # returns validator as function (string)
     def get_as_validator(self):
         pass
     pass
