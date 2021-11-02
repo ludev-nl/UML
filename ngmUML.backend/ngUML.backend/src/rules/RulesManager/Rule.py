@@ -62,6 +62,15 @@ class numericalRule(Rule):
         
     def get_as_python(self):
         return "if(" + self.components["classifier"] + "." + self.components["attribute"] + self.components["operator"] + self.components["value"] + ")"
+    
+    #CONTEXT: In the generated application, in models.py
+    #the rule should be added to the list of validators for the relevant field in the model
+    # so if string total should not exceed 100 in the model Order, then in models.py do:
+    # class Order(models.Model):
+    #   total = models.IntegerField(validators=[(__logic to get right rule__).get_as_validator()]) 
+    # returns validator as anonymous function
+    def get_as_validator(self):
+        pass
     pass
 
 class stringRule(Rule):
