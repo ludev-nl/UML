@@ -12,6 +12,34 @@ export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
     const [rulesStringState, setRulesStringState] = useState<string[]>([])
 
+    // API CALL EXAMPLE!
+    //
+    // function apiToRules() {
+    //     // var apiRules: string[] = ["Rule een", "Rule twee"]
+    //     // var rules = rulesStringState
+    //     // for (let apiRule of apiRules) {
+    //     //     rules.push(apiRule)
+    //     // }
+    //     // setRulesStringState(rules)
+    //     // rulesToComponents()
+    //     const data = new FormData();
+    //     data.append("rule", "warehouse capacity < 50")
+    //     fetch("http://localhost:8000/rules/add/", 
+    //                 {method: 'POST',
+    //                 mode: "cors",
+    //                 body: data
+    //             } )
+    //             .then(response => {
+    //                     return response.json();
+    //             })
+    //             .then(data => {
+    //                 console.log('Success:', data);
+    //             })
+    //             .catch(error => {
+    //                 console.error('Error: ', error);
+    //             });
+    // }
+    
     function apiToRules() {
         var apiRules: string[] = ["Rule een", "Rule twee"]
         var rules = rulesStringState
