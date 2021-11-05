@@ -1,4 +1,4 @@
-import React, { useState} from 'react'
+import React, { useState } from 'react'
 import './_rulemenu.css'
 import {
     TextArea,
@@ -7,7 +7,6 @@ import {
     ListItem,
     Tooltip
 } from 'carbon-components-react'
-
 		
 export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
@@ -115,6 +114,26 @@ export const RuleMenu: React.FC = () => {
                 Get rules from database
             </Button>
             <Button
+                onClick={async () => {
+                    const response = fetch(
+                        "http://127.0.0.1:8000/rules/",
+                        {
+                            method: 'GET',
+                            mode: 'no-cors'
+                        }
+                    )
+
+                    const response1 = fetch(
+                        "http://127.0.0.1:8000/rules/add/",
+                        {
+                            method: 'POST',
+                            mode: 'no-cors',
+                            body: JSON.stringify({rule: 'warehouse storage > 50'})
+                        }
+                    )
+
+                    console.log(await response1)
+                }}
                 id="populateButton"
             >
                 Populate database
