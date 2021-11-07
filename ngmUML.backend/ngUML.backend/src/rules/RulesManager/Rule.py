@@ -170,7 +170,7 @@ class characterOrderRule(Rule):
            and (verify_components[5] != 'numbers' and verify_components[5] != 'letters')):
             print("argument should be numbers or letters and is" + verify_components[2])
             return False
-        if((verify_components[2].isnumeric() and verify_components[4].isnumeric()):
+        if((verify_components[2].isnumeric() and verify_components[4].isnumeric())):
             if(int(verify_components[2])<1 or int(verify_components[4])<1):
                 print("arguments 2 and 4 should be at least 1 and are" + verify_components[2] + ' ' + verify_components[4])
                 return False
@@ -182,16 +182,13 @@ class characterOrderRule(Rule):
     def get_as_python(self):
         if (verify_components[2] == 'numbers' and verify_components[4] == 'numbers'):
             return "if(" + self.components["classifier"] + "." + self.components["attribute"] + ".isnumeric()"")"
-        else if (verify_components[2] == 'letters' verify_components[4] == 'letters'):
+        elif (verify_components[2] == 'letters' and verify_components[4] == 'letters'):
             return "if(" + self.components["classifier"] + "." + self.components["attribute"] + ".isalpha()"")"
-        else if (verify_components[2] == 'letters' verify_components[4] == 'numbers'):
-            return "if(" + self.components["classifier"] + "." + self.components["attribute"] + "[0:" + int(self.components["value1"])-1 + "]" + ".isalpha() and"
-            + self.components["classifier"] + "." + self.components["attribute"] + "[" + int(self.components["value1"]) ":" + int(self.components["value1"])+int(self.components["value2"])-1 + ".isnumeric()" + ")"
-        else if (verify_components[2] == 'numbers' verify_components[4] == 'letters'):
-            return "if(" + self.components["classifier"] + "." + self.components["attribute"] + "[0:" + int(self.components["value1"])-1 + "]" + ".isnumeric() and"
-            + self.components["classifier"] + "." + self.components["attribute"] + "[" + int(self.components["value1"]) ":" + int(self.components["value1"])+int(self.components["value2"])-1 + ".isalpha()" + ")"
-        else if (verify_components[2] == 'numbers' verify_components[4] == 'letters'):
-    pass
+        elif (verify_components[2] == 'letters' and verify_components[4] == 'numbers'):
+            return "if(" + self.components["classifier"] + "." + self.components["attribute"] + "[0:" + int(self.components["value1"])-1 + "]" + ".isalpha() and"+ self.components["classifier"] + "." + self.components["attribute"] + "[" + int(self.components["value1"]) + ":" + int(self.components["value1"])+int(self.components["value2"])-1 + ".isnumeric()" + ")"
+        elif (verify_components[2] == 'numbers' and verify_components[4] == 'letters'):
+            return "if(" + self.components["classifier"] + "." + self.components["attribute"] + "[0:" + int(self.components["value1"])-1 + "]" + ".isnumeric() and" + self.components["classifier"] + "." + self.components["attribute"] + "[" + int(self.components["value1"]) + ":" + int(self.components["value1"])+int(self.components["value2"])-1 + ".isalpha()" + ")"
+        pass
 
     class nullRule(Rule):
         def __init__(self, text_rule):
@@ -208,7 +205,7 @@ class characterOrderRule(Rule):
             if(len(verify_components) != 4):
                 print("error amount of arguments should be 4, is " + str(len(verify_components)))
                 return False
-        return True
+            return True
 
         def get_as_python(self):
             return "if(" + self.components["classifier"] + "." + self.components["attribute"] + "is not ''" + ")"
@@ -237,7 +234,7 @@ class characterOrderRule(Rule):
             return True
 
         def get_as_python(self):
-            return "if(" + self.components["classifier1"] + "." + self.components["attribute1"] "+" + + self.components["classifier2"] + "." + self.components["attribute2"] " == " + self.components["value"] + ")"
+            return "if(" + self.components["classifier1"] + "." + self.components["attribute1"] + " " + self.components["classifier2"] + "." + self.components["attribute2"] + " == " + self.components["value"] + ")"
     # class defaultNumberRule(Rule):
     #     def __init__(self, text_rule):
     #         self.text_rule = text_rule
