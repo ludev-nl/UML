@@ -203,10 +203,10 @@ class characterOrderRule(Rule):
             }
         @staticmethod
         def check_rule(text):
-            # OBJECT ATTRIBUTE
+            # OBJECT ATTRIBUTE NOT NULL
             verify_components = shlex.split(text.lower())
-            if(len(verify_components) != 2):
-                print("error amount of arguments should be 6, is " + str(len(verify_components)))
+            if(len(verify_components) != 4):
+                print("error amount of arguments should be 4, is " + str(len(verify_components)))
                 return False
         return True
 
