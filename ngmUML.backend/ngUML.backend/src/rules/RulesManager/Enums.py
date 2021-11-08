@@ -4,10 +4,7 @@ class Constraints(Enum):
     # <classifier> <attribute> <operator> <numerical value>
     # ex: wharehouse storagecapacity < 500
     ATTR_OP_NUM = "ATTR_OP_NUM"
-    # <classifier> <attribute> <(not) equal> <string>
-    # ex: employee name != 'John Cena'
-    ATTR_EQ_STR = "ATTR_EQ_STR"
-    # <classifier> <attruibut> <operator> <numerical value>
+    # <classifier> <attribute> <operator> <numerical value>
     # ex:employee name < 10
     MAX_SYMBOL = "MAX_SYMBOL"
     # <classifier> <attribute> <type>

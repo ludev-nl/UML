@@ -65,34 +65,6 @@ class numericalRule(Rule):
         return "if(" + self.components["classifier"] + "." + self.components["attribute"] + self.components["operator"] + self.components["value"] + ")"
     pass
 
-class stringRule(Rule):
-    def __init__(self, text_rule):
-        self.text_rule = text_rule
-        split = shlex.split(text_rule)
-        self.components = {
-            "classifier": split[0],
-            "attribute": split[1],
-            "equals": split[2],
-            "string": split[3]
-        }
-
-    @staticmethod
-    def check_rule(text):
-        # OBJECT ATTRIBUTE EQUALS STRING
-        operators = ["==", "!=",]
-        verify_components = shlex.split(text.lower())
-        if(len(verify_components) != 4):
-            print("error amount of arguments should be 4, is " + str(len(verify_components)))
-            return False
-        if(verify_components[2] not in operators):
-            print("error no boolean operator: should be one of '==, !=', is: " + verify_components[2])
-            return False
-        return True
-
-    def get_as_python(self):
-        return "if(" + self.components["classifier"] + "." + self.components["attribute"] + self.components["equals"] + self.components["string"] + ")"
-    pass
-
 class maxSymbolRule(Rule):
     def __init__(self, text_rule):
         self.text_rule = text_rule
@@ -105,7 +77,7 @@ class maxSymbolRule(Rule):
         }
     @staticmethod
     def check_rule(text):
-        # [OBJECT.ATTRIBUTE] CONTAINS [OPERATOR] # SYMBOLS 
+        # [OBJECT.ATTRIBUTE] CONTAINS [OPERATOR] # SYMBOLS
         operators = ["==", "!=",">", ">=", "=", "<", "<="]
         verify_components = shlex.split(text.lower())
         if(len(verify_components) != 5):

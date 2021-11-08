@@ -52,8 +52,6 @@ class RulesFactory:
         of that type.'''
         if(type == Constraints.ATTR_OP_NUM):
             return numericalRule(text_rule)
-        elif(type == Constraints.ATTR_EQ_STR):
-            return stringRule(text_rule)
         elif(type == Constraints.MAX_SYMBOL):
             return maxSymbolRule(text_rule)
         elif(type == Constraints.SPECIFIC_CHAR):
