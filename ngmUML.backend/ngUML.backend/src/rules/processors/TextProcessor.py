@@ -62,7 +62,6 @@ def process_text(text):
     regExpr = re.compile(r"empty|null")
     for token in text:
         if re.search(regExpr,token):
-            if(nullRule.check_rule(text)):
                 rule = other_nouns[0] + "." + attributes[0] + " NOT NULL"
                 return rule
     return text
