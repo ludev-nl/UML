@@ -59,9 +59,33 @@ def process_text(text):
                        'product number']
     attributes = set(attribute_words) & set(text)
     other_nouns = [word for word in TextBlob(text).noun_phrases if word not in attributes]
-    regExpr = re.compile(r"empty|null")
+    digits = [word for word in text if word.isnumeric()]
+
+    #regular expressions
+    searchNull = re.compile(r"empty|null")
+    searchNumSymbols = re.compile(r"contains|symbols")
+    searchNot = re.compile(r"not")
+    searchEqualOp = re.compile(r"==|=|equal|copy|equavilant|double|like|match")
+    searchLessOp = re.compile(r"<|less|lower|beneath|smaller")
+    searchMoreOp = re.compile(r">|more|greater|higher")
     for token in text:
-        if re.search(regExpr,token):
-                rule = other_nouns[0] + "." + attributes[0] + " NOT NULL"
-                return rule
+        if re.search(searchNull,token):
+            rule = other_nouns[0] + "." + attributes[0] + " NOT NULL"
+            return rule
+        if re.search(searchNumSymbols, token):
+            if re.search(searchEqualOp, token):
+                if re.search(searchNot, token):
+                    operator = "!="
+                elif re.search(searchLessOp):
+                    operator = "<="
+                elif re.search(searchMoreOp,token):
+                    operator = ">="
+                else:
+                    operator = "=="
+            elif re.search(searchLessOp, token):
+                operator = "<"
+            elif re.search(searchMoreOp, token):
+                operator = ">"
+            rule = other_nouns[0] + "." + attributes[0] + " CONTAINS " + operator + digit[0] +  "SYMBOLS"
+            return rule
     return text

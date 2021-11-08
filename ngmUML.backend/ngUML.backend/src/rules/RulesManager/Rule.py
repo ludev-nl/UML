@@ -105,10 +105,10 @@ class maxSymbolRule(Rule):
         }
     @staticmethod
     def check_rule(text):
-        # OBJECT ATTRIBUTE OPERATOR VALUE
+        # [OBJECT.ATTRIBUTE] CONTAINS [OPERATOR] # SYMBOLS 
         operators = ["==", "!=",">", ">=", "=", "<", "<="]
         verify_components = shlex.split(text.lower())
-        if(len(verify_components) != 4):
+        if(len(verify_components) != 5):
             print("error amount of arguments should be 4, is " + str(len(verify_components)))
             return False
         if(verify_components[2] not in operators):
