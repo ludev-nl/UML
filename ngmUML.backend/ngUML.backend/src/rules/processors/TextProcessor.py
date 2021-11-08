@@ -20,7 +20,7 @@ def wordToNumber(text):
          "eighteen" : 18, "nineteen" : 19}
     tens = {"twenty": 20, "thirty" : 30, "fourty" : 40, "fifty" : 50, "sixty" : 60, 
         "seventy": 70, "eighty" : 80, "ninety" : 90}
-    mount = {"hundred" : 100, "thousand" : 1000, "million" : 1000000}
+    amount = {"hundred" : 100, "thousand" : 1000, "million" : 1000000}
 
     newNumber, numbers, idNumbers = [], [], []
     copyText = text.copy()
