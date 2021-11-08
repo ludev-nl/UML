@@ -25,6 +25,9 @@ class RulesManager:
         db_rule = RuleDB(messy_rule = messy_text, processed_rule = processed_text, type = detected_constraint.value, python = python_string)
         db_rule.save()
 
+    def db_remove_rule_by_id(self, id):
+        return RuleDB.objects.get(pk=id).delete()
+    
     def db_get_all_rules(self):
         return RuleDB.objects.all()
 
@@ -41,6 +44,7 @@ class RulesManager:
 
     def get_rule_by_id(self, id):
         db_rule = RuleDB.objects.get(pk=id)
+        #TODO: also set the id of the rule, for validator 
         self.factory.create_rule(db_rule.type, db_rule.processed_text)
 
 
