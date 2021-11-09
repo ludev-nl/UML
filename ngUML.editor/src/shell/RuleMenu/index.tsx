@@ -12,10 +12,10 @@ export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
     const [rulesStringState, setRulesStringState] = useState<string[]>([])
 
-    function populateDatabase() {
+    async function addRuleToDatabase(ruleString: string) {
          const data = new FormData();
-         data.append("rule", "warehouse capacity < 50")
-         fetch("http://localhost:8000/rules/add/", 
+         data.append("rule", ruleString)
+         const json = await fetch("http://localhost:8000/rules/add/", 
                      {method: 'POST',
                      mode: "cors",
                      body: data
@@ -23,15 +23,13 @@ export const RuleMenu: React.FC = () => {
                  .then(response => {
                          return response.json();
                  })
-                 .then(data => {
-                     console.log('Success:', data);
-                 })
                  .catch(error => {
                      console.error('Error: ', error);
                  });
+        return json
     }
 
-    function apiToRules() {
+    function databaseToRules() {
         var apiRules: string[] = []
         fetch("http://localhost:8000/rules/",
             {
@@ -57,18 +55,20 @@ export const RuleMenu: React.FC = () => {
             });
     }
 
-    function addRule(textArea: string){
+    async function addRule(textArea: string){
         let textAreaObject = document.getElementById(textArea) as HTMLInputElement
         let valueOfTextArea = textAreaObject.value
-        let badrule = document.getElementById("BadRules")
-        if (valueOfTextArea.includes("bad")) {
-            badrule?.classList.add("BadRulesShown")
+        var ruleAdded = await addRuleToDatabase(valueOfTextArea)
+        var badrule = document.getElementById("BadRules")
+        if (ruleAdded.FAIL == null) {
+            console.log("succes")
+            badrule?.classList.remove("BadRulesShown")
+            addToRules(valueOfTextArea)
         }
         else {
-            addToRules(valueOfTextArea)
-            badrule?.classList.remove("BadRulesShown")
+            console.log("fail")
+            badrule?.classList.add("BadRulesShown")
         }
-        console.log(valueOfTextArea)
     }
 
     function addToRules(toAdd: string) {
@@ -143,13 +143,13 @@ export const RuleMenu: React.FC = () => {
             </hr>
             <Button
                 onClick={() => {
-                    apiToRules()
+                    databaseToRules()
                 }}
             >
                 Get rules from database
             </Button>
             <Button
-                onClick={() => { populateDatabase()} }
+                onClick={() => { addRuleToDatabase("warehouse capacity < 50")} }
                 id="populateButton"
             >
                 Populate database
