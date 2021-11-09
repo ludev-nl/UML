@@ -13,38 +13,6 @@ Example of user input: "I want the User class's name not to be longer than 20 ch
 Another example: "user's name should be less or equal to 20 letters"
 Both map to: user name.length <= 20
 '''
-def wordToNumber(text):
-    units = {"zero": 0, "one" : 1, "two" : 2, "three" : 3, "four" : 4,  "five": 5, "six" : 6,
-         "seven" : 7, "eight" : 8, "nine" : 9, "ten" : 10, "eleven" : 11, "twelve" : 12,
-         "thirteen" : 13, "fourteen" : 14, "fifteen" : 15, "sixteen" :  16, "seventeen" : 17,
-         "eighteen" : 18, "nineteen" : 19}
-    tens = {"twenty": 20, "thirty" : 30, "fourty" : 40, "fifty" : 50, "sixty" : 60, 
-        "seventy": 70, "eighty" : 80, "ninety" : 90}
-    amount = {"hundred" : 100, "thousand" : 1000, "million" : 1000000}
-
-    newNumber, numbers, idNumbers = [], [], []
-    copyText = text.copy()
-    for i in range(len(copyText)):
-        if(copyText[i] in units):
-            numbers.append(units[copyText[i]])
-            idNumbers.append(i)
-        elif(copyText[i] in tens):
-            numbers.append(tens[copyText[i]])
-            idNumbers.append(i)
-        elif(copyText[i] in amount):
-            numbers.append(amount[copyText[i]])
-            id = numbers.index(amount[copyText[i]])
-            if(len(numbers) > 1):
-                correctNumber = numbers[id-1] * numbers[id]
-                numbers[id-1] = correctNumber
-                del numbers[id]
-                idNumbers.append(i)
-        else:
-            continue
-    idNumbers.sort()
-    newNumber.append(sum(numbers))
-    newText = copyText[0:idNumbers[0]] + newNumber + copyText[idNumbers[-1]+1:]
-    return newText
 
 
 def split_rule(text):
@@ -54,7 +22,6 @@ def split_rule(text):
     textBlb = TextBlob(text).correct() #spell correction
     tokens = textBlb.tokens #split rule into seperate words
     text = [word for word in tokens if word not in stopwords.words('english')]#remove stopwords
-    text = wordToNumber(text)
     return text
 
 #Each rule itself knows when the processed_text can be converted into that rule
@@ -139,15 +106,15 @@ def process_text(text):
                 operator = " >= "
             elif re.search(searchMostOp, token):
                 operator = " <= "
-            if (searchNumSymbols, token):
+            if re.search(searchNumSymbols, token):
                 text = nouns[0] + "." + attributes[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
                 return text
             else:
-                text = nouns[0] + "." + attributes[0] + operator + digit[0]
+                text = nouns[0] + "." + attributes[0] + operator + digits[0]
                 return text
-        if re.search(searchType, token):#this rule contains a type specification
+        if (len(types)>0):#this rule contains a type specification
             if (len(digits) > 1):
-                text = nouns[0] + "." + attributes[0] + "CONTAINS" + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
+                text = nouns[0] + "." + attributes[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
                 return text
             else:
                 text = nouns[0] + "." + attributes[0] + " CONTAINS ONLY" + types[0]
