@@ -7,10 +7,30 @@ import {
     ListItem,
     Tooltip
 } from 'carbon-components-react'
+
+class RuleObject {
+    id: string
+    messy_rule: string
+    processed_rule: string
+    type: string
+    python: string
+
+    constructor(id: string, messy_rule: string, processed_rule: string, type: string, python: string) {
+        this.id = id
+        this.messy_rule = messy_rule
+        this.processed_rule = processed_rule
+        this.type = type
+        this.python = python
+    }
+
+    toString() {
+        console.log("id: " + this.id + ", messy rule: " + this.messy_rule + ", processed rule: " + this.processed_rule + ", type: " + this.type + ", python: " + this.python)
+    }
+}
 		
 export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
-    const [rulesStringState, setRulesStringState] = useState<string[]>([])
+    const [rulesObject, setRulesObject] = useState<RuleObject[]>([])
 
     async function addRuleToDatabase(ruleString: string) {
          const data = new FormData();
@@ -31,6 +51,7 @@ export const RuleMenu: React.FC = () => {
 
     function databaseToRules() {
         var apiRules: string[] = []
+        var apiRulesObject: RuleObject[] = []
         fetch("http://localhost:8000/rules/",
             {
                 method: 'GET',
@@ -41,13 +62,11 @@ export const RuleMenu: React.FC = () => {
             })
             .then(response => {
                 for (var rule of response) {
+                    var ruleObject: RuleObject = new RuleObject(rule.pk, rule.fields["messy_rule"], rule.fields["processed_rule"], rule.fields["type"], rule.fields["python"])
+                    apiRulesObject.push(ruleObject)
                     apiRules.push(rule.fields["messy_rule"])
                 }
-                var rules = rulesStringState
-                for (let apiRule of apiRules) {
-                    rules.push(apiRule)
-                }
-                setRulesStringState(rules)
+                setRulesObject(apiRulesObject)
                 rulesToComponents()
             })
             .catch(error => {
@@ -60,51 +79,43 @@ export const RuleMenu: React.FC = () => {
         let valueOfTextArea = textAreaObject.value
         var ruleAdded = await addRuleToDatabase(valueOfTextArea)
         var badrule = document.getElementById("BadRules")
+        //adding rule succeeded
         if (ruleAdded.FAIL == null) {
-            console.log("succes")
             badrule?.classList.remove("BadRulesShown")
-            addToRules(valueOfTextArea)
+            databaseToRules()
         }
         else {
-            console.log("fail")
             badrule?.classList.add("BadRulesShown")
         }
     }
 
-    function addToRules(toAdd: string) {
-        var rules = rulesStringState
-        rules.push(toAdd)
-        setRulesStringState(rules)
-        rulesToComponents()
-    }
-
     function deleteFromRules(toDelete: string){
-        var rules = rulesStringState
+        var rules = rulesObject
         var index = 0
-        for(let rule of rules){
-            if (rule === toDelete){
+        for(let rule of rulesObject){
+            if (rule.id === toDelete){
                 rules.splice(index, 1)
             }
             index++
         }
-        setRulesStringState(rules)
+        setRulesObject(rules)
         rulesToComponents()
     }
 
     function rulesToComponents() {
         var rulesComponents: JSX.Element[] = []
-        for (let rule of rulesStringState) {
-            let ruleComponent: JSX.Element = <ListItem key={rule}>{rule}
+        for (let rule of rulesObject) {
+            let ruleComponent: JSX.Element = <ListItem key={rule.id}>{rule.messy_rule}
                 <Tooltip className="tooltip">Do you want to edit or delete this rule?
                 <Button onClick={() => {
-                    deleteFromRules(rule)
+                    deleteFromRules(rule.id)
                     addRule("editTextArea")
                     }}
-                >Edit</Button><Button className="deleteButton" onClick={() => {deleteFromRules(rule)}}>Delete</Button>
+                >Edit</Button><Button className="deleteButton" onClick={() => {deleteFromRules(rule.id)}}>Delete</Button>
                 <TextArea
                     labelText=""
                     id="editTextArea"
-                    defaultValue={rule}
+                    defaultValue={rule.messy_rule}
                 ></TextArea>
                 </Tooltip></ListItem>
             rulesComponents.push(ruleComponent)
