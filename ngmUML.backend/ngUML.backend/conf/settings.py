@@ -41,11 +41,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',
     #rules
     #'rest_framework'
 ]
 
 MIDDLEWARE = [
+    #for corsheader
+    'corsheaders.middleware.CorsMiddleware',
+    #original
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -144,3 +148,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.UUIDField'
 
 # MEDIA_URL = '/data/'  # 显示图片时通过该路径索引图片
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'data').replace("//", "/")  # 设置上传图片的保存位置
+
+
+# cors fix
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
