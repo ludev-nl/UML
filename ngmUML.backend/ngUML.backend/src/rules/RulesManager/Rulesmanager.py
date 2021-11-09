@@ -1,7 +1,6 @@
 ''' RulesManager manages everything rules: managing rules database,
 adding new rules, finding rules, calls TextProcessor and MappingProcessor to make sure rules are correct'''
 #Like: addRule(attributes...), removeRule(id), editRule(request), getAllRules(), getRule(id)
-#change name
 # Note: split the logic of views and the business logic of rulesmanager logically, don't just move logic from views.py to rulesmanger when there is no need for it
 from ..models import Rule as RuleDB
 from ssl import create_default_context
