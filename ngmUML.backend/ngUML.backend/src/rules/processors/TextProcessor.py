@@ -1,7 +1,7 @@
 #import rules to check if processed text is a rule
 from nltk.corpus.reader.conll import ConllSRLInstance
 from rules.RulesManager.Enums import Constraints
-from rules.RulesManager.Rule import stringRule, numericalRule
+from rules.RulesManager.Rule import numericalRule
 import nltk
 import re
 from nltk.corpus import stopwords
@@ -13,7 +13,38 @@ Example of user input: "I want the User class's name not to be longer than 20 ch
 Another example: "user's name should be less or equal to 20 letters"
 Both map to: user name.length <= 20
 '''
+def wordToNumber(text):
+    units = {"zero": 0, "one" : 1, "two" : 2, "three" : 3, "four" : 4,  "five": 5, "six" : 6,
+         "seven" : 7, "eight" : 8, "nine" : 9, "ten" : 10, "eleven" : 11, "twelve" : 12,
+         "thirteen" : 13, "fourteen" : 14, "fifteen" : 15, "sixteen" :  16, "seventeen" : 17,
+         "eighteen" : 18, "nineteen" : 19}
+    tens = {"twenty": 20, "thirty" : 30, "fourty" : 40, "fifty" : 50, "sixty" : 60, 
+        "seventy": 70, "eighty" : 80, "ninety" : 90}
+    amount = {"hundred" : 100, "thousand" : 1000, "million" : 1000000}
 
+    newNumber, numbers, idNumbers = [], [], []
+    copyText = text.copy()
+    for i in range(len(copyText)):
+      if(copyText[i] in units):
+          numbers.append(units[copyText[i]])
+          idNumbers.append(i)
+      elif(copyText[i] in tens):
+          numbers.append(tens[copyText[i]])
+          idNumbers.append(i)
+      elif(copyText[i] in amount):
+          numbers.append(amount[copyText[i]])
+          id = numbers.index(amount[copyText[i]])
+          if(len(numbers) > 1):
+            correctNumber = numbers[id-1] * numbers[id]
+            numbers[id-1] = correctNumber
+            del numbers[id]
+            idNumbers.append(i)
+      else:
+          continue
+    idNumbers.sort()
+    newNumber.append(sum(numbers))
+    newText = copyText[0:idNumbers[0]] + newNumber + copyText[idNumbers[-1]+1:]
+    return newText
 
 def split_rule(text):
     ''' Splits a string into individual words and cleans the data'''
@@ -22,6 +53,7 @@ def split_rule(text):
     textBlb = TextBlob(text).correct() #spell correction
     tokens = textBlb.tokens #split rule into seperate words
     text = [word for word in tokens if word not in stopwords.words('english')]#remove stopwords
+    text = wordToNumber(text)
     return text
 
 #Each rule itself knows when the processed_text can be converted into that rule

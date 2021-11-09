@@ -4,7 +4,7 @@ adding new rules, finding rules, calls TextProcessor and MappingProcessor to mak
 # Note: split the logic of views and the business logic of rulesmanager logically, don't just move logic from views.py to rulesmanger when there is no need for it
 from ..models import Rule as RuleDB
 from ssl import create_default_context
-from rules.RulesManager.Rule import stringRule, numericalRule
+from rules.RulesManager.Rule import numericalRule
 from rules.processors.TextProcessor import determine_rule_type, process_text
 from rules.RulesManager.Enums import Constraints
 
