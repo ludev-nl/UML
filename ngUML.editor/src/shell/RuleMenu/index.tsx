@@ -12,14 +12,49 @@ export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
     const [rulesStringState, setRulesStringState] = useState<string[]>([])
 
+    function populateDatabase() {
+         const data = new FormData();
+         data.append("rule", "warehouse capacity < 50")
+         fetch("http://localhost:8000/rules/add/", 
+                     {method: 'POST',
+                     mode: "cors",
+                     body: data
+                 } )
+                 .then(response => {
+                         return response.json();
+                 })
+                 .then(data => {
+                     console.log('Success:', data);
+                 })
+                 .catch(error => {
+                     console.error('Error: ', error);
+                 });
+    }
+
     function apiToRules() {
-        var apiRules: string[] = ["Rule een", "Rule twee"]
-        var rules = rulesStringState
-        for (let apiRule of apiRules) {
-            rules.push(apiRule)
-        }
-        setRulesStringState(rules)
-        rulesToComponents()
+        var apiRules: string[] = []
+        fetch("http://localhost:8000/rules/",
+            {
+                method: 'GET',
+                mode: "cors",
+            })
+            .then(response => {
+                return response.json();
+            })
+            .then(response => {
+                for (var rule of response) {
+                    apiRules.push(rule.fields["messy_rule"])
+                }
+                var rules = rulesStringState
+                for (let apiRule of apiRules) {
+                    rules.push(apiRule)
+                }
+                setRulesStringState(rules)
+                rulesToComponents()
+            })
+            .catch(error => {
+                console.error('Error: ', error);
+            });
     }
 
     function addRule(textArea: string){
@@ -114,26 +149,7 @@ export const RuleMenu: React.FC = () => {
                 Get rules from database
             </Button>
             <Button
-                onClick={async () => {
-                    const response = fetch(
-                        "http://127.0.0.1:8000/rules/",
-                        {
-                            method: 'GET',
-                            mode: 'no-cors'
-                        }
-                    )
-
-                    const response1 = fetch(
-                        "http://127.0.0.1:8000/rules/add/",
-                        {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            body: JSON.stringify({rule: 'warehouse storage > 50'})
-                        }
-                    )
-
-                    console.log(await response1)
-                }}
+                onClick={() => { populateDatabase()} }
                 id="populateButton"
             >
                 Populate database
