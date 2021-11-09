@@ -18,7 +18,7 @@ def wordToNumber(text):
          "seven" : 7, "eight" : 8, "nine" : 9, "ten" : 10, "eleven" : 11, "twelve" : 12,
          "thirteen" : 13, "fourteen" : 14, "fifteen" : 15, "sixteen" :  16, "seventeen" : 17,
          "eighteen" : 18, "nineteen" : 19}
-    tens = {"twenty": 20, "thirty" : 30, "fourty" : 40, "fifty" : 50, "sixty" : 60, 
+    tens = {"twenty": 20, "thirty" : 30, "fourty" : 40, "fifty" : 50, "sixty" : 60,
         "seventy": 70, "eighty" : 80, "ninety" : 90}
     amount = {"hundred" : 100, "thousand" : 1000, "million" : 1000000}
 
@@ -42,7 +42,7 @@ def wordToNumber(text):
       else:
           continue
     idNumbers.sort()
-    newNumber.append(sum(numbers))
+    newNumber.append(str(sum(numbers)))
     newText = copyText[0:idNumbers[0]] + newNumber + copyText[idNumbers[-1]+1:]
     return newText
 
