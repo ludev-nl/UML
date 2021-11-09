@@ -6,6 +6,8 @@ import nltk
 import re
 from nltk.corpus import stopwords
 from textblob import TextBlob
+from nltk.stem import WordNetLemmatizer
+
 '''The goal of text processor is to map messy_text into processed_text
 That is to say: the user inputs messy text, and the text processor should unambigiously
 map all those possible inputs to the real, singular meaning
@@ -54,6 +56,9 @@ def split_rule(text):
     tokens = textBlb.tokens #split rule into seperate words
     text = [word for word in tokens if word not in stopwords.words('english')]#remove stopwords
     text = wordToNumber(text)
+    lemmatizer = WordNetLemmatizer()
+    for i in range(len(text)):
+        text[i] = lemmatizer.lemmatize(text[i])
     return text
 
 #Each rule itself knows when the processed_text can be converted into that rule
