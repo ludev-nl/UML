@@ -65,7 +65,7 @@ def split_rule(text):
 def determine_rule_type(text):
     '''Checks if the processed string is of the form of one of the rules'''
     if(numericalRule.check_rule(text)):
-        return Constraints.ATTR_OP_NUM
+        return Constraints.PROP_OP_NUM
     elif(maxSymbolRule.check_rule(text)):
         return Constraints.MAX_SYMBOL
     elif(specificCharacterTypeRule.check_rule(text)):
@@ -74,8 +74,8 @@ def determine_rule_type(text):
         return Constraints.ORDER_CHAR
     elif(nullRule.check_rule(text)):
         return Constraints.NULL
-    elif(attributesEqualValueRule.check_rule(text)):
-        return Constraints.ATTRIBUTES_EQ_NUM
+    elif(propertiesEqualValueRule.check_rule(text)):
+        return Constraints.PROPERTIES_EQ_NUM
     else:
         raise Exception("Can't parse into constraint: '" + text + "'")
 
@@ -86,18 +86,18 @@ def determine_rule_type(text):
 #input: result of split_rule
 def process_text(text):
     '''Maps messy user input to a singular representation'''
-    attribute_words = ['id', 'first name', 'last name', 'name', 'address', 'email', 'number','no', 'code', 'date', 'type',
+    property_words = ['id', 'first name', 'last name', 'name', 'address', 'email', 'number','no', 'code', 'date', 'type',
                        'volume', 'birth', 'password', 'price', 'quantity', 'location', 'maximum temperature', 'resolution date', 'creation date',
                        'crime code', 'course name', 'time slot', 'quantities', 'delivery date', 'prices', 'prize',
                        'delivery address', 'scanner', 'till', 'illness conditions', 'diagnostic result', 'suggestions',
                        'birth date', 'order number', 'total cost', 'entry date', 'delivery status', 'description',
                        'product number']
-    attributes_text = set(attribute_words) & set(text)
-    attributes = list(attributes_text)
+    properties_text = set(property_words) & set(text)
+    properties = list(properties_text)
     nouns = []
     for word,pos in nltk.pos_tag((text)):
          if (pos == 'NN' or pos == 'NNP' or pos == 'NNS' or pos == 'NNPS'):
-            if (word not in attributes):
+            if (word not in properties):
              nouns.append(word)
     digits = [word for word in text if word.isnumeric()]
     types = []
@@ -123,7 +123,7 @@ def process_text(text):
     #generate rule
     for token in text:
         if re.search(searchNull,token):#not null rule
-            text = nouns[0] + "." + attributes[0] + " NOT NULL"
+            text = nouns[0] + "." + properties[0] + " NOT NULL"
             return text
         if re.search(searchOp, token):#this is a rule with an operator
             if re.search(searchEqualOp, token):
@@ -144,20 +144,20 @@ def process_text(text):
             elif re.search(searchMostOp, token):
                 operator = " <= "
             if re.search(searchNumSymbols, token):
-                text = nouns[0] + "." + attributes[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
+                text = nouns[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
                 return text
             else:
-                text = nouns[0] + "." + attributes[0] + operator + digits[0]
+                text = nouns[0] + "." + properties[0] + operator + digits[0]
                 return text
         if (len(types)>0):#this rule contains a type specification
             if (len(digits) > 1):
-                text = nouns[0] + "." + attributes[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
+                text = nouns[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
                 return text
             else:
-                text = nouns[0] + "." + attributes[0] + " CONTAINS ONLY" + types[0]
+                text = nouns[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
                 return text
-        if (len(attributes)>1):
-            text = nouns[0] + "." + attributes[0] + " " + nouns[1] + "." + attributes[1] + " EQUALS " + digits[0]
+        if (len(properties)>1):
+            text = nouns[0] + "." + properties[0] + " " + nouns[1] + "." + properties[1] + " EQUALS " + digits[0]
             return text
         else:
             raise Exception("Can't parse into constraint: '" + text + "'")
