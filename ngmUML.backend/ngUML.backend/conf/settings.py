@@ -149,7 +149,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.UUIDField'
 # MEDIA_URL = '/data/'  # 显示图片时通过该路径索引图片
 # MEDIA_ROOT = os.path.join(BASE_DIR, 'data').replace("//", "/")  # 设置上传图片的保存位置
 
-
 # cors fix
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

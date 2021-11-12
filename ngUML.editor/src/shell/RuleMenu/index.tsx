@@ -72,7 +72,7 @@ export const RuleMenu: React.FC = () => {
             });
     }
 
-    async function addRule(textArea: string){
+    async function addRule(textArea: string) {
         let textAreaObject = document.getElementById(textArea) as HTMLInputElement
         let valueOfTextArea = textAreaObject.value
         var ruleAdded = await addRuleToDatabase(valueOfTextArea)
@@ -86,6 +86,24 @@ export const RuleMenu: React.FC = () => {
             badrule?.classList.add("BadRulesShown")
         }
     }
+     function apiToRules() {
+         const data = new FormData();
+         data.append("rule", "warehouse capacity < 50")
+         fetch("http://localhost:8000/rules/add/", 
+                     {method: 'POST',
+                     mode: "cors",
+                     body: data
+                 } )
+                 .then(response => {
+                         return response.json();
+                 })
+                 .then(data => {
+                     console.log('Success:', data);
+                 })
+                 .catch(error => {
+                     console.error('Error: ', error);
+                 });
+     }
 
     function deleteFromRules(toDelete: string){
         var rules = rulesObject
