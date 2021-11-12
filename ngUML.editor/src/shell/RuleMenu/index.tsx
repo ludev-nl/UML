@@ -50,7 +50,6 @@ export const RuleMenu: React.FC = () => {
     }
 
     function databaseToRules() {
-        var apiRules: string[] = []
         var apiRulesObject: RuleObject[] = []
         fetch("http://localhost:8000/rules/",
             {
@@ -64,7 +63,6 @@ export const RuleMenu: React.FC = () => {
                 for (var rule of response) {
                     var ruleObject: RuleObject = new RuleObject(rule.pk, rule.fields["messy_rule"], rule.fields["processed_rule"], rule.fields["type"], rule.fields["python"])
                     apiRulesObject.push(ruleObject)
-                    apiRules.push(rule.fields["messy_rule"])
                 }
                 setRulesObject(apiRulesObject)
                 rulesToComponents()
@@ -98,6 +96,21 @@ export const RuleMenu: React.FC = () => {
             }
             index++
         }
+
+        const data = new FormData();
+        data.append("id", toDelete)
+        fetch("http://localhost:8000/rules/remove",
+            {
+                method: 'POST',
+                mode: "cors",
+                body: data
+            })
+            .then(response => {
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error: ', error);
+            });
         setRulesObject(rules)
         rulesToComponents()
     }
