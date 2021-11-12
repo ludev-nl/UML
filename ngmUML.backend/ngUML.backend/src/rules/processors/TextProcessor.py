@@ -87,13 +87,13 @@ def determine_rule_type(text):
 #input: result of split_rule
 def process_text(text):
     '''Maps messy user input to a singular representation'''
-    all_objects = list()
+    all_classifier = list()
     all_properties = list()
-    for classifier in Classifier.objects.all():
-        all_objects.append(classifier.name)
-    objects = list(set(text).intersection(set(objects)))
-    for object in objects:
-        for property in Property.objects.filter(classifier=Classifier.objects.filter(name=object)):
+    for classifier in Classifier.classifier.all():
+        all_classifier.append(classifier.name)
+    classifier = list(set(text).intersection(set(classifier)))
+    for object in classifier:
+        for property in Property.classifier.filter(classifier=Classifier.classifier.filter(name=object)):
             all_properties.append(property.name)
     properties = list(set(all_properties) & set(text))
     digits = [word for word in text if word.isnumeric()]
@@ -120,7 +120,7 @@ def process_text(text):
     #generate rule
     for token in text:
         if re.search(searchNull,token):#not null rule
-            text = objects[0] + "." + properties[0] + " NOT NULL"
+            text = classifier[0] + "." + properties[0] + " NOT NULL"
             return text
         if re.search(searchOp, token):#this is a rule with an operator
             if re.search(searchEqualOp, token):
@@ -141,20 +141,20 @@ def process_text(text):
             elif re.search(searchMostOp, token):
                 operator = " <= "
             if re.search(searchNumSymbols, token):
-                text = objects[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
+                text = classifier[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
                 return text
             else:
-                text = objects[0] + "." + properties[0] + operator + digits[0]
+                text = classifier[0] + "." + properties[0] + operator + digits[0]
                 return text
         if (len(types)>0):#this rule contains a type specification
             if (len(digits) > 1):
-                text = objects[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
+                text = classifier[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
                 return text
             else:
-                text = objects[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
+                text = classifier[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
                 return text
         if (len(properties)>1):
-            text = objects[0] + "." + properties[0] + " " + objects[1] + "." + properties[1] + " EQUALS " + digits[0]
+            text = classifier[0] + "." + properties[0] + " " + classifier[1] + "." + properties[1] + " EQUALS " + digits[0]
             return text
         else:
             raise Exception("Can't parse into constraint: '" + text + "'")
