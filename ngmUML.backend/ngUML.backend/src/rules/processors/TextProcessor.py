@@ -7,6 +7,7 @@ import re
 from nltk.corpus import stopwords
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
+from model.models import Classifier, Property
 
 '''The goal of text processor is to map messy_text into processed_text
 That is to say: the user inputs messy text, and the text processor should unambigiously
@@ -86,19 +87,15 @@ def determine_rule_type(text):
 #input: result of split_rule
 def process_text(text):
     '''Maps messy user input to a singular representation'''
-    property_words = ['id', 'first name', 'last name', 'name', 'address', 'email', 'number','no', 'code', 'date', 'type',
-                       'volume', 'birth', 'password', 'price', 'quantity', 'location', 'maximum temperature', 'resolution date', 'creation date',
-                       'crime code', 'course name', 'time slot', 'quantities', 'delivery date', 'prices', 'prize',
-                       'delivery address', 'scanner', 'till', 'illness conditions', 'diagnostic result', 'suggestions',
-                       'birth date', 'order number', 'total cost', 'entry date', 'delivery status', 'description',
-                       'product number']
-    properties_text = set(property_words) & set(text)
-    properties = list(properties_text)
-    nouns = []
-    for word,pos in nltk.pos_tag((text)):
-         if (pos == 'NN' or pos == 'NNP' or pos == 'NNS' or pos == 'NNPS'):
-            if (word not in properties):
-             nouns.append(word)
+    all_objects = list()
+    all_properties = list()
+    for classifier in Classifier.objects.all():
+        all_objects.append(classifier.name)
+    objects = list(set(text).intersection(set(objects)))
+    for object in objects:
+        for property in Property.objects.filter(classifier=Classifier.objects.filter(name=object)):
+            all_properties.append(property.name)
+    properties = list(set(all_properties) & set(text))
     digits = [word for word in text if word.isnumeric()]
     types = []
     for word in text:
@@ -123,7 +120,7 @@ def process_text(text):
     #generate rule
     for token in text:
         if re.search(searchNull,token):#not null rule
-            text = nouns[0] + "." + properties[0] + " NOT NULL"
+            text = objects[0] + "." + properties[0] + " NOT NULL"
             return text
         if re.search(searchOp, token):#this is a rule with an operator
             if re.search(searchEqualOp, token):
@@ -144,20 +141,20 @@ def process_text(text):
             elif re.search(searchMostOp, token):
                 operator = " <= "
             if re.search(searchNumSymbols, token):
-                text = nouns[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
+                text = objects[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
                 return text
             else:
-                text = nouns[0] + "." + properties[0] + operator + digits[0]
+                text = objects[0] + "." + properties[0] + operator + digits[0]
                 return text
         if (len(types)>0):#this rule contains a type specification
             if (len(digits) > 1):
-                text = nouns[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
+                text = objects[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
                 return text
             else:
-                text = nouns[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
+                text = objects[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
                 return text
         if (len(properties)>1):
-            text = nouns[0] + "." + properties[0] + " " + nouns[1] + "." + properties[1] + " EQUALS " + digits[0]
+            text = objects[0] + "." + properties[0] + " " + objects[1] + "." + properties[1] + " EQUALS " + digits[0]
             return text
         else:
             raise Exception("Can't parse into constraint: '" + text + "'")
