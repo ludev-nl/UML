@@ -25,14 +25,14 @@ class RulesManager:
         db_rule = RuleDB(messy_rule = messy_text, processed_rule = processed_text, type = detected_constraint.value, python = python_string)
         db_rule.save()
 
-    def db_remove_rule_by_id(self, id):
-        return RuleDB.objects.get(pk=id).delete()
+    def db_remove_rule_by_pk(self, pk):
+        return RuleDB.objects.get(pk=pk).delete()
     
     def db_get_all_rules(self):
         return RuleDB.objects.all()
 
-    def db_get_rule_by_id(self, id):
-        return RuleDB.objects.get(pk=id)
+    def db_get_rule_by_pk(self, pk):
+        return RuleDB.objects.get(pk=pk)
 
     #rule class instance functions
     def get_all_rules(self):
@@ -42,9 +42,9 @@ class RulesManager:
             list.append(self.factory.create_rule(Constraints[db_rule.type], db_rule.processed_rule))
         return list
 
-    def get_rule_by_id(self, id):
-        db_rule = RuleDB.objects.get(pk=id)
-        #TODO: also set the id of the rule, for validator 
+    def get_rule_by_pk(self, pk):
+        db_rule = RuleDB.objects.get(pk=pk)
+        #TODO: also set the pk of the rule, for valikator 
         self.factory.create_rule(db_rule.type, db_rule.processed_text)
 
 

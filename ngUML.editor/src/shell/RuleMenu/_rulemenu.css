@@ -10,6 +10,7 @@
 	text-align: center;
 	padding-top: 5px;
 	border-left: 1px solid #bbb;
+	overflow-y: scroll;
 }
 
 #Header{
@@ -30,4 +31,16 @@ li::before{
 
 .BadRulesShown{
 	visibility: visible !important;
+}
+
+#populateButton{
+	margin-top: 5px;
+}
+
+.tooltip{
+	z-index: 8001 !important;
+}
+
+.deleteButton{
+	float: right;
 }

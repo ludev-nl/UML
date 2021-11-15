@@ -24,21 +24,6 @@ def index(request):
     return HttpResponse(Rules_json, content_type='application/json')
 
 
-def get_modified_rules(request):
-    ''' GET Request to showcase the integration of the API and the database with the tools folder and the RulesManager folder
-    Serves no purpose at all except to showcase that it works.'''
-
-    # Get rules from database
-    rules = rulesmanager.get_all_rules()
-    
-    # Extract the properties needed and construct a rule list
-    rule_list = []
-    for rule in rules:
-        rule_list.append(rule.get_as_dict()) # Get rule as a dictionary of properties
-
-    return JsonResponse({'rules': rule_list})
-
-
 #CSRF exempt Turns off the need to provide a csrf token on a POST request. Temporary fix
 @csrf_exempt
 def add(request):
@@ -73,18 +58,33 @@ def remove(request):
     if request.method != 'POST':
         return JsonResponse({'ERROR' : 'Only accepts POST requests, not: ' + request.method + " requests."})
 
-    # Extract the rule id from the request
-    id = request.POST.get('id', -1) #give default value in case there is no rule argument
-    if (id == -1): 
-        return JsonResponse({'FAIL' : 'Supply id : id of rule to be removed in post argument'})
+    # Extract the rule pk from the request
+    pk = request.POST.get('pk', -1) #give default value in case there is no rule argument
+    if (pk == -1): 
+        return JsonResponse({'FAIL' : 'Supply pk : pk of rule to be removed in post argument'})
 
     # Remove the rule instance from database
     try:
-        rulesmanager.db_remove_rule_by_id(id)
+        rulesmanager.db_remove_rule_by_pk(pk)
     except Exception as err:
         # Return the error as JSON if exception
         return JsonResponse({'FAIL' : 'Rule not removed from database',
         'type' : str(type(err)),
         'message' : str(err)},
         )
-    return JsonResponse({'SUCCES' : 'Rule with id: ' + id + " removed from rules."})
+    return JsonResponse({'SUCCES' : 'Rule with pk: ' + pk + " removed from rules."})
+
+
+def debug(request):
+    ''' Function to test code in.
+    Serves no practical purpose.'''
+
+    # Get rules from database
+    rules = rulesmanager.get_all_rules()
+    
+    # Extract the properties needed and construct a rule list
+    rule_list = []
+    for rule in rules:
+        rule_list.append(rule.get_as_dict()) # Get rule as a dictionary of properties
+
+    return JsonResponse({'rules': rule_list})
