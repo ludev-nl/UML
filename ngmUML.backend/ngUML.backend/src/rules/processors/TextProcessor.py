@@ -58,8 +58,7 @@ def split_rule(text):
     text = [word for word in tokens if word not in stopwords.words('english')]#remove stopwords
     text = wordToNumber(text)
     lemmatizer = WordNetLemmatizer()
-    for i in range(len(text)):
-        text[i] = lemmatizer.lemmatize(text[i])
+    text = [lemmatizer.lemmatize(text[i]) for i in range(len(text))]
     return text
 
 #Each rule itself knows when the processed_text can be converted into that rule
