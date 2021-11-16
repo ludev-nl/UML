@@ -2,6 +2,9 @@
 from nltk.corpus.reader.conll import ConllSRLInstance
 from rules.RulesManager.Enums import Constraints
 from rules.RulesManager.Rule import stringRule, numericalRule
+from rules.processors import MappingProcessor
+from model.models import Classifier, Property
+
 '''The goal of text processor is to map messy_text into processed_text
 That is to say: the user inputs messy text, and the text processor should unambigiously 
 map all those possible inputs to the real, singular meaning
@@ -60,8 +63,18 @@ def determine_rule_type(text):
 #both map to: user name.length <= 20
 def process_text(text):
     '''Maps messy user input to a singular representation'''
-    return text
-
+    property = Property.objects.filter(name="address")[0]
+    classifier = Classifier.objects.get(name="Customer")
+    value = 400,
+    operator = ""
+    return {
+        "original_input": text,
+        "properties": [property],
+        "classifiers": [classifier],
+        "value": value,
+        "operator": "==", 
+    }
+    
 
 
 

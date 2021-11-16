@@ -5,6 +5,7 @@ from django.http import JsonResponse # To return JSON
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.http import HttpResponse 
+import traceback
 
 from .RulesManager.Rule import Rule as RuleClass # Rename to RuleClass as Rule is also an object/class in the database
 from .RulesManager.RulesManager import RulesManager
@@ -43,6 +44,7 @@ def add(request):
         rulesmanager.db_add_rule(textrule)
     except Exception as err:
         # Return the error as JSON if exception
+        print(traceback.format_exc())
         return JsonResponse({'FAIL' : 'Rule not saved to database',
         'type' : str(type(err)),
         'message' : str(err)},
