@@ -116,8 +116,8 @@ export const RuleMenu: React.FC = () => {
         }
 
         const data = new FormData();
-        data.append("id", toDelete)
-        fetch("http://localhost:8000/rules/remove",
+        data.append("pk", toDelete)
+        fetch("http://localhost:8000/rules/remove/",
             {
                 method: 'POST',
                 mode: "cors",
