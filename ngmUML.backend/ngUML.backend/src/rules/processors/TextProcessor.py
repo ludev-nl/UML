@@ -102,7 +102,13 @@ def process_text(text):
             types.append("NUMBERS")
         if (word == "letters"):
             types.append("LETTERS")
-
+# return {
+#         "original_input": text,
+#         "properties": [property],
+#         "classifiers": [classifier],
+#         "value": value,
+#         "operator": "==", 
+#     }
     #regular expressions
     searchNull = re.compile(r"empty|null")
     searchNumSymbols = re.compile(r"symbols|characters")
