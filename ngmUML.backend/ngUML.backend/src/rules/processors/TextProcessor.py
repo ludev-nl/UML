@@ -1,7 +1,6 @@
 #import rules to check if processed text is a rule
 from nltk.corpus.reader.conll import ConllSRLInstance
 from rules.RulesManager.Enums import Constraints
-from rules.RulesManager.Rule import stringRule, numericalRule
 from rules.processors import MappingProcessor
 from model.models import Classifier, Property
 

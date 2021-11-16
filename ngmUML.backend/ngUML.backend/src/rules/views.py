@@ -7,7 +7,6 @@ from django.core import serializers
 from django.http import HttpResponse 
 import traceback
 
-from .RulesManager.Rule import Rule as RuleClass # Rename to RuleClass as Rule is also an object/class in the database
 from .RulesManager.RulesManager import RulesManager
 
 rulesmanager = RulesManager()
