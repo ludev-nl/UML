@@ -1,11 +1,10 @@
-''' RulesManager manages everything rules: managing rules database, 
+''' RulesManager manages everything rules: managing rules database,
 adding new rules, finding rules, calls TextProcessor and MappingProcessor to make sure rules are correct'''
 #Like: addRule(attributes...), removeRule(id), editRule(request), getAllRules(), getRule(id)
-
 # Note: split the logic of views and the business logic of rulesmanager logically, don't just move logic from views.py to rulesmanger when there is no need for it
 from ..models import Rule as RuleDB
 from ssl import create_default_context
-from rules.RulesManager.Rule import stringRule, numericalRule
+from rules.RulesManager.Rule import numericalRule
 from rules.processors.TextProcessor import determine_rule_type, process_text
 from rules.RulesManager.Enums import Constraints
 
@@ -56,10 +55,15 @@ class RulesFactory:
         of that type.'''
         if(type == Constraints.ATTR_OP_NUM):
             return numericalRule(text_rule)
-        elif(type == Constraints.ATTR_EQ_STR):
-            return stringRule(text_rule)
+        elif(type == Constraints.MAX_SYMBOL):
+            return maxSymbolRule(text_rule)
+        elif(type == Constraints.SPECIFIC_CHAR):
+            return specificCharacterTypeRule(text_rule)
+        elif(type == Constraints.ORDER_CHAR):
+            return characterOrderRule(text_rule)
+        elif(type == Constraints.NULL):
+            return nullRule(text_rule)
+        elif(type == Constraints.ATTRIBUTES_EQ_NUM):
+            return attributesEqualValueRule(text_rule)
         else:
             raise Exception("Error: can't create rule of type: " + type)
-
-
-
