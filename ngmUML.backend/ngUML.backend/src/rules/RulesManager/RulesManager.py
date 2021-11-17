@@ -19,10 +19,14 @@ class RulesManager:
         processed_dict = process_text(messy_text)
         new_rule_db = RuleGenerator.generate_db(processed_dict)
         new_rule = RuleGenerator.generate_py_obj(new_rule_db)
-        new_rule.addValidator()
+        
+        new_rule_db.processed_text = new_rule.get_processed_text()
+        new_rule_db.save()
+
+        new_rule.add_validator()
 
     def db_remove_rule_by_pk(self, pk):
-        return RuleDB.objects.get(pk=pk).delete()
+        return RuleDB.objects.get(pk=pk).delete() #TODO: remove validator
     
     def db_get_all_rules(self):
         return RuleDB.objects.all()

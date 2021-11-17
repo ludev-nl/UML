@@ -1,13 +1,12 @@
 #import rules to check if processed text is a rule
 from nltk.corpus.reader.conll import ConllSRLInstance
-from rules.RulesManager.Enums import Constraints
-from rules.RulesManager.Rule import numericalRule
 import nltk
 import re
 from nltk.corpus import stopwords
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
+from rules.processors.MappingProcessor import *
 
 '''The goal of text processor is to map messy_text into processed_text
 That is to say: the user inputs messy text, and the text processor should unambigiously
@@ -61,9 +60,10 @@ def split_rule(text):
     text = [lemmatizer.lemmatize(text[i]) for i in range(len(text))]
     return text
 
+'''
 #Each rule itself knows when the processed_text can be converted into that rule
 def determine_rule_type(text):
-    '''Checks if the processed string is of the form of one of the rules'''
+    #Checks if the processed string is of the form of one of the rules
     if(numericalRule.check_rule(text)):
         return Constraints.PROP_OP_NUM
     elif(maxSymbolRule.check_rule(text)):
@@ -78,6 +78,7 @@ def determine_rule_type(text):
         return Constraints.PROPERTIES_EQ_NUM
     else:
         raise Exception("Can't parse into constraint: '" + text + "'")
+'''
 
 #if the user gives input that maps to 1 single representation, convert it to that single representation
 #example of user input: I want the User class's name not to be longer than 20 characters
@@ -86,32 +87,51 @@ def determine_rule_type(text):
 #input: result of split_rule
 def process_text(original_text):
     '''Maps messy user input to a singular representation'''
-    all_classifiers = list()
+    all_classifiers = getClassifiers()
     all_properties = list()
     operators = list()
-    processed_text = "unknown"
-    for classifier in Classifier.classifier.all():
-        all_classifiers.append(classifier.name)
-    classifier = list(set(original_text).intersection(set(classifier)))
-    for object in classifier:
-        for property in Property.classifier.filter(classifier=Classifier.classifier.filter(name=object)):
-            all_properties.append(property.name)
-    properties = list(set(all_properties) & set(original_text))
-    digits = [word for word in text if word.isnumeric()]
+    #processed_text = "unknown"
+
+    #Remove all classifiers that are not in the text
+    #all_classifiers = list(set(original_text).intersection(set(classifier))) 
+    temp = list()
+    for classifier in all_classifiers:
+        if classifier.name in original_text:
+            temp.append(classifier)
+    all_classifiers = temp
+
+    # Get all properties from the classifiers in the text
+    for classifier in all_classifiers:
+        all_properties += getPropertiesFromClassifier(classifier)
+
+    # Get only the properties that are in the text
+    # properties = list(set(property_names) & set(original_text))
+    temp = list()
+    for property in all_properties:
+        if property.name in original_text:
+            temp.append(property)
+    all_properties = temp
+
+    # Get numeric words
+    digits = [word for word in original_text if word.isnumeric()]
+
+    # Get type key
     types = []
     for word in original_text:
         if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
             types.append("NUMBERS")
         if (word == "letters"):
             types.append("LETTERS")
+
+    """
     #regular expressions
     searchNull = re.compile(r"empty|null")
     searchNumSymbols = re.compile(r"symbols|characters")
     searchNot = re.compile(r"not|no")
     searchType = re.compile(r"LETTERS|NUMBERS")
 
-    searchOp = re.compile(r"==|=|equal|copy|equavilant|double|like|match|<|less|lower|beneath|smaller|>|more|greater|higher|>=|least|fewest|minimum|<=|most|max|maximum")
-    searchEqualOp = re.compile(r"==|=|equal|copy|equavilant|double|like|match")
+    searchOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match|<|less|lower|beneath|smaller|>|more|greater|higher|>=|least|fewest|minimum|<=|most|max|maximum")
+    searchEqualOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match")
     searchLessOp = re.compile(r"<|less|lower|beneath|smaller")
     searchMoreOp = re.compile(r">|more|greater|higher")
     searchLeastOp = re.compile(r">=|least|fewest|minimum")
@@ -120,8 +140,8 @@ def process_text(original_text):
     #generate rule
     for token in original_text:
         if re.search(searchNull,token):#not null rule
-            text = classifier[0] + "." + properties[0] + " NOT NULL"
-            break;
+            processed_text = classifier[0] + "." + all_properties[0].name + " NOT NULL"
+            break
         if re.search(searchOp, token):#this is a rule with an operator
             if re.search(searchEqualOp, token):
                 if re.search(searchNot, token):
@@ -149,28 +169,50 @@ def process_text(original_text):
                 operator = " <= "
                 operators.append("<=")
             if re.search(searchNumSymbols, token):
-                text = classifier[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
-                break;
+                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
+                break
             else:
-                text = classifier[0] + "." + properties[0] + operator + digits[0]
-                break;
+                processed_text = all_classifiers[0].name + "." + all_properties[0].name + operator + digits[0]
+                break
         if (len(types)>0):#this rule contains a type specification
             if (len(digits) > 1):
-                text = classifier[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
-                break;
+                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
+                break
             else:
-                text = classifier[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
-                break;
-        if (len(properties)>1):
-            text = classifier[0] + "." + properties[0] + " " + classifier[1] + "." + properties[1] + " EQUALS " + digits[0]
-            break;
+                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS ONLY" + types[0]
+                break
+        if (len(all_properties) > 1):
+            processed_text = all_classifiers[0].name + "." + all_properties[0].name + " " + all_classifiers[1].name + "." + all_properties[1].name + " EQUALS " + digits[0]
+            break
         else:
-            raise Exception("Can't parse into constraint: '" + text + "'")
-        return{
-                "original_input": original_text,
-                "processed_text": text,
-                "properties": all_properties,
-                "classifiers": all_classifiers,
-                "value": digits,
-                "operator": operators
-                }
+            raise Exception("Can't parse into constraint: '" + processed_text + "'")
+    """
+
+    # All combinations of base operators and equivalent aliases
+    operator_keywords = [
+        ("NULL", ["empty", "null"]), 
+        ("SYMBOLS", ["symbols", "characters"]), # Syntax: Class prop contains operator value SYMBOLS
+        ("NOT", ["not", "no"]),
+        ("?", ["LETTERS", "NUMBERS"]), # TODO: better keyword for operator
+        ("==", ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"]),
+        ("<", ["<", "less", "lower", "beneath", "smaller"]),
+        (">", [">", "more", "greater", "higher"]),
+        (">=", [">=", "least", "fewest", "minimum"]),
+        ("<=", ["<=", "most", "max", "maximum"]),
+    ]
+
+    for word in original_text:
+        for operator_set in operator_keywords:
+            if word in operator_set[1]:
+                operators.append(operator_set[0])
+
+    if len(operators) == 0: # Throw error if no operators are found
+        raise Exception("Can't parse into constraint: '" + original_text + "'")
+
+    return {
+        "original_input": original_text,
+        "properties": all_properties,
+        "classifiers": all_classifiers,
+        "value": digits, # TODO: ability to insert words as value
+        "operator": operators
+    }

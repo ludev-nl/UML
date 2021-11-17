@@ -7,6 +7,7 @@ class Rule(models.Model):
 
     #original input
     original_input = models.TextField()
+    processed_text = models.TextField()
 
     #one of Constraints
     type = models.TextField()
