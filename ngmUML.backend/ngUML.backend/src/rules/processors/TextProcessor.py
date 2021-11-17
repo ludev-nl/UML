@@ -84,31 +84,26 @@ def determine_rule_type(text):
 #another example: user's name should be less or equal to 20 letters
 #both map to: user name.length <= 20
 #input: result of split_rule
-def process_text(text):
+def process_text(original_text):
     '''Maps messy user input to a singular representation'''
-    all_classifier = list()
+    all_classifiers = list()
     all_properties = list()
+    operators = list()
+    processed_text = "unknown"
     for classifier in Classifier.classifier.all():
-        all_classifier.append(classifier.name)
-    classifier = list(set(text).intersection(set(classifier)))
+        all_classifiers.append(classifier.name)
+    classifier = list(set(original_text).intersection(set(classifier)))
     for object in classifier:
         for property in Property.classifier.filter(classifier=Classifier.classifier.filter(name=object)):
             all_properties.append(property.name)
-    properties = list(set(all_properties) & set(text))
+    properties = list(set(all_properties) & set(original_text))
     digits = [word for word in text if word.isnumeric()]
     types = []
-    for word in text:
+    for word in original_text:
         if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
             types.append("NUMBERS")
         if (word == "letters"):
             types.append("LETTERS")
-# return {
-#         "original_input": text,
-#         "properties": [property],
-#         "classifiers": [classifier],
-#         "value": value,
-#         "operator": "==", 
-#     }
     #regular expressions
     searchNull = re.compile(r"empty|null")
     searchNumSymbols = re.compile(r"symbols|characters")
@@ -123,43 +118,59 @@ def process_text(text):
     searchMostOp = re.compile(r"<=|most|max|maximum")
 
     #generate rule
-    for token in text:
+    for token in original_text:
         if re.search(searchNull,token):#not null rule
             text = classifier[0] + "." + properties[0] + " NOT NULL"
-            return text
+            break;
         if re.search(searchOp, token):#this is a rule with an operator
             if re.search(searchEqualOp, token):
                 if re.search(searchNot, token):
                     operator = " != "
+                    operators.append("!=")
                 elif re.search(searchLessOp, token):
                     operator = " <= "
+                    operators.append("<=")
                 elif re.search(searchMoreOp,token):
                     operator = " >= "
+                    operators.append(">=")
                 else:
                     operator = " == "
+                    operators.append("==")
             elif re.search(searchLessOp, token):
                 operator = " < "
+                operators.append("<")
             elif re.search(searchMoreOp, token):
                 operator = " > "
+                operators.append(">")
             elif re.search(searchLeastOp, token):
                 operator = " >= "
+                operators.append(">=")
             elif re.search(searchMostOp, token):
                 operator = " <= "
+                operators.append("<=")
             if re.search(searchNumSymbols, token):
                 text = classifier[0] + "." + properties[0] + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
-                return text
+                break;
             else:
                 text = classifier[0] + "." + properties[0] + operator + digits[0]
-                return text
+                break;
         if (len(types)>0):#this rule contains a type specification
             if (len(digits) > 1):
                 text = classifier[0] + "." + properties[0] + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
-                return text
+                break;
             else:
                 text = classifier[0] + "." + properties[0] + " CONTAINS ONLY" + types[0]
-                return text
+                break;
         if (len(properties)>1):
             text = classifier[0] + "." + properties[0] + " " + classifier[1] + "." + properties[1] + " EQUALS " + digits[0]
-            return text
+            break;
         else:
             raise Exception("Can't parse into constraint: '" + text + "'")
+        return{
+                "original_input": original_text,
+                "processed_text": text,
+                "properties": all_properties,
+                "classifiers": all_classifiers,
+                "value": digits,
+                "operator": operators
+                }
