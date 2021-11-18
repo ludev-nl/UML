@@ -1,7 +1,7 @@
 from model.generators.PropertyGenerator import generate_property_declaration
 import os.path
 
-def addValidatorReference(property, rule):
+def add_validator_reference(property, rule):
     '''Adds validator reference to models.py content for (each) rule for @classifier and @property'''
 
     # Open and read models.py
@@ -28,49 +28,60 @@ def addValidatorReference(property, rule):
 
     return contents
 
-def addValidatorFunction(rule, validator):
-    file_adress = "shared/validators.py"
+def read_validators_py():
+    file_adress = "shared/validators.py" #TODO: should probably be saved somewhere else
     
+    # Create validators.py if it does not already exist
     if not os.path.isfile(file_adress):
         f = open(file_adress, "w+")
         f.close()
 
+    # Read contents
     f = open(file_adress, "r")
-    contents = f.readlines()
-    contents = "".join(contents)
+    contents = "".join(f.readlines())
     f.close()
 
+    # Add import statement to validators.py if it does not already exist
     importStatement = "from django.core.exceptions import ValidationError" 
     if importStatement not in contents:
         contents = importStatement + "\n" + contents
 
-    if validator not in contents:
-        contents += "\n\ndef rule_" + str(rule.pk) + "(value):\n" + validator
+    return contents
 
-    f = open(file_adress, "w+")
+
+def add_validator_function(rule, validator):
+     # Get content of validators.py as string
+    contents = read_validators_py()
+
+    # Add rule and create function
+    validator_function = "\n\ndef rule_" + str(rule.pk) + "(value):\n" + validator
+    if validator_function not in contents:
+        contents += validator_function
+
+    # Write to validators.py
+    f = open("shared/validators.py", "w+")
     f.write("".join(contents))
     f.close()
 
 
-def addValidator(property, rule, validator):
-
+def add_validator(property, rule, validator):
     # Add the validator between the 
-    modelspyText = addValidatorReference(property, rule)
+    modelspy_text = add_validator_reference(property, rule)
 
-    # Ensure that the import statement is correct
-    importStatement = ( "from shared.validators import *")
-    if importStatement not in modelspyText:
-        modelspyText = importStatement + "\n" + modelspyText
+    # Ensure that the import statement in models.py is correct
+    import_statement = ( "from shared.validators import *")
+    if import_statement not in modelspy_text:
+        modelspyText = import_statement + "\n" + modelspy_text
 
     # Write the validator to validators.py
-    addValidatorFunction(rule, validator)
+    add_validator_function(rule, validator)
 
     # Save text to models.py
     f = open("shared/models.py", "w")
     f.write("".join(modelspyText))
     f.close() 
 
-def getStandardIfStatement(conditionalExpression, rule):
+def get_standard_if_statement(conditionalExpression, rule):
     return ("\tif " + conditionalExpression + ":\n"
         "\t\treturn True\n" 
         "\telse:\n" 

@@ -1,7 +1,5 @@
-from .Enums import Constraints
-from abc import ABC, abstractmethod
-from django.core.exceptions import ValidationError
-from rules.processors.ValidatorProcessor import getStandardIfStatement, addValidator as VPaddValidator
+from abc import abstractmethod
+from rules.processors.ValidatorProcessor import get_standard_if_statement, add_validator as VP_add_validator
 
 
 class BaseRule:
@@ -37,10 +35,10 @@ class NumericalRule(BaseRule):
 
     def add_validator(self):
         targetProperty = self.rule_db.properties.all()[0]
-        VPaddValidator(
+        VP_add_validator(
             targetProperty, 
             self.rule_db, 
-            getStandardIfStatement(
+            get_standard_if_statement(
                 "value " + self.rule_db.operator + " int(" + str(self.rule_db.value) + ")", 
                 self.rule_db
             )
