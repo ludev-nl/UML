@@ -23,8 +23,8 @@ def addValidatorReference(property, rule):
     property_declaration = property_declaration[:validator_insert_pos] + ", validators = [rule_{pk}]".format(pk=pk) + property_declaration[validator_insert_pos:]
 
     # Delete previous prop, insert new one
-    del end_contents[prop_index]
-    contents = "".join(start_contents) + property_declaration + "".join(end_contents)
+    end_contents[prop_index] = property_declaration
+    contents = "".join(start_contents) + "".join(end_contents)
 
     return contents
 
@@ -58,7 +58,7 @@ def addValidator(property, rule, validator):
     modelspyText = addValidatorReference(property, rule)
 
     # Ensure that the import statement is correct
-    importStatement = ( "from validators import *")
+    importStatement = ( "from shared.validators import *")
     if importStatement not in modelspyText:
         modelspyText = importStatement + "\n" + modelspyText
 
@@ -75,6 +75,6 @@ def getStandardIfStatement(conditionalExpression, rule):
         "\t\treturn True\n" 
         "\telse:\n" 
         "\t\traise ValidationError(\n"
-        "\t\t\t'{value} does not abide by rule'.format(value) + \'" +  rule.original_input + "',\n"
+        "\t\t\t'{value} does not abide by rule: '.format(value) + \'" +  rule.processed_text + "',\n"
         "\t\t\tparams={'value': value}, )\n"
         "\n\n")

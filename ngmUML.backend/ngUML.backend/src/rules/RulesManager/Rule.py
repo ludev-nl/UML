@@ -27,7 +27,7 @@ class NumericalRule(BaseRule):
         "<",
         "<="
         ]
-        if len(dict['properties']) == 1 and len(dict['classifiers']) == 1 and dict['operator'] in operators:
+        if len(dict['properties']) == 1 and len(dict['classifiers']) == 1 and dict['operator'][0] in operators:
             return True
         else:
             return False
@@ -41,7 +41,7 @@ class NumericalRule(BaseRule):
             targetProperty, 
             self.rule_db, 
             getStandardIfStatement(
-                "value " + self.rule_db.operator + " " + str(self.rule_db.value[0]), 
+                "value " + self.rule_db.operator + " int(" + str(self.rule_db.value) + ")", 
                 self.rule_db
             )
         )
@@ -49,7 +49,7 @@ class NumericalRule(BaseRule):
 
 class StringRule:
     @staticmethod
-    def is_type(self, dict):
+    def is_type(dict):
         pass
 
     def add_validator(self):

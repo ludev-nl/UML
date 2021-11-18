@@ -13,4 +13,4 @@ def getProperties():
 #should return all properties of that class
 def getPropertiesFromClassifier(inputClassifier):
     ''' Returns all properties from the classfier in the parameter. Parameter is the name of the classfier. '''
-    return Property.objects.filter(classifier=Classifier.objects.filter(name=inputClassifier.name))
+    return Property.objects.filter(classifier=Classifier.objects.get(name=inputClassifier.name))

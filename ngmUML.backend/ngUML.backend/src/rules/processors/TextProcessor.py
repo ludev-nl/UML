@@ -113,11 +113,11 @@ def process_text(original_text):
     all_properties = temp
 
     # Get numeric words
-    digits = [word for word in original_text if word.isnumeric()]
+    digits = [word for word in original_text.split(' ') if word.isnumeric()]
 
     # Get type key
     types = []
-    for word in original_text:
+    for word in original_text.split(' '):
         if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
             types.append("NUMBERS")
         if (word == "letters"):
@@ -208,6 +208,7 @@ def process_text(original_text):
 
     if len(operators) == 0: # Throw error if no operators are found
         raise Exception("Can't parse into constraint: '" + original_text + "'")
+        
 
     return {
         "original_input": original_text,
