@@ -10,7 +10,6 @@ import rules.RulesManager.RuleGenerator as RuleGenerator
 from model.models import Classifier, Property
 
 class RulesManager:
-
     #database functions start with db_
     def db_add_rule(self, messy_text):
         '''Tries to save rule to the database. No exceptions are caught yet.
@@ -26,7 +25,10 @@ class RulesManager:
         new_rule.add_validator()
 
     def db_remove_rule_by_pk(self, pk):
-        return RuleDB.objects.get(pk=pk).delete() #TODO: remove validator
+        rule = RuleDB.objects.get(pk=pk)
+        RuleGenerator.generate_py_obj(rule).remove_validator()
+        rule.delete()
+
     
     def db_get_all_rules(self):
         return RuleDB.objects.all()

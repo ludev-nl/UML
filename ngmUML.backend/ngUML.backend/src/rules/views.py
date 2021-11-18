@@ -53,7 +53,7 @@ def add(request):
 #CSRF exempt Turns off the need to provide a csrf token on a POST request. Temporary fix
 @csrf_exempt
 def remove(request):
-    ''' Accepts POST requests to add rules to the database. '''
+    ''' Accepts POST requests to remove rules to the database. '''
 
     # Only accept POST requests
     if request.method != 'POST':

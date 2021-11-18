@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from rules.processors.ValidatorProcessor import get_standard_if_statement, add_validator as VP_add_validator
+from rules.processors.ValidatorProcessor import get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
 
 
 class BaseRule:
@@ -7,11 +7,19 @@ class BaseRule:
         self.rule_db = rule_db
     
     @abstractmethod
+    def is_type(dict):
+        pass
+
+    @abstractmethod
+    def get_validator(dict):
+        pass
+
+    @abstractmethod
     def add_validator(self):
         pass
 
     @abstractmethod
-    def is_type(dict):
+    def remove_validator(dict):
         pass
 
 
@@ -33,16 +41,22 @@ class NumericalRule(BaseRule):
     def get_processed_text(self):
         return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " " + self.rule_db.operator + " " + self.rule_db.value
 
+    def get_validator(self):
+        return get_standard_if_statement(
+            "value " + self.rule_db.operator + " int(" + str(self.rule_db.value) + ")", 
+            self.rule_db
+        )
+
     def add_validator(self):
         targetProperty = self.rule_db.properties.all()[0]
         VP_add_validator(
             targetProperty, 
             self.rule_db, 
-            get_standard_if_statement(
-                "value " + self.rule_db.operator + " int(" + str(self.rule_db.value) + ")", 
-                self.rule_db
-            )
+            self.get_validator()
         )
+
+    def remove_validator(self):
+        VP_remove_validator(self)
 
 
 class StringRule:

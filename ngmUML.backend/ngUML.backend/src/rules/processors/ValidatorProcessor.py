@@ -1,85 +1,112 @@
 from model.generators.PropertyGenerator import generate_property_declaration
 import os.path
 
-def add_validator_reference(property, rule):
-    '''Adds validator reference to models.py content for (each) rule for @classifier and @property'''
-
-    # Open and read models.py
-    f = open("shared/models.py", "r")
-    contents = f.readlines()
-
-    # Search classifier and split contents into 2
-    class_index = contents.index('class ' + property.classifier.name + '(models.Model):\n')
-    start_contents = contents[:class_index]
-    end_contents = contents[class_index:]
-
-    # Generate property declaration and find current location of the prop
-    property_declaration = generate_property_declaration(property.name, property.type)
-    prop_index = end_contents.index(property_declaration)
-
-    # Insert the validator reference into a copy of the old property
-    validator_insert_pos = end_contents[prop_index].rfind(")")
-    pk = rule.pk
-    property_declaration = property_declaration[:validator_insert_pos] + ", validators = [rule_{pk}]".format(pk=pk) + property_declaration[validator_insert_pos:]
-
-    # Delete previous prop, insert new one
-    end_contents[prop_index] = property_declaration
-    contents = "".join(start_contents) + "".join(end_contents)
-
-    return contents
-
-def read_validators_py():
-    file_adress = "shared/validators.py" #TODO: should probably be saved somewhere else
-    
-    # Create validators.py if it does not already exist
-    if not os.path.isfile(file_adress):
-        f = open(file_adress, "w+")
-        f.close()
-
-    # Read contents
-    f = open(file_adress, "r")
-    contents = "".join(f.readlines())
+def read_from_shared_file(name):
+    f = open("shared/" + name + ".py", "r")
+    text = f.read()
     f.close()
 
-    # Add import statement to validators.py if it does not already exist
-    importStatement = "from django.core.exceptions import ValidationError" 
-    if importStatement not in contents:
-        contents = importStatement + "\n" + contents
+    return text
 
-    return contents
+
+def write_to_shared_file(name, text):
+    f = open("shared/" + name + ".py", "w+")
+    f.write(text)
+    f.close()
+
+
+def get_validator_function_reference(rule):
+    return "rule_" + str(rule.pk)
+
+
+def get_validator_function_definition(rule, validator):
+    return "\n\ndef rule_" + str(rule.pk) + "(value):\n" + validator
+
+
+def add_validator_reference(property, rule):
+    '''Adds validator reference to models.py text for (each) rule for @classifier and @property'''
+
+    # Open and read models.py
+    text = read_from_shared_file("models")
+
+    # Ensure that the import statement in models.py is correct
+    import_statement = ( "from shared.validators import *\n")
+    if import_statement not in text:
+        text = import_statement + text
+
+    # Search classifier and split text into 2
+    class_string = 'class ' + property.classifier.name + '(models.Model):\n'
+    class_index = text.find(class_string) + len(class_string)
+    base_text = text[:class_index]
+    target_text = text[class_index:]
+
+    # Generate property declaration and find index of the beginning and the end of the prop in text
+    old_property = generate_property_declaration(property.name, property.type)[:-2]
+    property_index = target_text.find(old_property) + len(old_property)
+    end_of_property_index = target_text.find('\n', property_index)
+
+    # Add the reference
+    reference = get_validator_function_reference(rule) + ", ]"
+    if "validators" in target_text[property_index:end_of_property_index]:
+        target_text = target_text.replace(" ]", " " + reference, 1)
+    else:
+        target_text = target_text.replace(")", ", validators = [" + reference + ")", 1)
+
+    # Save text to models.py
+    write_to_shared_file("models", base_text + target_text)
+
+
+def read_validators_py():
+    # Create validators.py if it does not already exist
+    if not os.path.isfile("shared/validators.py"):
+        write_to_shared_file("validators", "")
+
+    # Read texts
+    texts = read_from_shared_file("validators")
+
+    # Add import statement to validators.py if it does not already exist
+    import_statement = "from django.core.exceptions import ValidationError" 
+    if import_statement not in texts:
+        texts = import_statement + "\n" + texts
+
+    return texts
 
 
 def add_validator_function(rule, validator):
-     # Get content of validators.py as string
-    contents = read_validators_py()
+    text = read_validators_py()
 
     # Add rule and create function
-    validator_function = "\n\ndef rule_" + str(rule.pk) + "(value):\n" + validator
-    if validator_function not in contents:
-        contents += validator_function
+    validator_function = get_validator_function_definition(rule, validator)
+    if validator_function not in text:
+        text += validator_function
 
-    # Write to validators.py
-    f = open("shared/validators.py", "w+")
-    f.write("".join(contents))
-    f.close()
+    write_to_shared_file("validators", text)
 
 
 def add_validator(property, rule, validator):
-    # Add the validator between the 
-    modelspy_text = add_validator_reference(property, rule)
-
-    # Ensure that the import statement in models.py is correct
-    import_statement = ( "from shared.validators import *")
-    if import_statement not in modelspy_text:
-        modelspyText = import_statement + "\n" + modelspy_text
-
-    # Write the validator to validators.py
+    add_validator_reference(property, rule)
     add_validator_function(rule, validator)
 
-    # Save text to models.py
-    f = open("shared/models.py", "w")
-    f.write("".join(modelspyText))
-    f.close() 
+
+def remove_validator_reference(rule):
+    ''' Removes "rule_pk" from models.py '''
+    text = read_from_shared_file("models")
+    text = text.replace(get_validator_function_reference(rule.rule_db) + ", ", '', 1)
+    write_to_shared_file("models", text)
+
+
+def remove_validator_function(rule):
+    text = read_from_shared_file("validators")
+    validator_function = get_validator_function_definition(rule.rule_db, rule.get_validator())
+    print(validator_function)
+    text = text.replace(validator_function, '')
+    write_to_shared_file("validators", text)
+
+
+def remove_validator(rule):
+    remove_validator_reference(rule)
+    remove_validator_function(rule)
+
 
 def get_standard_if_statement(conditionalExpression, rule):
     return ("\tif " + conditionalExpression + ":\n"
@@ -87,5 +114,4 @@ def get_standard_if_statement(conditionalExpression, rule):
         "\telse:\n" 
         "\t\traise ValidationError(\n"
         "\t\t\t'{value} does not abide by rule: '.format(value) + \'" +  rule.processed_text + "',\n"
-        "\t\t\tparams={'value': value}, )\n"
-        "\n\n")
+        "\t\t\tparams={'value': value}, )\n")
