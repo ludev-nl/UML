@@ -25,7 +25,4 @@ textblob==0.17.1
 djangorestframework==3.12.4
 markdown==3.3.4
 django-filter==21.1
-<<<<<<< HEAD
 django-cors-headers==3.10.0
-=======
->>>>>>> TextProcessingBranch
