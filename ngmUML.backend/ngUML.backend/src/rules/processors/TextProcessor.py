@@ -189,22 +189,22 @@ def process_text(original_text):
     """
 
     # All combinations of base operators and equivalent aliases
-    operator_keywords = [
-        ("NULL", ["empty", "null"]), 
-        ("SYMBOLS", ["symbols", "characters"]), # Syntax: Class prop contains operator value SYMBOLS
-        ("NOT", ["not", "no"]),
-        ("?", ["LETTERS", "NUMBERS"]), # TODO: better keyword for operator
-        ("==", ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"]),
-        ("<", ["<", "less", "lower", "beneath", "smaller"]),
-        (">", [">", "more", "greater", "higher"]),
-        (">=", [">=", "least", "fewest", "minimum"]),
-        ("<=", ["<=", "most", "max", "maximum"]),
-    ]
+    operator_keywords = {
+        "NULL": ["empty", "null"], 
+        "SYMBOLS": ["symbols", "characters"], # Syntax: Class prop contains operator value SYMBOLS
+        "NOT": ["not", "no"],
+        "?": ["LETTERS", "NUMBERS"], # TODO: better keyword for operator
+        "==": ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"],
+        "<": ["<", "less", "lower", "beneath", "smaller"],
+        ">": [">", "more", "greater", "higher"],
+        ">=": [">=", "least", "fewest", "minimum"],
+        "<=": ["<=", "most", "max", "maximum"],
+    }
 
     for word in original_text:
-        for operator_set in operator_keywords:
-            if word in operator_set[1]:
-                operators.append(operator_set[0])
+        for key in operator_keywords:
+            if word in operator_keywords[key]:
+                operators.append(key)
 
     if len(operators) == 0: # Throw error if no operators are found
         raise Exception("Can't parse into constraint: '" + original_text + "'")
