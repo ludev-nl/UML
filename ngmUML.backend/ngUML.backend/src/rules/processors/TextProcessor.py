@@ -16,6 +16,7 @@ Another example: "user's name should be less or equal to 20 letters"
 Both map to: user name.length <= 20
 '''
 def wordToNumber(text):
+    #if word does not need to be converged to number: put _NUMBER_
     units = {"zero": 0, "one" : 1, "two" : 2, "three" : 3, "four" : 4,  "five": 5, "six" : 6,
          "seven" : 7, "eight" : 8, "nine" : 9, "ten" : 10, "eleven" : 11, "twelve" : 12,
          "thirteen" : 13, "fourteen" : 14, "fifteen" : 15, "sixteen" :  16, "seventeen" : 17,
@@ -193,7 +194,7 @@ def process_text(original_text):
         "NULL": ["empty", "null"], 
         "SYMBOLS": ["symbols", "characters"], # Syntax: Class prop contains operator value SYMBOLS
         "NOT": ["not", "no"],
-        "?": ["LETTERS", "NUMBERS"], # TODO: better keyword for operator
+        "SPECIFICTYPE": ["LETTERS", "NUMBERS"],
         "==": ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"],
         "<": ["<", "less", "lower", "beneath", "smaller"],
         ">": [">", "more", "greater", "higher"],
@@ -212,8 +213,9 @@ def process_text(original_text):
 
     return {
         "original_input": original_text,
+        "structured language": text,
         "properties": all_properties,
         "classifiers": all_classifiers,
-        "value": digits, # TODO: ability to insert words as value
+        "value": digits, 
         "operator": operators
     }

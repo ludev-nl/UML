@@ -16,18 +16,129 @@ class BaseRule:
     def is_type(dict):
         pass
 
-
-class NumericalRule(BaseRule):
+class NotNullRule(BaseRule):
+    """
+    The syntax of the NotNullRule rule is: classifier.property "NOT NULL".
+    The purpose of this rule is to enforce a property of an object to not be null or empty.
+    """
     @staticmethod
     def is_type(dict):
-        operators = [
-        ">",
-        ">=",
-        "==",
-        "<",
-        "<="
-        ]
-        if len(dict['properties']) == 1 and len(dict['classifiers']) == 1 and dict['operator'][0] in operators:
+        nullOperator = ["NULL"]
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in nullOperator):
+            return True
+        else:
+            return False
+    
+    def get_processed_text(self):
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " " + "NOT NULL"
+
+    def add_validator(self):
+        pass
+
+class SymbolRule(BaseRule):
+    """
+    The syntax of the SymbolRule rule is: classifier.property CONTAINS # SYMBOLS.
+    The purpose of this rule is to enforce the property of an object to have a limited amount of specified symbols.
+    """
+    @staticmethod
+    def is_type(dict):
+        symbolOperator = ["SYMBOLS"]
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in symbolOperator):
+            return True
+        else:
+            return False
+    
+    def get_processed_text(self):
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " " + "CONTAINS" + self.rule_db.value + " " + self.rule_db.operator
+
+    def add_validator(self):
+        pass
+
+class ContainsOneType(BaseRule):
+    """
+    The syntax of the ContainsOneType rule is: classifier.property CONTAINS ONLY TYPE.
+    The purpose of this rule is to enforce a property of an object to consist of one type only.
+    """
+    @staticmethod
+    def is_type(dict):
+        oneType = ["SPECIFICTYPE"]
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in oneType):
+            return True
+
+        else:
+            return False
+    
+    def get_processed_text(self):
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + "CONTAINS ONLY" + self.rule.db.operator 
+
+    def add_validator(self):
+        pass
+
+class ContainsTwoTypes(BaseRule):
+    """
+    The syntax of the ContainsTwoTypes rule is: classifier.property CONTAINS # TYPE1 AND # TYPE2.
+    The purpose of this rule is to enforce a property to consist of two types only. 
+    """
+    def is_type(dict):
+        twoTypes = ["SPECIFICTYPE"]
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and len(dict["operator"])==2 and dict["operator"][0] in twoTypes and dict["operator"][1] in twoTypes):
+            return True
+        else:
+            return False
+    
+    def get_processed_text(self):
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " CONTAINS " + self.rule_db.value[0] + " " + self.rule_db.operator[0] + " AND " + self.rule_db.value[0] + " " + self.rule_db.operator[1]
+
+    def add_validator(self):
+        pass
+
+class PropertiesEqualValue(BaseRule):
+    """
+    The syntax of the PropertiesEqualValue rule is: classifier.property classifier.property EQUAL #.
+    The purpose of this rule is to enforce two properties to be equivalent to a certain value. 
+    """
+    @staticmethod
+    def is_type(dict):
+        equal = ["=="]
+        if(len(dict)["classifiers"]==2 and len(dict["properties"])==2 and dict["operator"][0] in equal):
+            return True
+        else:
+            return False
+    
+    def get_processed_text(self):
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + self.rule_db.classifiers.all()[1].name + "." + self.rule_db.properties.all()[1].name + "EQUALS" + self.rule_db.value
+
+    def add_validator(self):
+        pass
+
+class NotEqual(BaseRule):
+    """
+    The syntax of the NotEqual rule is: classifier.property NOT(EQUAL) #
+    The purpose of this rule is to enforce a property of an object to not equivalent to a certain value. 
+    """
+    @staticmethod
+    def is_type(BaseRule):
+        notEqual = ["NOT"]
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in notEqual):
+            return True
+        else:
+            return False
+    
+    def get_processed_text(self):
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " " + self.rule_db.operator + " " + self.rule_db.value
+
+    def add_validator(self):
+        pass
+
+class NumericalRule(BaseRule):
+    """
+    The syntax of the NumericalRule rule is: classifier.property operator #.
+    The purpose of this rule is to enforce a property of an object to meet a certain value requirement based on the operator.
+    """
+    @staticmethod
+    def is_type(dict):
+        operators = [">", ">=", "==", "<", "<="]
+        if(len(dict["classifiers"]) == 1 and len(dict["properties"]) == 1 and dict['operator'][0] in operators):
             return True
         else:
             return False
@@ -45,15 +156,6 @@ class NumericalRule(BaseRule):
                 self.rule_db
             )
         )
-
-
-class StringRule:
-    @staticmethod
-    def is_type(dict):
-        pass
-
-    def add_validator(self):
-        pass
 
 
 # Syntax from textprocessor still to put into new objects: 
