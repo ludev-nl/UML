@@ -45,6 +45,8 @@ class NotNullRule(BaseRule):
     def add_validator(self):
         pass
 
+    def remove_validator(self):
+        pass
 class SymbolRule(BaseRule):
     """
     The syntax of the SymbolRule rule is: classifier.property CONTAINS # SYMBOLS.
@@ -74,6 +76,9 @@ class SymbolRule(BaseRule):
             self.rule_db, 
             self.get_validator()
         )
+    
+    def remove_validator(self):
+        VP_remove_validator(self)
 
 class ContainsOneType(BaseRule):
     """
@@ -112,6 +117,9 @@ class ContainsOneType(BaseRule):
             self.rule_db, 
             self.get_validator()
         )
+    
+    def remove_validator(self):
+        VP_remove_validator(self)
 
 class ContainsTwoTypes(BaseRule):
     """
@@ -144,6 +152,8 @@ class ContainsTwoTypes(BaseRule):
         )
         pass
 
+    def remove_validator(self):
+        VP_remove_validator(self)
 
 #TODO: Add validator for databaseObject.save() instead of just a single property 
 # class PropertiesEqualValue(BaseRule):
