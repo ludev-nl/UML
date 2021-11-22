@@ -3,6 +3,7 @@ from nltk.corpus.reader.conll import ConllSRLInstance
 import nltk
 import re
 from nltk.corpus import stopwords
+nltk.download('stopwords')
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
@@ -50,8 +51,11 @@ def wordToNumber(text):
           continue
     idNumbers.sort()
     newNumber.append(str(sum(numbers)))
-    newText = copyText[0:idNumbers[0]] + newNumber + copyText[idNumbers[-1]+1:]
-    return newText
+    if(len(copyText) > 0 and len(idNumbers) > 0):
+        newText = copyText[0:idNumbers[0]] + newNumber + copyText[idNumbers[-1]+1:]
+        return newText
+    else:
+        return text
 
 def split_rule(text):
     ''' Splits a string into individual words and cleans the data'''
