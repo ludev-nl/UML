@@ -20,6 +20,7 @@ Another example: "user's name should be less or equal to 20 letters"
 Both map to: user name.length <= 20
 '''
 def wordToNumber(text):
+    #if word does not need to be converged to number: put _NUMBER_
     units = {"zero": 0, "one" : 1, "two" : 2, "three" : 3, "four" : 4,  "five": 5, "six" : 6,
          "seven" : 7, "eight" : 8, "nine" : 9, "ten" : 10, "eleven" : 11, "twelve" : 12,
          "thirteen" : 13, "fourteen" : 14, "fifteen" : 15, "sixteen" :  16, "seventeen" : 17,
@@ -63,7 +64,6 @@ def split_rule(text):
     lemmatizer = WordNetLemmatizer()
     text = [lemmatizer.lemmatize(text[i]) for i in range(len(text))]
     return text
-
 '''
 #Each rule itself knows when the processed_text can be converted into that rule
 def determine_rule_type(text):
@@ -90,6 +90,7 @@ def determine_rule_type(text):
 #both map to: user name.length <= 20
 #input: result of split_rule
 def process_text(original_text):
+    text = " ".join(split_rule(original_text))
     '''Maps messy user input to a singular representation'''
     all_classifiers = getClassifiers()
     all_properties = list()
@@ -97,10 +98,10 @@ def process_text(original_text):
     #processed_text = "unknown"
 
     #Remove all classifiers that are not in the text
-    #all_classifiers = list(set(original_text).intersection(set(classifier))) 
+    #all_classifiers = list(set(text).intersection(set(classifier))) 
     temp = list()
     for classifier in all_classifiers:
-        if classifier.name in original_text:
+        if classifier.name.lower() in text:
             temp.append(classifier)
     all_classifiers = temp
 
@@ -109,19 +110,19 @@ def process_text(original_text):
         all_properties += getPropertiesFromClassifier(classifier)
 
     # Get only the properties that are in the text
-    # properties = list(set(property_names) & set(original_text))
+    # properties = list(set(property_names) & set(text))
     temp = list()
     for property in all_properties:
-        if property.name in original_text:
+        if property.name.lower() in text:
             temp.append(property)
     all_properties = temp
 
     # Get numeric words
-    digits = [word for word in original_text.split(' ') if word.isnumeric()]
+    digits = [word for word in text.split(' ') if word.isnumeric()]
 
     # Get type key
     types = []
-    for word in original_text.split(' '):
+    for word in text.split(' '):
         if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
             types.append("NUMBERS")
         if (word == "letters"):
@@ -144,7 +145,7 @@ def process_text(original_text):
         searchMostOp = re.compile(r"<=|most|max|maximum")
 
         #generate rule
-        for token in original_text:
+        for token in text:
             if re.search(searchNull,token):#not null rule
                 processed_text = classifier[0] + "." + all_properties[0].name + " NOT NULL"
                 break
@@ -209,18 +210,18 @@ def process_text(original_text):
         "<=": ["<=", "most", "max", "maximum"],
     }
 
-    for word.lower() in original_text:
+    for word in text:
         for key in operator_keywords:
-            if word in operator_keywords[key]:
+            if word.lower() in operator_keywords[key]:
                 operators.append(key)
     
 
     if len(operators) == 0: # Throw error if no operators are found
-        raise Exception("Can't parse into constraint: '" + original_text + "'")
+        raise Exception("Can't parse into constraint: '" + text + "'")
         
-    
     return {
         "original_input": original_text,
+        "structured_language": text,
         "properties": all_properties,
         "classifiers": all_classifiers,
         "value": digits, # TODO: ability to insert words as value
