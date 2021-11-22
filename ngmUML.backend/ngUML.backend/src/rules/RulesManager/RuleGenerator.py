@@ -9,7 +9,7 @@ def generate_db(input):
     new_rule_db = Rule(
         original_input = input['original_input'],
         type = detect_type(input).name, 
-        operator = input['operator'][0], # TODO: replace [0] with a better way to handle multiple operators and values 
+        operator = " ".join(input['operators']), # TODO: replace [0] with a better way to handle multiple operators and values 
         value = input['value'][0]
     )
 
@@ -29,7 +29,7 @@ def detect_type(dict):
         return Constraints.ATTR_OP_NUM
     elif StringRule.is_type(dict):
         return Constraints.ATTR_OP_STR
-    raise Exception("The rule dit not confirm to any implemented syntax.")
+    raise Exception("The rule dit not conform to any implemented syntax.")
 
 # Detect rule by database object #TODO: can this not be replaced by constructing a dictionary from the db Rule and calling detect_type? 
 def generate_py_obj(rule_db):

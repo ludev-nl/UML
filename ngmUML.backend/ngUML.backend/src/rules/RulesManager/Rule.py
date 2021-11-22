@@ -33,7 +33,7 @@ class NumericalRule(BaseRule):
         "<",
         "<="
         ]
-        if len(dict['properties']) == 1 and len(dict['classifiers']) == 1 and dict['operator'][0] in operators:
+        if len(dict['properties']) == 1 and len(dict['classifiers']) == 1 and dict['operators'][0] in operators:
             return True
         else:
             return False
@@ -57,7 +57,6 @@ class NumericalRule(BaseRule):
 
     def remove_validator(self):
         VP_remove_validator(self)
-
 
 class StringRule:
     @staticmethod
@@ -93,3 +92,4 @@ if re.search(searchNull,token):#not null rule
     
     
 
+#hieronder

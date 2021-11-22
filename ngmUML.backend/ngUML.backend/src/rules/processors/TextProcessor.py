@@ -8,6 +8,10 @@ from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
 from rules.processors.MappingProcessor import *
 
+#Preprocessing
+#TODO: n't to not: shouldn't -> should not
+#TODO: remove 's: Customer's name -> Customer name
+
 '''The goal of text processor is to map messy_text into processed_text
 That is to say: the user inputs messy text, and the text processor should unambigiously
 map all those possible inputs to the real, singular meaning
@@ -123,77 +127,81 @@ def process_text(original_text):
         if (word == "letters"):
             types.append("LETTERS")
 
-    """
-    #regular expressions
-    searchNull = re.compile(r"empty|null")
-    searchNumSymbols = re.compile(r"symbols|characters")
-    searchNot = re.compile(r"not|no")
-    searchType = re.compile(r"LETTERS|NUMBERS")
 
-    searchOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match|<|less|lower|beneath|smaller|>|more|greater|higher|>=|least|fewest|minimum|<=|most|max|maximum")
-    searchEqualOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match")
-    searchLessOp = re.compile(r"<|less|lower|beneath|smaller")
-    searchMoreOp = re.compile(r">|more|greater|higher")
-    searchLeastOp = re.compile(r">=|least|fewest|minimum")
-    searchMostOp = re.compile(r"<=|most|max|maximum")
+    if True:
+        """
+        #regular expressions
+        searchNull = re.compile(r"empty|null")
+        searchNumSymbols = re.compile(r"symbols|characters")
+        searchNot = re.compile(r"not|no")
+        searchType = re.compile(r"LETTERS|NUMBERS")
 
-    #generate rule
-    for token in original_text:
-        if re.search(searchNull,token):#not null rule
-            processed_text = classifier[0] + "." + all_properties[0].name + " NOT NULL"
-            break
-        if re.search(searchOp, token):#this is a rule with an operator
-            if re.search(searchEqualOp, token):
-                if re.search(searchNot, token):
-                    operator = " != "
-                    operators.append("!=")
+        searchOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match|<|less|lower|beneath|smaller|>|more|greater|higher|>=|least|fewest|minimum|<=|most|max|maximum")
+        searchEqualOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match")
+        searchLessOp = re.compile(r"<|less|lower|beneath|smaller")
+        searchMoreOp = re.compile(r">|more|greater|higher")
+        searchLeastOp = re.compile(r">=|least|fewest|minimum")
+        searchMostOp = re.compile(r"<=|most|max|maximum")
+
+        #generate rule
+        for token in original_text:
+            if re.search(searchNull,token):#not null rule
+                processed_text = classifier[0] + "." + all_properties[0].name + " NOT NULL"
+                break
+            if re.search(searchOp, token):#this is a rule with an operator
+                if re.search(searchEqualOp, token):
+                    if re.search(searchNot, token):
+                        operator = " != "
+                        operators.append("!=")
+                    elif re.search(searchLessOp, token):
+                        operator = " <= "
+                        operators.append("<=")
+                    elif re.search(searchMoreOp,token):
+                        operator = " >= "
+                        operators.append(">=")
+                    else:
+                        operator = " == "
+                        operators.append("==")
                 elif re.search(searchLessOp, token):
-                    operator = " <= "
-                    operators.append("<=")
-                elif re.search(searchMoreOp,token):
+                    operator = " < "
+                    operators.append("<")
+                elif re.search(searchMoreOp, token):
+                    operator = " > "
+                    operators.append(">")
+                elif re.search(searchLeastOp, token):
                     operator = " >= "
                     operators.append(">=")
+                elif re.search(searchMostOp, token):
+                    operator = " <= "
+                    operators.append("<=")
+                if re.search(searchNumSymbols, token):
+                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
+                    break
                 else:
-                    operator = " == "
-                    operators.append("==")
-            elif re.search(searchLessOp, token):
-                operator = " < "
-                operators.append("<")
-            elif re.search(searchMoreOp, token):
-                operator = " > "
-                operators.append(">")
-            elif re.search(searchLeastOp, token):
-                operator = " >= "
-                operators.append(">=")
-            elif re.search(searchMostOp, token):
-                operator = " <= "
-                operators.append("<=")
-            if re.search(searchNumSymbols, token):
-                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
+                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + operator + digits[0]
+                    break
+            if (len(types)>0):#this rule contains a type specification
+                if (len(digits) > 1):
+                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
+                    break
+                else:
+                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS ONLY" + types[0]
+                    break
+            if (len(all_properties) > 1):
+                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " " + all_classifiers[1].name + "." + all_properties[1].name + " EQUALS " + digits[0]
                 break
             else:
-                processed_text = all_classifiers[0].name + "." + all_properties[0].name + operator + digits[0]
-                break
-        if (len(types)>0):#this rule contains a type specification
-            if (len(digits) > 1):
-                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
-                break
-            else:
-                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS ONLY" + types[0]
-                break
-        if (len(all_properties) > 1):
-            processed_text = all_classifiers[0].name + "." + all_properties[0].name + " " + all_classifiers[1].name + "." + all_properties[1].name + " EQUALS " + digits[0]
-            break
-        else:
-            raise Exception("Can't parse into constraint: '" + processed_text + "'")
-    """
+                raise Exception("Can't parse into constraint: '" + processed_text + "'")
+        """
+        pass
 
     # All combinations of base operators and equivalent aliases
     operator_keywords = {
         "NULL": ["empty", "null"], 
-        "SYMBOLS": ["symbols", "characters"], # Syntax: Class prop contains operator value SYMBOLS
         "NOT": ["not", "no"],
-        "?": ["LETTERS", "NUMBERS"], # TODO: better keyword for operator
+        "SYMBOLS": ["symbols", "characters"], # Syntax: Class prop contains operator value SYMBOLS
+        "LETTERS": ["letters", "alphabetical"],
+        "NUMBERS": ["digits", "numbers"],
         "==": ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"],
         "<": ["<", "less", "lower", "beneath", "smaller"],
         ">": [">", "more", "greater", "higher"],
@@ -201,19 +209,20 @@ def process_text(original_text):
         "<=": ["<=", "most", "max", "maximum"],
     }
 
-    for word in original_text:
+    for word.lower() in original_text:
         for key in operator_keywords:
             if word in operator_keywords[key]:
                 operators.append(key)
+    
 
     if len(operators) == 0: # Throw error if no operators are found
         raise Exception("Can't parse into constraint: '" + original_text + "'")
         
-
+    
     return {
         "original_input": original_text,
         "properties": all_properties,
         "classifiers": all_classifiers,
         "value": digits, # TODO: ability to insert words as value
-        "operator": operators
+        "operators": operators
     }
