@@ -217,7 +217,7 @@ class NumericalRule(BaseRule):
 
     def get_validator(self):
         return get_standard_if_statement(
-            "value " + self.rule_db.operator + " int(" + str(self.rule_db.value) + ")", 
+            "int(value) " + self.rule_db.operator + " " + str(self.rule_db.value), 
             self.rule_db
         )
 
