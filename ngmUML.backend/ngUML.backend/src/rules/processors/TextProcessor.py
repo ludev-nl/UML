@@ -60,7 +60,7 @@ def wordToNumber(text):
 def split_rule(text):
     ''' Splits a string into individual words and cleans the data'''
     text = text.lower() #set all symbols to lower case
-    text = re.sub(r'[^\w\s]','',text) #remove puntuation
+    text = re.sub(r'[^\w\s]-[<, =, >]','',text) #remove puntuation (fixed)
     textBlb = TextBlob(text).correct() #spell correction
     tokens = textBlb.tokens #split rule into seperate words
     text = [word for word in tokens if word not in stopwords.words('english')]#remove stopwords
