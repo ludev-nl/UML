@@ -63,30 +63,10 @@ def split_rule(text):
     text = re.sub(r'[^\w\s]-[<, =, >]','',text) #remove puntuation (fixed)
     textBlb = TextBlob(text).correct() #spell correction
     tokens = textBlb.tokens #split rule into seperate words
-    text = [word for word in tokens if word not in stopwords.words('english') or word == "not"]#remove stopwords
-    text = wordToNumber(text)
+    text = wordToNumber(tokens)
     lemmatizer = WordNetLemmatizer()
     text = [lemmatizer.lemmatize(text[i]) for i in range(len(text))]
     return text
-'''
-#Each rule itself knows when the processed_text can be converted into that rule
-def determine_rule_type(text):
-    #Checks if the processed string is of the form of one of the rules
-    if(numericalRule.check_rule(text)):
-        return Constraints.PROP_OP_NUM
-    elif(maxSymbolRule.check_rule(text)):
-        return Constraints.MAX_SYMBOL
-    elif(specificCharacterTypeRule.check_rule(text)):
-        return Constraints.SPECIFIC_CHAR
-    elif(characterOrderRule.check_rule(text)):
-        return Constraints.ORDER_CHAR
-    elif(nullRule.check_rule(text)):
-        return Constraints.NULL
-    elif(propertiesEqualValueRule.check_rule(text)):
-        return Constraints.PROPERTIES_EQ_NUM
-    else:
-        raise Exception("Can't parse into constraint: '" + text + "'")
-'''
 
 #if the user gives input that maps to 1 single representation, convert it to that single representation
 #example of user input: I want the User class's name not to be longer than 20 characters
@@ -123,82 +103,6 @@ def process_text(original_text):
 
     # Get numeric words
     digits = [word for word in text if word.isnumeric()]
-
-    # # Get type key
-    # types = []
-    # for word in text.split(' '):
-    #     if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
-    #         types.append("NUMBERS")
-    #     if (word == "letters"):
-    #         types.append("LETTERS")
-
-
-    if True:
-        """
-        #regular expressions
-        searchNull = re.compile(r"empty|null")
-        searchNumSymbols = re.compile(r"symbols|characters")
-        searchNot = re.compile(r"not|no")
-        searchType = re.compile(r"LETTERS|NUMBERS")
-
-        searchOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match|<|less|lower|beneath|smaller|>|more|greater|higher|>=|least|fewest|minimum|<=|most|max|maximum")
-        searchEqualOp = re.compile(r"==|=|equal|copy|equivalent|double|like|match")
-        searchLessOp = re.compile(r"<|less|lower|beneath|smaller")
-        searchMoreOp = re.compile(r">|more|greater|higher")
-        searchLeastOp = re.compile(r">=|least|fewest|minimum")
-        searchMostOp = re.compile(r"<=|most|max|maximum")
-
-        #generate rule
-        for token in text:
-            if re.search(searchNull,token):#not null rule
-                processed_text = classifier[0] + "." + all_properties[0].name + " NOT NULL"
-                break
-            if re.search(searchOp, token):#this is a rule with an operator
-                if re.search(searchEqualOp, token):
-                    if re.search(searchNot, token):
-                        operator = " != "
-                        operators.append("!=")
-                    elif re.search(searchLessOp, token):
-                        operator = " <= "
-                        operators.append("<=")
-                    elif re.search(searchMoreOp,token):
-                        operator = " >= "
-                        operators.append(">=")
-                    else:
-                        operator = " == "
-                        operators.append("==")
-                elif re.search(searchLessOp, token):
-                    operator = " < "
-                    operators.append("<")
-                elif re.search(searchMoreOp, token):
-                    operator = " > "
-                    operators.append(">")
-                elif re.search(searchLeastOp, token):
-                    operator = " >= "
-                    operators.append(">=")
-                elif re.search(searchMostOp, token):
-                    operator = " <= "
-                    operators.append("<=")
-                if re.search(searchNumSymbols, token):
-                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS" + operator + digits[0] +  " SYMBOLS"
-                    break
-                else:
-                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + operator + digits[0]
-                    break
-            if (len(types)>0):#this rule contains a type specification
-                if (len(digits) > 1):
-                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS " + digits[0] + " " + types[0] + " "+ digits[1] + " " + types[1]
-                    break
-                else:
-                    processed_text = all_classifiers[0].name + "." + all_properties[0].name + " CONTAINS ONLY" + types[0]
-                    break
-            if (len(all_properties) > 1):
-                processed_text = all_classifiers[0].name + "." + all_properties[0].name + " " + all_classifiers[1].name + "." + all_properties[1].name + " EQUALS " + digits[0]
-                break
-            else:
-                raise Exception("Can't parse into constraint: '" + processed_text + "'")
-        """
-        pass
 
     # All combinations of base operators and equivalent aliases
     operator_keywords = {
