@@ -1,4 +1,4 @@
-from enum import Enum
+'''from enum import Enum
 
 class Constraints(Enum):
     # <classifier> <attribute> <operator> <numerical value>
@@ -24,3 +24,4 @@ class Constraints(Enum):
     ONE_TYPE = "ONE_TYPE"
     
     UNKNOWN_TYPE = "UNKNOWN_TYPE"
+'''

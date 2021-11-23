@@ -1,12 +1,17 @@
 from abc import abstractmethod
+from os import stat
 from rules.processors.ValidatorProcessor import add_keyword, get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
-
-#WOULD BE NICE IF THERE WAS A REGULAR EXPRESSION IMPORT IN SHARED MODEL.PY
-# HOW ABOUT A ADD IMPORT FUNCTION???
+#from rules.RulesManager.Enums import Constraints
 
 class BaseRule:
     def __init__(self, rule_db):
         self.rule_db = rule_db
+
+    rule_type = "BASE_CLASS"
+
+    @abstractmethod
+    def get_type():
+        pass
     
     @abstractmethod
     def is_type(dict):
@@ -31,11 +36,13 @@ class NullRule(BaseRule):
     The syntax of the NotNullRule rule is: classifier.property "NOT NULL".
     The purpose of this rule is to enforce a property of an object to not be null or empty.
     """
+    rule_type = "NULL"
+
     @staticmethod
     def is_type(dict):
         nullOperator = "NULL"
         if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and nullOperator in dict["operators"] and len(dict["operators"]) <= 2):
-            return True
+            return NullRule.rule_type
         else:
             return False
     
@@ -56,11 +63,14 @@ class SymbolRule(BaseRule):
     The syntax of the SymbolRule rule is: classifier.property CONTAINS # SYMBOLS.
     The purpose of this rule is to enforce the property of an object to have a limited amount of specified symbols.
     """
+
+    rule_type = "NUM_SYMBOLS"
+
     @staticmethod
     def is_type(dict):
         symbolOperator = ["SYMBOLS"]
         if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operators"][0] in symbolOperator):
-            return True
+            return SymbolRule.rule_type
         else:
             return False
     
@@ -89,12 +99,13 @@ class ContainsOneType(BaseRule):
     The syntax of the ContainsOneType rule is: classifier.property CONTAINS ONLY TYPE.
     The purpose of this rule is to enforce a property of an object to consist of one type only.
     """
+    rule_type = "ONE_TYPE"
+
     @staticmethod
     def is_type(dict):
         oneType = ["NUMBERS", "LETTERS"]
         if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and len(dict["operators"]) == 1 and dict["operators"][0] in oneType):
-            return True
-
+            return ContainsOneType.rule_type
         else:
             return False
     
@@ -130,10 +141,14 @@ class ContainsTwoTypes(BaseRule):
     The syntax of the ContainsTwoTypes rule is: classifier.property CONTAINS # TYPE1 AND # TYPE2.
     The purpose of this rule is to enforce a property to consist of two types only. 
     """
+    
+    rule_type = "TWO_TYPES"
+
+    @staticmethod
     def is_type(dict):
         twoTypes = ["NUMBERS", "LETTERS"]
         if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and len(dict["operators"])==2 and dict["operators"][0] in twoTypes and dict["operators"][1] in twoTypes):
-            return True
+            return ContainsTwoTypes.rule_type
         else:
             return False
     
@@ -204,11 +219,13 @@ class NumericalRule(BaseRule):
     The syntax of the NumericalRule rule is: classifier.property operator #.
     The purpose of this rule is to enforce a property of an object to meet a certain value requirement based on the operator.
     """
+    rule_type = "ATTR_OP_NUM"
+
     @staticmethod
     def is_type(dict):
         operators = [">", ">=", "==", "<", "<="]
         if(len(dict["classifiers"]) == 1 and len(dict["properties"]) == 1 and dict['operators'][0] in operators):
-            return True
+            return NumericalRule.rule_type
         else:
             return False
 

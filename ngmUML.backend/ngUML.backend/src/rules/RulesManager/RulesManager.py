@@ -5,7 +5,7 @@ adding new rules, finding rules, calls TextProcessor and MappingProcessor to mak
 from ..models import Rule as RuleDB
 from ssl import create_default_context
 from rules.processors.TextProcessor import process_text
-from rules.RulesManager.Enums import Constraints
+#from rules.RulesManager.Enums import Constraints
 import rules.RulesManager.RuleGenerator as RuleGenerator
 from model.models import Classifier, Property
 
