@@ -80,10 +80,14 @@ export const RuleMenu: React.FC = () => {
         //adding rule succeeded
         if (ruleAdded.FAIL == null) {
             badrule?.classList.remove("BadRulesShown")
+            badrule?.classList.add("GoodRulesShown")
+            badrule!.innerHTML = "Rule successfully added"
             databaseToRules()
         }
         else {
             badrule?.classList.add("BadRulesShown")
+            badrule?.classList.remove("GoodRulesShown")
+            badrule!.innerHTML = "Bad rule entered"
         }
     }
      function apiToRules() {
@@ -179,7 +183,7 @@ export const RuleMenu: React.FC = () => {
             <span
                 id="BadRules"
             >
-                You entered a bad rule!
+                
             </span>
             <hr>
             </hr>
