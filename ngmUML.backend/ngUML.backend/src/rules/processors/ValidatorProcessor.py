@@ -64,14 +64,23 @@ def read_validators_py():
         write_to_shared_file("validators", "")
 
     # Read texts
-    texts = read_from_shared_file("validators")
+    text = read_from_shared_file("validators")
 
     # Add import statement to validators.py if it does not already exist
     import_statement = "from django.core.exceptions import ValidationError" 
-    if import_statement not in texts:
-        texts = import_statement + "\n" + texts
+    if import_statement not in text:
+        text = import_statement + "\n" + text
 
-    return texts
+    return text
+
+
+def add_import_statement(import_statement):
+    text = read_validators_py()
+
+    if import_statement not in text:
+        text = import_statement + "\n" + text
+    
+    write_to_shared_file("validators", text)
 
 
 def add_validator_function(rule, validator):
