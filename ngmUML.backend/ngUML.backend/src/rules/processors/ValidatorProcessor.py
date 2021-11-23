@@ -38,22 +38,24 @@ def add_validator_reference(property, rule):
     class_string = 'class ' + property.classifier.name + '(models.Model):\n'
     class_index = text.find(class_string) + len(class_string)
     base_text = text[:class_index]
-    target_text = text[class_index:]
+    classifier_text = text[class_index:]
 
     # Generate property declaration and find index of the beginning and the end of the prop in text
     old_property = generate_property_declaration(property.name, property.type)[:-2]
-    property_index = target_text.find(old_property) + len(old_property)
-    end_of_property_index = target_text.find('\n', property_index)
+    property_index = classifier_text.find(old_property) + len(old_property)
+    target_text = classifier_text[property_index:]
+    classifier_text = classifier_text[:property_index]
+    end_of_property_index = target_text.find('\n')
 
     # Add the reference
     reference = get_validator_function_reference(rule) + ", ]"
-    if "validators" in target_text[property_index:end_of_property_index]:
+    if "validators" in target_text[:end_of_property_index]:
         target_text = target_text.replace(" ]", " " + reference, 1)
     else:
         target_text = target_text.replace(")", ", validators = [" + reference + ")", 1)
 
     # Save text to models.py
-    write_to_shared_file("models", base_text + target_text)
+    write_to_shared_file("models", base_text + classifier_text + target_text)
 
 
 def read_validators_py():
