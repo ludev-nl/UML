@@ -33,6 +33,11 @@ li::before{
 	visibility: visible !important;
 }
 
+.GoodRulesShown{
+	color: green !important;
+	visibility: visible !important;
+}
+
 #populateButton{
 	margin-top: 5px;
 }
