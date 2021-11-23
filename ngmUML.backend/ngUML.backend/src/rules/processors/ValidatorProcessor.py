@@ -140,7 +140,6 @@ def remove_validator_reference(rule):
 def remove_validator_function(rule):
     text = read_from_shared_file("validators")
     validator_function = get_validator_function_definition(rule.rule_db, rule.get_validator())
-    print(validator_function)
     text = text.replace(validator_function, '')
     write_to_shared_file("validators", text)
 

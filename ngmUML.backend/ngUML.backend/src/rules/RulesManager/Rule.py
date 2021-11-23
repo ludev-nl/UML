@@ -44,9 +44,9 @@ class NullRule(BaseRule):
 
     def add_validator(self):
         if "NOT" in self.rule_db.operator:
-            add_keyword(self.rule_db.properties.all()[0], "null", False)
+            add_keyword(self.rule_db.properties.all()[0], "blank", False)
         else:
-            add_keyword(self.rule_db.properties.all()[0], "null", True)
+            add_keyword(self.rule_db.properties.all()[0], "blank", True)
 
     def remove_validator(self):
         pass

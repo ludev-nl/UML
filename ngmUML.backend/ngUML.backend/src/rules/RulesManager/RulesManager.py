@@ -16,7 +16,6 @@ class RulesManager:
         Uses text processer to map messy text to processed text,
         and determine what type of processed text maps to'''
         processed_dict = process_text(messy_text)   
-        print (processed_dict)
         new_rule_db = RuleGenerator.generate_db(processed_dict)
         new_rule = RuleGenerator.generate_py_obj(new_rule_db)
         new_rule_db.processed_text = new_rule.get_processed_text()
