@@ -79,13 +79,11 @@ def remove(request):
 def debug(request):
     ''' Function to test code in.
     Serves no practical purpose.'''
+    from shared.models import Product
 
-    # Get rules from database
-    rules = rulesmanager.get_all_rules()
-    
-    # Extract the properties needed and construct a rule list
-    rule_list = []
-    for rule in rules:
-        rule_list.append(rule.get_as_dict()) # Get rule as a dictionary of properties
+    prod = Product(price="21",name="John", location="store", description="type of grain")
+    prod.full_clean()
+    prod.save()
 
-    return JsonResponse({'rules': rule_list})
+
+    return JsonResponse({'SUCCES' : 'it worked!'})
