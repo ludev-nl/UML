@@ -81,7 +81,7 @@ def add_validator_reference(property, rule):
     # Add the reference
     reference = get_validator_function_reference(rule) + ", ]"
     if "validators" in target_text[:end_of_property_index]:
-        target_text = target_text.replace(" ]", " " + reference, 1)
+        target_text = target_text.replace("]", " " + reference, 1)
     else:
         target_text = target_text.replace(")", ", validators = [" + reference + ")", 1)
 
