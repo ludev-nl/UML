@@ -34,7 +34,7 @@ class NotNullRule(BaseRule):
     @staticmethod
     def is_type(dict):
         nullOperator = ["NULL"]
-        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in nullOperator):
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operators"][0] in nullOperator):
             return True
         else:
             return False
@@ -55,7 +55,7 @@ class SymbolRule(BaseRule):
     @staticmethod
     def is_type(dict):
         symbolOperator = ["SYMBOLS"]
-        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in symbolOperator):
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operators"][0] in symbolOperator):
             return True
         else:
             return False
@@ -88,18 +88,18 @@ class ContainsOneType(BaseRule):
     @staticmethod
     def is_type(dict):
         oneType = ["NUMBERS", "LETTERS"]
-        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in oneType):
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and len(dict["operators"]) == 1 and dict["operators"][0] in oneType):
             return True
 
         else:
             return False
     
     def get_processed_text(self):
-        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + "CONTAINS ONLY" + self.rule.db.operator 
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " CONTAINS ONLY " + self.rule_db.operator 
 
     def get_validator(self):
         #TODO: Do it with regular expressions
-        if(self.rule_db.operator.all()[0] == "LETTERS"):
+        if(self.rule_db.operator == "LETTERS"):
             return get_standard_if_statement(
                 "value.isalpha()", 
                 self.rule_db
@@ -128,13 +128,13 @@ class ContainsTwoTypes(BaseRule):
     """
     def is_type(dict):
         twoTypes = ["NUMBERS", "LETTERS"]
-        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and len(dict["operator"])==2 and dict["operator"][0] in twoTypes and dict["operator"][1] in twoTypes):
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and len(dict["operators"])==2 and dict["operators"][0] in twoTypes and dict["operators"][1] in twoTypes):
             return True
         else:
             return False
     
     def get_processed_text(self):
-        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " CONTAINS " + self.rule_db.value[0] + " " + self.rule_db.operator[0] + " AND " + self.rule_db.value[0] + " " + self.rule_db.operator[1]
+        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " CONTAINS " + self.rule_db.operator[0] + " AND " + self.rule_db.operator[1]
 
     def get_validator(self):
         #TODO: Do it with regular expressions
@@ -164,7 +164,7 @@ class ContainsTwoTypes(BaseRule):
 #     @staticmethod
 #     def is_type(dict):
 #         equal = ["=="]
-#         if(len(dict)["classifiers"]==1 and len(dict["properties"])==2 and dict["operator"][0] in equal):
+#         if(len(dict)["classifiers"]==1 and len(dict["properties"])==2 and dict["operators"][0] in equal):
 #             return True
 #         else:
 #             return False
@@ -183,7 +183,7 @@ class ContainsTwoTypes(BaseRule):
 #     @staticmethod
 #     def is_type(dict):
 #         notEqual = ["NOT"]
-#         if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operator"][0] in notEqual):
+#         if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operators"][0] in notEqual):
 #             return True
 #         else:
 #             return False
@@ -202,7 +202,7 @@ class NumericalRule(BaseRule):
     @staticmethod
     def is_type(dict):
         operators = [">", ">=", "==", "<", "<="]
-        if(len(dict["classifiers"]) == 1 and len(dict["properties"]) == 1 and dict['operator'][0] in operators):
+        if(len(dict["classifiers"]) == 1 and len(dict["properties"]) == 1 and dict['operators'][0] in operators):
             return True
         else:
             return False

@@ -19,4 +19,8 @@ class Constraints(Enum):
     # <classifier> <attribute> <classifier> <attribute> <numerical value>
     # ex: employee vacationHours employee sickHours 240
     ATTRIBUTES_EQ_NUM = "ATTRIBUTES_EQ_NUM"
+    NUM_SYMBOL = "NUM_SYMBOLS"
+    TWO_TYPES = "TWO_TYPES"
+    ONE_TYPE = "ONE_TYPE"
+    
     UNKNOWN_TYPE = "UNKNOWN_TYPE"

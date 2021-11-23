@@ -94,7 +94,7 @@ def determine_rule_type(text):
 #both map to: user name.length <= 20
 #input: result of split_rule
 def process_text(original_text):
-    text = " ".join(split_rule(original_text))
+    text = split_rule(original_text)
     '''Maps messy user input to a singular representation'''
     all_classifiers = getClassifiers()
     all_properties = list()
@@ -122,15 +122,15 @@ def process_text(original_text):
     all_properties = temp
 
     # Get numeric words
-    digits = [word for word in text.split(' ') if word.isnumeric()]
+    digits = [word for word in text if word.isnumeric()]
 
-    # Get type key
-    types = []
-    for word in text.split(' '):
-        if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
-            types.append("NUMBERS")
-        if (word == "letters"):
-            types.append("LETTERS")
+    # # Get type key
+    # types = []
+    # for word in text.split(' '):
+    #     if (word == "number" or word == "numbers" or word == "numeric" or word == "numerics"):
+    #         types.append("NUMBERS")
+    #     if (word == "letters"):
+    #         types.append("LETTERS")
 
 
     if True:
@@ -204,9 +204,9 @@ def process_text(original_text):
     operator_keywords = {
         "NULL": ["empty", "null"], 
         "NOT": ["not", "no"],
-        "SYMBOLS": ["symbols", "characters"], # Syntax: Class prop contains operator value SYMBOLS
-        "LETTERS": ["letters", "alphabetical"],
-        "NUMBERS": ["digits", "numbers"],
+        "SYMBOLS": ["symbol", "character"], # Syntax: Class prop contains operator value SYMBOLS
+        "LETTERS": ["letter", "alphabetical"],
+        "NUMBERS": ["digit", "number", "numeric", "numerical"],
         "==": ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"],
         "<": ["<", "less", "lower", "beneath", "smaller"],
         ">": [">", "more", "greater", "higher"],
@@ -214,14 +214,17 @@ def process_text(original_text):
         "<=": ["<=", "most", "max", "maximum"],
     }
 
+
+    print(text)
     for word in text:
+        print(word)
         for key in operator_keywords:
             if word.lower() in operator_keywords[key]:
                 operators.append(key)
     
 
     if len(operators) == 0: # Throw error if no operators are found
-        raise Exception("Can't parse into constraint: '" + text + "'")
+        raise Exception("Can't parse into constraint: '" + " ".join(text) + "'")
         
     return {
         "original_input": original_text,
