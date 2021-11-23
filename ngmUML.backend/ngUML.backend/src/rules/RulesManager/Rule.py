@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from rules.processors.ValidatorProcessor import get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
+from rules.processors.ValidatorProcessor import add_keyword, get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
 
 #WOULD BE NICE IF THERE WAS A REGULAR EXPRESSION IMPORT IN SHARED MODEL.PY
 # HOW ABOUT A ADD IMPORT FUNCTION???
@@ -26,15 +26,15 @@ class BaseRule:
 
 
 #TODO: Add a generic add field thingy for a property instead of OP validator
-class NotNullRule(BaseRule):
+class NullRule(BaseRule):
     """
     The syntax of the NotNullRule rule is: classifier.property "NOT NULL".
     The purpose of this rule is to enforce a property of an object to not be null or empty.
     """
     @staticmethod
     def is_type(dict):
-        nullOperator = ["NULL"]
-        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and dict["operators"][0] in nullOperator):
+        nullOperator = "NULL"
+        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and nullOperator in dict["operators"] and len(dict["operators"]) <= 2):
             return True
         else:
             return False
@@ -43,10 +43,14 @@ class NotNullRule(BaseRule):
         return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " " + "NOT NULL"
 
     def add_validator(self):
-        pass
+        if "NOT" in self.rule_db.operator:
+            add_keyword(self.rule_db.properties.all()[0], "null", False)
+        else:
+            add_keyword(self.rule_db.properties.all()[0], "null", True)
 
     def remove_validator(self):
         pass
+
 class SymbolRule(BaseRule):
     """
     The syntax of the SymbolRule rule is: classifier.property CONTAINS # SYMBOLS.

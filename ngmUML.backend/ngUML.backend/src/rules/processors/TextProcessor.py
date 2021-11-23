@@ -63,7 +63,7 @@ def split_rule(text):
     text = re.sub(r'[^\w\s]-[<, =, >]','',text) #remove puntuation (fixed)
     textBlb = TextBlob(text).correct() #spell correction
     tokens = textBlb.tokens #split rule into seperate words
-    text = [word for word in tokens if word not in stopwords.words('english')]#remove stopwords
+    text = [word for word in tokens if word not in stopwords.words('english') or word == "not"]#remove stopwords
     text = wordToNumber(text)
     lemmatizer = WordNetLemmatizer()
     text = [lemmatizer.lemmatize(text[i]) for i in range(len(text))]
@@ -214,10 +214,7 @@ def process_text(original_text):
         "<=": ["<=", "most", "max", "maximum"],
     }
 
-
-    print(text)
     for word in text:
-        print(word)
         for key in operator_keywords:
             if word.lower() in operator_keywords[key]:
                 operators.append(key)

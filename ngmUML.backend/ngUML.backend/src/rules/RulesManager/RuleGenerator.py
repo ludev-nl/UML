@@ -37,6 +37,8 @@ def detect_type(dict):
         return Constraints.TWO_TYPES
     elif SymbolRule.is_type(dict):
         return Constraints.NUM_SYMBOL
+    elif NullRule.is_type(dict):
+        return Constraints.NULL
     raise Exception("The rule dit not conform to any implemented syntax.")
 
 # Detect rule by database object #TODO: can this not be replaced by constructing a dictionary from the db Rule and calling detect_type? 
@@ -49,5 +51,7 @@ def generate_py_obj(rule_db):
         return ContainsTwoTypes(rule_db)
     elif(rule_db.type == Constraints.ONE_TYPE.name):
         return ContainsOneType(rule_db)
+    elif(rule_db.type == Constraints.NULL.name):
+        return NullRule(rule_db)
     else:
         raise Exception("Error: no rule class found for type" + rule_db.type)

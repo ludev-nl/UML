@@ -23,6 +23,37 @@ def get_validator_function_definition(rule, validator):
     return "\n\ndef rule_" + str(rule.pk) + "(value):\n" + validator
 
 
+def add_keyword(property, keyword, value):
+    '''Adds validator reference to models.py text for (each) rule for @classifier and @property'''
+    # Open and read models.py
+    text = read_from_shared_file("models")
+
+    # Search classifier and split text into 2
+    class_string = 'class ' + property.classifier.name + '(models.Model):\n'
+    class_index = text.find(class_string) + len(class_string)
+    base_text = text[:class_index]
+    classifier_text = text[class_index:]
+
+    # Generate property declaration and find index of the beginning and the end of the prop in text
+    old_property = generate_property_declaration(property.name, property.type)[:-2]
+    property_index = classifier_text.find(old_property) + len(old_property)
+    target_text = classifier_text[property_index:]
+    classifier_text = classifier_text[:property_index]
+    end_of_property_index = target_text.find('\n')
+
+    # Add the reference
+    new_value =  keyword + "=" + str(value)
+    if keyword in target_text[:end_of_property_index]:
+        keywordstart = target_text.find(keyword)
+        keywordend = min(target_text[keywordstart:].find(","), end_of_property_index) - 1
+        old_value = target_text[keywordstart:keywordend]
+        target_text = target_text.replace(old_value, new_value, 1)
+    else:
+        target_text = target_text.replace(")", ", " + new_value + ")", 1)
+
+    # Save text to models.py
+    write_to_shared_file("models", base_text + classifier_text + target_text)
+
 def add_validator_reference(property, rule):
     '''Adds validator reference to models.py text for (each) rule for @classifier and @property'''
 
