@@ -155,6 +155,7 @@ class ContainsTwoTypes(BaseRule):
     def remove_validator(self):
         VP_remove_validator(self)
 
+#TODO: If two different classes, then .save for the relationship
 #TODO: Add validator for databaseObject.save() instead of just a single property 
 # class PropertiesEqualValue(BaseRule):
 #     """

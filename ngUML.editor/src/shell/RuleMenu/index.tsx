@@ -61,7 +61,7 @@ export const RuleMenu: React.FC = () => {
             })
             .then(response => {
                 for (var rule of response) {
-                    var ruleObject: RuleObject = new RuleObject(rule.pk, rule.fields["messy_rule"], rule.fields["processed_rule"], rule.fields["type"], rule.fields["python"])
+                    var ruleObject: RuleObject = new RuleObject(rule.pk, rule.fields["original_input"], rule.fields["processed_text"], rule.fields["type"], "")
                     apiRulesObject.push(ruleObject)
                 }
                 setRulesObject(apiRulesObject)
