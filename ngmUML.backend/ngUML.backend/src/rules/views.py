@@ -1,10 +1,10 @@
-''' Views manages api calls and returning JSON 
+''' Views manages api calls and returning JSON
     Knows little of how rules work, are stored etc.
     Decodes requests, calls RulesManager, correctly handles exceptions and JSON returns'''
 from django.http import JsonResponse # To return JSON
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
-from django.http import HttpResponse 
+from django.http import HttpResponse
 import traceback
 
 from .RulesManager.RulesManager import RulesManager
@@ -14,10 +14,10 @@ rulesmanager = RulesManager()
 
 def index(request):
     ''' Accepts GET requests to return all currently saved rules from the database as text. '''
-    
+
     # Get rules from database
     rules_query = rulesmanager.db_get_all_rules()
-    
+
     # Extract the properties needed and construct a rule list
     Rules_json = serializers.serialize("json", rules_query)
 
@@ -35,7 +35,7 @@ def add(request):
 
     # Extract the rule from the request
     textrule = request.POST.get('rule', "") #give default value in case there is no rule argument
-    if (textrule == ""): 
+    if (textrule == ""):
         return JsonResponse({'FAIL' : 'Supply rule : ruletext in post argument'})
 
     # Create a rule database object from the string
@@ -48,8 +48,8 @@ def add(request):
         'type' : str(type(err)),
         'message' : str(err)},
         )
-    return JsonResponse({'SUCCES' : 'Rule: ' + textrule + " saved to rules."})
-    
+    return JsonResponse({'SUCCES' : 'Rule: ' + str(TextBlob(textrule).correct()) + " saved to rules."})
+
 #CSRF exempt Turns off the need to provide a csrf token on a POST request. Temporary fix
 @csrf_exempt
 def remove(request):
@@ -61,7 +61,7 @@ def remove(request):
 
     # Extract the rule pk from the request
     pk = request.POST.get('pk', -1) #give default value in case there is no rule argument
-    if (pk == -1): 
+    if (pk == -1):
         return JsonResponse({'FAIL' : 'Supply pk : pk of rule to be removed in post argument'})
 
     # Remove the rule instance from database

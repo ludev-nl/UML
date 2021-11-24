@@ -2,8 +2,6 @@
 from nltk.corpus.reader.conll import ConllSRLInstance
 import nltk
 import re
-from nltk.corpus import stopwords
-nltk.download('stopwords')
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
@@ -74,6 +72,7 @@ def split_rule(text):
 #both map to: user name.length <= 20
 #input: result of split_rule
 def process_text(original_text):
+    original_text = str(TextBlob(original_text).correct())
     text = split_rule(original_text)
     '''Maps messy user input to a singular representation'''
     all_classifiers = getClassifiers()
@@ -82,7 +81,7 @@ def process_text(original_text):
     #processed_text = "unknown"
 
     #Remove all classifiers that are not in the text
-    #all_classifiers = list(set(text).intersection(set(classifier))) 
+    #all_classifiers = list(set(text).intersection(set(classifier)))
     temp = list()
     for classifier in all_classifiers:
         if classifier.name.lower() in text:
@@ -106,7 +105,7 @@ def process_text(original_text):
 
     # All combinations of base operators and equivalent aliases
     operator_keywords = {
-        "NULL": ["empty", "null"], 
+        "NULL": ["empty", "null"],
         "NOT": ["not", "no"],
         "SYMBOLS": ["symbol", "character"], # Syntax: Class prop contains operator value SYMBOLS
         "LETTERS": ["letter", "alphabetical"],
@@ -122,11 +121,11 @@ def process_text(original_text):
         for key in operator_keywords:
             if word.lower() in operator_keywords[key]:
                 operators.append(key)
-    
+
 
     if len(operators) == 0: # Throw error if no operators are found
         raise Exception("Can't parse into constraint: '" + " ".join(text) + "'")
-        
+
     return {
         "original_input": original_text,
         "structured_language": text,
