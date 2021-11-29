@@ -5,6 +5,7 @@ from django.http import JsonResponse # To return JSON
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.http import HttpResponse
+from textblob import TextBlob
 import traceback
 
 from .RulesManager.RulesManager import RulesManager
