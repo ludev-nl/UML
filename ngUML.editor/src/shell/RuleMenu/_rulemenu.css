@@ -38,10 +38,6 @@ li::before{
 	visibility: visible !important;
 }
 
-#populateButton{
-	margin-top: 5px;
-}
-
 .tooltip{
 	z-index: 8001 !important;
 }

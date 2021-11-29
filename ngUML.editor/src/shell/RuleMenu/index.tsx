@@ -30,7 +30,6 @@ class RuleObject {
 		
 export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
-    const [rulesObject, setRulesObject] = useState<RuleObject[]>([])
 
     async function addRuleToDatabase(ruleString: string) {
          const data = new FormData();
@@ -40,7 +39,7 @@ export const RuleMenu: React.FC = () => {
                      mode: "cors",
                      body: data
                  } )
-                 .then(response => {
+             .then(response => {
                          return response.json();
                  })
                  .catch(error => {
@@ -50,7 +49,6 @@ export const RuleMenu: React.FC = () => {
     }
 
     function databaseToRules() {
-        var apiRulesObject: RuleObject[] = []
         fetch("http://localhost:8000/rules/",
             {
                 method: 'GET',
@@ -60,12 +58,12 @@ export const RuleMenu: React.FC = () => {
                 return response.json();
             })
             .then(response => {
+                var apiRulesObject: RuleObject[] = []
                 for (var rule of response) {
                     var ruleObject: RuleObject = new RuleObject(rule.pk, rule.fields["original_input"], rule.fields["processed_text"], rule.fields["type"], "")
                     apiRulesObject.push(ruleObject)
                 }
-                setRulesObject(apiRulesObject)
-                rulesToComponents()
+                rulesToComponents(apiRulesObject)
             })
             .catch(error => {
                 console.error('Error: ', error);
@@ -90,34 +88,8 @@ export const RuleMenu: React.FC = () => {
             badrule!.innerHTML = "Bad rule entered"
         }
     }
-     function apiToRules() {
-         const data = new FormData();
-         data.append("rule", "warehouse capacity < 50")
-         fetch("http://localhost:8000/rules/add/", 
-                     {method: 'POST',
-                     mode: "cors",
-                     body: data
-                 } )
-                 .then(response => {
-                         return response.json();
-                 })
-                 .then(data => {
-                     console.log('Success:', data);
-                 })
-                 .catch(error => {
-                     console.error('Error: ', error);
-                 });
-     }
 
     function deleteFromRules(toDelete: string){
-        var rules = rulesObject
-        var index = 0
-        for(let rule of rulesObject){
-            if (rule.id === toDelete){
-                rules.splice(index, 1)
-            }
-            index++
-        }
 
         const data = new FormData();
         data.append("pk", toDelete)
@@ -133,11 +105,10 @@ export const RuleMenu: React.FC = () => {
             .catch(error => {
                 console.error('Error: ', error);
             });
-        setRulesObject(rules)
-        rulesToComponents()
+        databaseToRules()
     }
 
-    function rulesToComponents() {
+    function rulesToComponents(rulesObject: RuleObject[]) {
         var rulesComponents: JSX.Element[] = []
         for (let rule of rulesObject) {
             let ruleComponent: JSX.Element = <ListItem key={rule.id}>{rule.messy_rule}
@@ -193,12 +164,6 @@ export const RuleMenu: React.FC = () => {
                 }}
             >
                 Get rules from database
-            </Button>
-            <Button
-                onClick={() => { addRuleToDatabase("warehouse capacity < 50")} }
-                id="populateButton"
-            >
-                Populate database
             </Button>
             <OrderedList
                 id="ruleList"
