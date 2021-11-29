@@ -100,12 +100,12 @@ export const RuleMenu: React.FC = () => {
                 body: data
             })
             .then(response => {
+                databaseToRules()
                 return response.json();
             })
             .catch(error => {
                 console.error('Error: ', error);
             });
-        databaseToRules()
     }
 
     function rulesToComponents(rulesObject: RuleObject[]) {
