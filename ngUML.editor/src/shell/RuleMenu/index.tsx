@@ -7,6 +7,7 @@ import {
     ListItem,
     Tooltip
 } from 'carbon-components-react'
+import { useEffect } from 'react'
 
 class RuleObject {
     id: string
@@ -30,6 +31,7 @@ class RuleObject {
 		
 export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
+    useEffect(() => databaseToRules())
 
     async function addRuleToDatabase(ruleString: string) {
          const data = new FormData();
@@ -158,13 +160,6 @@ export const RuleMenu: React.FC = () => {
             </span>
             <hr>
             </hr>
-            <Button
-                onClick={() => {
-                    databaseToRules()
-                }}
-            >
-                Get rules from database
-            </Button>
             <OrderedList
                 id="ruleList"
             >
