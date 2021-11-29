@@ -83,11 +83,13 @@ export const RuleMenu: React.FC = () => {
             badrule?.classList.add("GoodRulesShown")
             badrule!.innerHTML = "Rule successfully added"
             databaseToRules()
+            setTimeout(() => { badrule?.classList.remove("GoodRulesShown")},3000)
         }
         else {
             badrule?.classList.add("BadRulesShown")
             badrule?.classList.remove("GoodRulesShown")
             badrule!.innerHTML = "Bad rule entered"
+            setTimeout(() => { badrule?.classList.remove("BadRulesShown") }, 3000)
         }
     }
 
