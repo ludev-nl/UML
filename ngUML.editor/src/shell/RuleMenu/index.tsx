@@ -3,9 +3,8 @@ import './_rulemenu.css'
 import {
     TextArea,
     Button,
-    OrderedList,
-    ListItem,
-    Tooltip
+    Accordion,
+    AccordionItem
 } from 'carbon-components-react'
 import { useEffect } from 'react'
 
@@ -31,7 +30,7 @@ class RuleObject {
 		
 export const RuleMenu: React.FC = () => {
     const [rulesState, setRulesState] = useState<JSX.Element[]>([])
-    useEffect(() => databaseToRules())
+    useEffect(() => databaseToRules(), [])
 
     async function addRuleToDatabase(ruleString: string) {
          const data = new FormData();
@@ -115,19 +114,19 @@ export const RuleMenu: React.FC = () => {
     function rulesToComponents(rulesObject: RuleObject[]) {
         var rulesComponents: JSX.Element[] = []
         for (let rule of rulesObject) {
-            let ruleComponent: JSX.Element = <ListItem key={rule.id}>{rule.messy_rule}
-                <Tooltip className="tooltip">Do you want to edit or delete this rule?
-                <Button onClick={() => {
+            let ruleComponent: JSX.Element = <AccordionItem title={rule.messy_rule} key={rule.id} className="accordionItem">
+                <TextArea 
+                labelText={rule.processed_rule}
+                defaultValue={rule.messy_rule}
+                id={"editTextArea" + rule.id}></TextArea>
+                <Button className="editButton" onClick={() => {
                     deleteFromRules(rule.id)
-                    addRule("editTextArea")
+                    addRule("editTextArea" + rule.id)
                     }}
-                >Edit</Button><Button className="deleteButton" onClick={() => {deleteFromRules(rule.id)}}>Delete</Button>
-                <TextArea
-                    labelText=""
-                    id="editTextArea"
-                    defaultValue={rule.messy_rule}
-                ></TextArea>
-                </Tooltip></ListItem>
+                >Edit</Button>
+                <Button className="deleteButton" onClick={() => {deleteFromRules(rule.id)}}>
+                Delete</Button>
+            </AccordionItem>
             rulesComponents.push(ruleComponent)
         }
         setRulesState(rulesComponents)
@@ -162,11 +161,9 @@ export const RuleMenu: React.FC = () => {
             </span>
             <hr>
             </hr>
-            <OrderedList
-                id="ruleList"
-            >
+            <Accordion>
                 {rulesState}
-            </OrderedList>
+            </Accordion>
         </div>
     )
 }

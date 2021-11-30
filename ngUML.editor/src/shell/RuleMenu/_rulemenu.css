@@ -44,4 +44,19 @@ li::before{
 
 .deleteButton{
 	float: right;
+	margin-top: 10px !important;
+}
+
+.editButton{
+	float: left;
+	margin-top: 10px !important;
+}
+
+.accordionItem{
+	padding-right: 0% !important;
+}
+
+.bx--accordion__content{
+	padding-right: 5% !important;
+	padding-bottom: 20% !important;
 }
