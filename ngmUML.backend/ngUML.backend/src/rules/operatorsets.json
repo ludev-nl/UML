@@ -1,0 +1,12 @@
+{
+    "NULL": ["empty", "null"],
+    "NOT": ["not", "no"],
+    "SYMBOLS": ["symbol", "character"],
+    "LETTERS": ["letter", "alphabetical"],
+    "NUMBERS": ["digit", "number", "numeric", "numerical"],
+    "==": ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"],
+    "<": ["<", "less", "lower", "beneath", "smaller"],
+    ">": [">", "more", "greater", "higher", "larger"],
+    ">=": [">=", "least", "fewest", "minimum"],
+    "<=": ["<=", "most", "max", "maximum"]
+}

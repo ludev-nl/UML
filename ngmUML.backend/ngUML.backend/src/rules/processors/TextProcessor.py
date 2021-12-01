@@ -6,6 +6,7 @@ from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
 from rules.processors.MappingProcessor import *
+import json
 
 #Preprocessing
 #TODO: n't to not: shouldn't -> should not
@@ -104,18 +105,9 @@ def process_text(original_text):
     digits = [word for word in text if word.isnumeric()]
 
     # All combinations of base operators and equivalent aliases
-    operator_keywords = {
-        "NULL": ["empty", "null"],
-        "NOT": ["not", "no"],
-        "SYMBOLS": ["symbol", "character"], # Syntax: Class prop contains operator value SYMBOLS
-        "LETTERS": ["letter", "alphabetical"],
-        "NUMBERS": ["digit", "number", "numeric", "numerical"],
-        "==": ["==", "=", "equal", "copy", "equivalent", "double", "like", "match"],
-        "<": ["<", "less", "lower", "beneath", "smaller"],
-        ">": [">", "more", "greater", "higher"],
-        ">=": [">=", "least", "fewest", "minimum"],
-        "<=": ["<=", "most", "max", "maximum"],
-    }
+    jsonfile = open("rules/operatorsets.json", "r")
+    operator_keywords = json.load(jsonfile)
+    jsonfile.close()
 
     for word in text:
         for key in operator_keywords:
