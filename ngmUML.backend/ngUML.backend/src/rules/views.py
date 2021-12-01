@@ -77,6 +77,28 @@ def remove(request):
     return JsonResponse({'SUCCES' : 'Rule with pk: ' + pk + " removed from rules."})
 
 
+#CSRF exempt Turns off the need to provide a csrf token on a POST request. Temporary fix
+@csrf_exempt
+def description(request):
+    ''' Accepts GET requests to get the description of every rule. '''
+
+    # Only accept POST requests
+    if request.method != 'GET':
+        return JsonResponse({'ERROR' : 'Only accepts GET requests, not: ' + request.method + " requests."})
+
+    # Create a rule database object from the string
+    try:
+        description = RulesManager.get_description()
+    except Exception as err:
+        # Return the error as JSON if exception
+        print(traceback.format_exc())
+        return JsonResponse({'FAIL' : 'Could not retrieve the description information of the rules',
+        'type' : str(type(err)),
+        'message' : str(err)},
+        )
+    return JsonResponse({'SUCCES' : description})
+
+
 def debug(request):
     ''' Function to test code in.
     Serves no practical purpose.'''

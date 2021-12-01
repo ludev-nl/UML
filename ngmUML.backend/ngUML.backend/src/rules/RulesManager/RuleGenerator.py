@@ -1,7 +1,7 @@
 #Gegeven een lijst van lijsten, maar een database object aan
 from model.models import Classifier, Property
 from rules.models import Rule
-from rules.RulesManager.Rule import *
+from rules.RulesManager.BaseRule import BaseRule
 from abc import ABC, abstractmethod
 
 def generate_db(input):
@@ -29,6 +29,7 @@ def generate_db(input):
 # Detect rule as dictionary of textprocessor
 def detect_type(dict):
     ''' Detects the type of rule an input dictionary is.'''
+    print(BaseRule.__subclasses__())
     for child in BaseRule.__subclasses__():
         result = child.is_type(dict)
         if result is not False:
