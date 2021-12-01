@@ -122,9 +122,13 @@ def process_text(original_text):
             if word.lower() in operator_keywords[key]:
                 operators.append(key)
 
-
-    if len(operators) == 0: # Throw error if no operators are found
-        raise Exception("Can't parse into constraint: '" + " ".join(text) + "'")
+     # Warning: This assumes that every rule at least contains a classifier, a property and an operator, but this might become outdated
+    if len(all_classifiers) == 0:
+        raise Exception("No classifiers were recognized or present in this rule.") 
+    elif len(all_properties) == 0:
+        raise Exception("No properties were recognized or present in this rule.")
+    elif len(operators) == 0:
+        raise Exception("No operators were recognized or present in this rule.")
 
     return {
         "original_input": original_text,
