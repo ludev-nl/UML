@@ -29,7 +29,6 @@ def generate_db(input):
 # Detect rule as dictionary of textprocessor
 def detect_type(dict):
     ''' Detects the type of rule an input dictionary is.'''
-    print(BaseRule.__subclasses__())
     for child in BaseRule.__subclasses__():
         result = child.is_type(dict)
         if result is not False:

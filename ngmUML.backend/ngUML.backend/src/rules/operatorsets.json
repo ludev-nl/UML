@@ -8,5 +8,6 @@
     "<": ["<", "less", "lower", "beneath", "smaller"],
     ">": [">", "more", "greater", "higher", "larger"],
     ">=": [">=", "least", "fewest", "minimum"],
-    "<=": ["<=", "most", "max", "maximum"]
+    "<=": ["<=", "most", "max", "maximum"],
+    "RELATIONSHIP": ["relationship"]
 }
