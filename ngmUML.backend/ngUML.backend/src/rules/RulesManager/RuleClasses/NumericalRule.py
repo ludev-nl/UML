@@ -20,6 +20,7 @@ class NumericalRule(BaseRule):
 
     @staticmethod
     def is_type(dict):
+        #more thorough checking: is there a value? Not larger than 1 but == 1
         if(len(dict["classifiers"]) == 1 and len(dict["properties"]) == 1 and dict['operators'][0] in NumericalRule.operator_keys):
             return NumericalRule.rule_type
         else:

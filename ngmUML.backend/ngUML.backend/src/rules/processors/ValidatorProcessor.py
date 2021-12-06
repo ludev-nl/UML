@@ -156,3 +156,77 @@ def get_standard_if_statement(conditionalExpression, rule):
         "\t\traise ValidationError(\n"
         "\t\t\t'{value} does not abide by rule: '.format(value) + \'" +  rule.processed_text + "',\n"
         "\t\t\tparams={'value': value}, )\n")
+
+def get_standard_if_statement_spaces(conditionalExpression, rule):
+    return ("if " + conditionalExpression + ":\n"  +
+        indent("return True\n", 4, 1) +
+        "else:\n" +
+        indent("raise ValidationError(\n", 4, 1) +
+        indent("'{value} does not abide by rule: '.format(value) + \'" +  rule.processed_text + "',\n", 4, 2) +
+        indent("params={'value': value}, )\n", 4, 2))
+
+
+def indent(text, indentation, depth):
+    new_text = ""
+    for line in text.splitlines():
+        new_text += " " * indentation * depth + line + "\n"
+    print(new_text)
+    return new_text
+
+
+
+def generate_model_definition(classifier):
+    return "class " + classifier.name + "(models.Model):"
+
+#adds a block of code to a method in a classifier in shared/models.py
+#adds the method if it doesn't exist yet
+def add_to_method_in_classifier(classifier, method, block):
+    print( "HERE")
+    print(block)
+    # if ValidationError is not already imported in models.py, import it
+    # needed to throw validationErrors
+    #add_import_statement("from django.core.exceptions import ValidationError")
+    model_text = read_from_shared_file("models").splitlines()
+    for line in model_text:
+        print(line)
+    #generate model definition so we can find it
+    model_definition = generate_model_definition(classifier)
+    #the number of spaces for indentation of the models file
+    indentation = 4 
+    #the depth of the clean method
+    depth = 1
+    #the line in the models.py that 'def clean():' is on, or should be added to
+    line = 0
+    classifierFound = False
+    methodFound = False
+    unindentFound = False
+    index = 0
+    for iteration, line in enumerate(model_text):
+        index = iteration
+        if(classifierFound and method in line):
+            methodFound = True
+            #find the end of the method instead, which is one indentation deeper
+            depth += 1 
+        #if we've found the classifier, look for the next unindent to find the end of the classifier definitin
+        elif(classifierFound and not line[0: indentation * depth].isspace()):
+            unindentFound = True
+            break
+        elif model_definition in line:
+            classifierFound = True
+
+    #if we never find the unindent, we're stopped one index too early, so increment
+    if not unindentFound:
+        index += 1
+
+    if(not methodFound):
+        model_text.insert(index, indent(method, indentation, depth))
+        index += 1
+        depth += 1
+    model_text.insert(index, indent(block, indentation, depth))
+    
+    for line in model_text:
+        print(line)
+    model_text = "\n".join(model_text)
+    #write_to_shared_file("models", model_text)
+
+
