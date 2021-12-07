@@ -87,8 +87,8 @@ export const RuleMenu: React.FC = () => {
         else {
             badrule?.classList.add("BadRulesShown")
             badrule?.classList.remove("GoodRulesShown")
-            badrule!.innerHTML = "Bad rule entered"
-            setTimeout(() => { badrule?.classList.remove("BadRulesShown") }, 3000)
+            badrule!.innerHTML = ruleAdded.message
+            setTimeout(() => { badrule?.classList.remove("BadRulesShown") }, 4000)
         }
     }
 
