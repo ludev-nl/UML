@@ -8,3 +8,4 @@ COPY ./src/requirements.txt /code/
 RUN pip install -r requirements.txt
 RUN python -m nltk.downloader punkt
 RUN python -m nltk.downloader wordnet
+CMD [ "python", "./tests/test_TextProcessor.py"]
