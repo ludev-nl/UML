@@ -41,7 +41,7 @@ class RelationshipRule(BaseRule):
     # Returns nothing
     @abstractmethod
     def add_validator(self):
-        self.get_validator(self.termilst)
+        self.get_validator(self.termlist)
 
     # Removes the validator from the application
     # Returns nothing
