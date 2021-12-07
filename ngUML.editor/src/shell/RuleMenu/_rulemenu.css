@@ -71,3 +71,12 @@ li::before{
 	top: 0;
 	background-color: #ccc;
 }
+#helpButton{
+	position: absolute;
+	float: right;
+	padding-top: 0;
+	margin-top: 0 !important;
+	right: 0;
+	top: 0;
+	background-color: #ccc;
+}

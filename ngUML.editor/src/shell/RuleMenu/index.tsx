@@ -141,7 +141,10 @@ export const RuleMenu: React.FC = () => {
             <Button renderIcon={Feather.X} iconDescription="Close rulemenu" hasIconOnly id="closeButton"
                 onClick={() => {
                     const ruleMenuObject = document.getElementById("RuleMenu");
-                    ruleMenuObject?.classList.toggle("RuleMenuExtended")} }></Button>
+                    ruleMenuObject?.classList.toggle("RuleMenuExtended")
+                }}></Button>
+            <Button renderIcon={Feather.MessageCircle} iconDescription="Show help" hasIconOnly id="helpButton"
+                ></Button>
         	<span 
         		id="Header"
         	>
