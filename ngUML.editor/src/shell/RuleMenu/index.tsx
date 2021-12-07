@@ -4,8 +4,9 @@ import {
     TextArea,
     Button,
     Accordion,
-    AccordionItem
+    AccordionItem,
 } from 'carbon-components-react'
+import * as Feather from 'react-feather'
 import { useEffect } from 'react'
 
 class RuleObject {
@@ -137,6 +138,10 @@ export const RuleMenu: React.FC = () => {
         <div
             id="RuleMenu"
         >
+            <Button renderIcon={Feather.X} iconDescription="Close rulemenu" hasIconOnly id="closeButton"
+                onClick={() => {
+                    const ruleMenuObject = document.getElementById("RuleMenu");
+                    ruleMenuObject?.classList.toggle("RuleMenuExtended")} }></Button>
         	<span 
         		id="Header"
         	>

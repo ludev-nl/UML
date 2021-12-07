@@ -60,3 +60,14 @@ li::before{
 	padding-right: 5% !important;
 	padding-bottom: 20% !important;
 }
+
+
+#closeButton{
+	position: absolute;
+	float: left;
+	padding-top: 0;
+	margin-top: 0 !important;
+	left: 0;
+	top: 0;
+	background-color: #ccc;
+}
