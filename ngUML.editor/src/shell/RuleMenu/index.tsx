@@ -133,27 +133,6 @@ export const RuleMenu: React.FC = () => {
         setRulesState(rulesComponents)
     }
 
-    function showHelp(){
-        fetch("http://localhost:8000/rules/description",
-            {
-                method: 'GET',
-                mode: "cors",
-            })
-            .then(response => {
-                return response.json();
-            })
-            .then(response => {
-                console.log(response.SUCCES.ContainsOneType);
-                alert(response.SUCCES.ContainsOneType.description)
-            })
-            .catch(error => {
-                console.error('Error: ', error);
-            });
-        
-    }
-    /** 
-            <Button renderIcon={Feather.MessageCircle} iconDescription="Show help" hasIconOnly id="helpButton"
-                onClick={() => {showHelp()}}></Button> */
     return (
         <div
             id="RuleMenu"
