@@ -1,10 +1,10 @@
 version: '3.1'
 
 services:
-  #corenlp:
-    #build:
-    #  context: "."
-    #  dockerfile: "Dockerfile.corenlp"
+  corenlp:
+    build:
+      context: "."
+      dockerfile: "Dockerfile.corenlp"
   django:
     build:
       context: "."
@@ -21,8 +21,8 @@ services:
     volumes:
       - ./src:/code
       - ./conf/settings.py:/code/backend/settings.py
-    #depends_on:
-    #  - corenlp
+    depends_on:
+      - corenlp
   nginx:
     image: nginx
     ports:
