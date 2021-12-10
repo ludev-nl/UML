@@ -47,13 +47,18 @@ class RulesManager:
         rule.delete()
 
     
-    def get_all_rules(self):
+    def get_all_rules():
         ''' Returns all the rules in the database as rule objects.'''
         rules = []
         for rule in RuleDB.objects.all():
             rules.append((rule.original_input, rule.pk, generate_rule(rule.original_input, rule.pk)))
 
         return rules
+
+    
+    def get_rule(pk):
+        rule = RuleDB.objects.get(pk=pk)
+        return generate_rule(rule.original_input, rule.pk)
 
 
     def get_description():
