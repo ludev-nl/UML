@@ -71,19 +71,6 @@ def extract_data_from(source, target):
     return extract_data({"Product" : ["description"] }, get_pathing_from_classifier(source), target)
 
 
-def make_children_list(data_paths):
-    children = {}
-    classifiers = [value for value in data_paths]
-    for parent in data_paths:
-        children[parent] = []
-        classifiers.remove(parent)
-        for classifier in classifiers:
-            list = data_paths[classifier]
-            if list[-2] == parent:
-                children[parent].append(classifier)
-    return children
-
-
 def get_data(current_data, model, children, all_children):
     data = {'data': current_data, 'children': []}
     for i in range(len(current_data)):
@@ -102,7 +89,28 @@ def get_data(current_data, model, children, all_children):
     return data
 
 
-def fill_data(page, queryset):
-    data = {page.type: get_data(queryset, page.type, children[page.type], children)}
+def fill_data(classifier, queryset):
+    data = {classifier: get_data(queryset, classifier, children[classifier], children)}
+
+
+def show_page(request, application_id, page_id):
+    application = Application.objects.get(id=application_id)
+    page = Page.objects.get(id=page_id)
+    all_sections = Section.objects.filter(linked_page=page).order_by("sorting").all()
+    sections = change_sections(all_sections, False)
+
+    page.query.replace('[id]', request.GET.get('id', ''))
+    query = {"price": "10"}
+    queryset = django_apps.get_model('shared', "Product").objects.filter(**query).all()
+    data, children = fill_data(page, queryset)
+
+    html = make_html(sections, page, data, children, json.loads(page.data_paths))
+
+    context = {
+        'application': application,
+        'page': page,
+        'html': html,
+    }
+    return render(request, 'page_view.html', context)
 
 

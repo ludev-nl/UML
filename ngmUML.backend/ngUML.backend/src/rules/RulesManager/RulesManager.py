@@ -12,6 +12,9 @@ from rules.processors.TextProcessor import process_text
 def generate_rule(input, pk):
     ''' Generates a Rule class from a DB object Rule. Takes either messy text or termlist as input'''
     # Convert string to termlist
+    if isinstance(input, RuleDB):
+        input = input.original_input
+
     if isinstance(input, str):
         input = process_text(input)
 
