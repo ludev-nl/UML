@@ -15,12 +15,12 @@ def write_to_shared_file(name, text):
     f.close()
 
 
-def get_validator_function_reference(rule):
-    return "rule_" + str(rule.pk)
+def get_validator_function_reference(pk):
+    return "rule_" + str(pk)
 
 
-def get_validator_function_definition(rule, validator):
-    return "\n\ndef rule_" + str(rule.pk) + "(value):\n" + validator
+def get_validator_function_definition(pk, validator):
+    return "\n\ndef rule_" + str(pk) + "(value):\n" + validator
 
 
 def add_keyword(property, keyword, value):
@@ -54,7 +54,7 @@ def add_keyword(property, keyword, value):
     # Save text to models.py
     write_to_shared_file("models", base_text + classifier_text + target_text)
 
-def add_validator_reference(property, rule):
+def add_validator_reference(property, pk):
     '''Adds validator reference to models.py text for (each) rule for @classifier and @property'''
 
     # Open and read models.py
@@ -79,7 +79,7 @@ def add_validator_reference(property, rule):
     end_of_property_index = target_text.find('\n')
 
     # Add the reference
-    reference = get_validator_function_reference(rule) + ", ]"
+    reference = get_validator_function_reference(pk) + ", ]"
     if "validators" in target_text[:end_of_property_index]:
         target_text = target_text.replace("]", " " + reference, 1)
     else:
@@ -114,38 +114,38 @@ def add_import_statement(import_statement):
     write_to_shared_file("validators", text)
 
 
-def add_validator_function(rule, validator):
+def add_validator_function(pk, validator):
     text = read_validators_py()
 
     # Add rule and create function
-    validator_function = get_validator_function_definition(rule, validator)
+    validator_function = get_validator_function_definition(pk, validator)
     if validator_function not in text:
         text += validator_function
 
     write_to_shared_file("validators", text)
 
 
-def add_validator(property, rule, validator):
-    add_validator_reference(property, rule)
-    add_validator_function(rule, validator)
+def add_validator(property, pk, validator):
+    add_validator_reference(property, pk)
+    add_validator_function(pk, validator)
 
 
-def remove_validator_reference(rule):
+def remove_validator_reference(pk):
     ''' Removes "rule_pk" from models.py '''
     text = read_from_shared_file("models")
-    text = text.replace(get_validator_function_reference(rule.rule_db) + ", ", '', 1)
+    text = text.replace(get_validator_function_reference(pk) + ", ", '', 1)
     write_to_shared_file("models", text)
 
 
 def remove_validator_function(rule):
     text = read_from_shared_file("validators")
-    validator_function = get_validator_function_definition(rule.rule_db, rule.get_validator())
+    validator_function = get_validator_function_definition(rule.pk, rule.get_validator())
     text = text.replace(validator_function, '')
     write_to_shared_file("validators", text)
 
 
 def remove_validator(rule):
-    remove_validator_reference(rule)
+    remove_validator_reference(rule.pk)
     remove_validator_function(rule)
 
 
@@ -154,5 +154,79 @@ def get_standard_if_statement(conditionalExpression, rule):
         "\t\treturn True\n" 
         "\telse:\n" 
         "\t\traise ValidationError(\n"
-        "\t\t\t'{value} does not abide by rule: '.format(value) + \'" +  rule.processed_text + "',\n"
+        "\t\t\t'{value} does not abide by rule: '.format(value) + \'" +  rule.get_processed_text() + "',\n"
         "\t\t\tparams={'value': value}, )\n")
+
+def get_standard_if_statement_spaces(conditionalExpression, rule):
+    return ("if " + conditionalExpression + ":\n"  +
+        indent("return True\n", 4, 1) +
+        "else:\n" +
+        indent("raise ValidationError(\n", 4, 1) +
+        indent("'{value} does not abide by rule: '.format(value) + \'" +  rule.get_processed_text() + "',\n", 4, 2) +
+        indent("params={'value': value}, )\n", 4, 2))
+
+
+def indent(text, indentation, depth):
+    new_text = ""
+    for line in text.splitlines():
+        new_text += " " * indentation * depth + line + "\n"
+    print(new_text)
+    return new_text
+
+
+
+def generate_model_definition(classifier):
+    return "class " + classifier.name + "(models.Model):"
+
+#adds a block of code to a method in a classifier in shared/models.py
+#adds the method if it doesn't exist yet
+def add_to_method_in_classifier(classifier, method, block):
+    print( "HERE")
+    print(block)
+    # if ValidationError is not already imported in models.py, import it
+    # needed to throw validationErrors
+    #add_import_statement("from django.core.exceptions import ValidationError")
+    model_text = read_from_shared_file("models").splitlines()
+    for line in model_text:
+        print(line)
+    #generate model definition so we can find it
+    model_definition = generate_model_definition(classifier)
+    #the number of spaces for indentation of the models file
+    indentation = 4 
+    #the depth of the clean method
+    depth = 1
+    #the line in the models.py that 'def clean():' is on, or should be added to
+    line = 0
+    classifierFound = False
+    methodFound = False
+    unindentFound = False
+    index = 0
+    for iteration, line in enumerate(model_text):
+        index = iteration
+        if(classifierFound and method in line):
+            methodFound = True
+            #find the end of the method instead, which is one indentation deeper
+            depth += 1 
+        #if we've found the classifier, look for the next unindent to find the end of the classifier definitin
+        elif(classifierFound and not line[0: indentation * depth].isspace()):
+            unindentFound = True
+            break
+        elif model_definition in line:
+            classifierFound = True
+
+    #if we never find the unindent, we're stopped one index too early, so increment
+    if not unindentFound:
+        index += 1
+
+    if(not methodFound):
+        model_text.insert(index, indent(method, indentation, depth))
+        index += 1
+        depth += 1
+    model_text.insert(index, indent(block, indentation, depth))
+    
+    for line in model_text:
+        print(line)
+    model_text = "\n".join(model_text)
+    #write_to_shared_file("models", model_text)
+
+

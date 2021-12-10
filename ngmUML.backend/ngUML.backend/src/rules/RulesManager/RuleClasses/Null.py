@@ -1,3 +1,5 @@
+from rules.RulesManager.Terms  import Operator
+from model.models import Classifier, Property
 from rules.processors.ValidatorProcessor import add_keyword, get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
 from rules.RulesManager.BaseRule import BaseRule
 
@@ -8,29 +10,23 @@ class NullRule(BaseRule):
     The purpose of this rule is to enforce a property of an object to not be null or empty.
     """
 
-    rule_type = "NULL"
-
     operator_keys = ["NULL"]
 
     text_examples = [
         "The description of an item can be empty.",
     ]
 
-    @staticmethod
-    def is_type(dict):
-        if(len(dict["classifiers"])==1 and len(dict["properties"])==1 and NullRule.operator_keys[0] in dict["operators"] and len(dict["operators"]) <= 2):
-            return NullRule.rule_type
-        else:
-            return False
+    def is_type(termlist):
+        return (termlist.count(1, 1, 2, 0) or termlist.count(1, 1, 1, 0)) and NullRule.operator_keys[0] in termlist.get_all(Operator)
     
     def get_processed_text(self):
-        return self.rule_db.classifiers.all()[0].name + "." + self.rule_db.properties.all()[0].name + " " + "NOT NULL"
+        return self.termlist[Classifier, 0].name + "." + self.termlist[Property, 0].name + " " + "NOT NULL"
 
     def add_validator(self):
-        if "NOT" in self.rule_db.operator:
-            add_keyword(self.rule_db.properties.all()[0], "blank", False)
+        if "NOT" in self.termlist[Operator, 0]:
+            add_keyword(self.termlist[Property, 0], "blank", False)
         else:
-            add_keyword(self.rule_db.properties.all()[0], "blank", True)
+            add_keyword(self.termlist[Property, 0], "blank", True)
 
     def remove_validator(self):
         pass

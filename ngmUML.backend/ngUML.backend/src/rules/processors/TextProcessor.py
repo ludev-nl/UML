@@ -5,12 +5,28 @@ import re
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
-from rules.processors.MappingProcessor import *
+from rules.RulesManager.Terms import Operator, Value, AwaitingDesignation
+from rules.RulesManager.TermList import TermList
 import json
 
 #Preprocessing
 #TODO: n't to not: shouldn't -> should not
 #TODO: remove 's: Customer's name -> Customer name
+
+# Name is called name because then you can do something like this:
+# for item in rule:
+#   print(item.name)
+# Then you don't need to first ask whether it is a property or classifier or operator or value
+
+def get_classifiers():
+    ''' Returns all classfiers '''
+    return Classifier.objects.all()
+
+#should return all properties of that class
+def get_properties_from_classifier(inputClassifier):
+    ''' Returns all properties from the classfier in the parameter. Parameter is the name of the classfier. '''
+    return Property.objects.filter(classifier=Classifier.objects.get(name=inputClassifier.name))
+
 
 '''The goal of text processor is to map messy_text into processed_text
 That is to say: the user inputs messy text, and the text processor should unambigiously
@@ -67,66 +83,110 @@ def split_rule(text):
     text = [lemmatizer.lemmatize(text[i]) for i in range(len(text))]
     return text
 
+
+def get_first_index_of_classifier(list):
+    for item in list:
+        if isinstance(item, Classifier):
+            return list.index(item)
+
+    return -1
+
 #if the user gives input that maps to 1 single representation, convert it to that single representation
 #example of user input: I want the User class's name not to be longer than 20 characters
 #another example: user's name should be less or equal to 20 letters
 #both map to: user name.length <= 20
 #input: result of split_rule
 def process_text(original_text):
+    '''Maps messy user input to a singular representation'''
     original_text = str(TextBlob(original_text).correct())
     text = split_rule(original_text)
-    '''Maps messy user input to a singular representation'''
-    all_classifiers = getClassifiers()
-    all_properties = list()
-    operators = list()
-    #processed_text = "unknown"
 
-    #Remove all classifiers that are not in the text
-    #all_classifiers = list(set(text).intersection(set(classifier)))
-    temp = list()
-    for classifier in all_classifiers:
-        if classifier.name.lower() in text:
-            temp.append(classifier)
-    all_classifiers = temp
+    all_classifiers = get_classifiers()
+    classifiers_in_text = []
+    properties_in_text = []
+    terms = TermList()
 
-    # Get all properties from the classifiers in the text
-    for classifier in all_classifiers:
-        all_properties += getPropertiesFromClassifier(classifier)
-
-    # Get only the properties that are in the text
-    # properties = list(set(property_names) & set(text))
-    temp = list()
-    for property in all_properties:
-        if property.name.lower() in text:
-            temp.append(property)
-    all_properties = temp
-
-    # Get numeric words
-    digits = [word for word in text if word.isnumeric()]
 
     # All combinations of base operators and equivalent aliases
     jsonfile = open("rules/operatorsets.json", "r")
     operator_keywords = json.load(jsonfile)
     jsonfile.close()
 
+
+    #Remove all classifiers that are not in the text
+    for classifier in all_classifiers:
+        if classifier.name.lower() in text:
+            classifiers_in_text.append(classifier)
+
+
+    # Get all properties from the classifiers in the text
+    for classifier in classifiers_in_text:
+        properties_in_text += get_properties_from_classifier(classifier)
+
+
+    # Cycle through every word in the text
     for word in text:
+        continue_flag = False
+        # If word is equal to a classifier
+        for classifier in classifiers_in_text:
+            if classifier.name.lower() == word:
+                terms.append(classifier)
+                continue_flag = True
+                break
+
+        if continue_flag:
+            continue
+            
+        # If word is equal to a property from any of the present classifiers
+        for property in properties_in_text:
+            if property.name.lower() == word:
+                terms.append(AwaitingDesignation(word))
+                continue_flag = True
+                break
+
+        if continue_flag:
+            continue
+
+        # If word is numeric
+        if word.isnumeric():
+            terms.append(Value(word))
+            continue
+
+        # If word is equal to any operator aliases, save the key operator
         for key in operator_keywords:
-            if word.lower() in operator_keywords[key]:
-                operators.append(key)
+            if word in operator_keywords[key]:
+                terms.append(Operator(key))
+                break
 
-     # Warning: This assumes that every rule at least contains a classifier, a property and an operator, but this might become outdated
-    if len(all_classifiers) == 0:
-        raise Exception("No classifiers were recognized or present in this rule.") 
-    elif len(all_properties) == 0:
-        raise Exception("No properties were recognized or present in this rule.")
-    elif len(operators) == 0:
-        raise Exception("No operators were recognized or present in this rule.")
+    
+    # If a property has the same name as another property, get the property of the closest classifier
+    for term in terms:
+        if isinstance(term, AwaitingDesignation):
+            index = terms.value.index(term)
 
-    return {
-        "original_input": original_text,
-        "structured_language": text,
-        "properties": all_properties,
-        "classifiers": all_classifiers,
-        "value": digits, # TODO: ability to insert words as value
-        "operators": operators
-    }
+            # Reverse list
+            reversed = terms.value[:index]
+            reversed.reverse()
+            backwards = get_first_index_of_classifier(reversed)
+            forwards = get_first_index_of_classifier(terms.value[index:]) 
+
+            # If forwards is closer than the backwards property, add the property from the forwards classifier
+            if backwards > forwards and forwards != -1:
+                for property in get_properties_from_classifier(terms.value[index + forwards]):
+                    if property.name.lower() == term.name:
+                        terms.value[index] = property
+            elif backwards != -1:
+                for property in get_properties_from_classifier(terms.value[index - backwards - 1]):
+                    if property.name.lower() == term.name:
+                        terms.value[index] = property
+
+
+     # Warning: This assumes that every rules at least contains a classifier, a property and an operator, but this might become outdated
+    if terms.size(Classifier) == 0:
+        raise Exception("No classifiers were recognized or present in this rules.") 
+    elif terms.size(Property) == 0:
+        raise Exception("No properties were recognized or present in this rules.")
+    elif terms.size(Operator) == 0:
+        raise Exception("No operators were recognized or present in this rules.")
+
+    return terms

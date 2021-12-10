@@ -1,6 +1,7 @@
 ''' Views manages api calls and returning JSON
     Knows little of how rules work, are stored etc.
     Decodes requests, calls RulesManager, correctly handles exceptions and JSON returns'''
+from os import name
 from django.http import JsonResponse # To return JSON
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
@@ -8,21 +9,51 @@ from django.http import HttpResponse
 from textblob import TextBlob
 import traceback
 
-from .RulesManager.RulesManager import RulesManager
-
-rulesmanager = RulesManager()
+from rules.RulesManager.RulesManager import RulesManager
+from rules.RulesManager.Terms import Operator, Value
+from model.models import Classifier, Property
+import json
 
 
 def index(request):
     ''' Accepts GET requests to return all currently saved rules from the database as text. '''
 
     # Get rules from database
-    rules_query = rulesmanager.db_get_all_rules()
+    rules_query = RulesManager.get_all_rules()
 
-    # Extract the properties needed and construct a rule list
-    Rules_json = serializers.serialize("json", rules_query)
+    output = []
 
-    return HttpResponse(Rules_json, content_type='application/json')
+    for rule in rules_query:
+        classifiers = []
+        for classifier in rule[2].termlist.get_all(Classifier):
+            classifiers.append({
+                "name": classifier.name,
+                "pk": classifier.pk
+            })
+
+        properties = []
+        for property in rule[2].termlist.get_all(Property):
+            properties.append({
+                "pk": property.pk,
+                "name": property.name,
+                "classifier": property.classifier.name,
+            })
+
+        output.append({
+            "pk": rule[1],
+            "fields": {
+                "original_input": rule[0],
+                "processed_text": rule[2].get_processed_text(),
+                "operator": rule[2].termlist.get_all(Operator),
+                "value": rule[2].termlist.get_all(Value),
+                "classifiers": classifiers,
+                "properties": properties
+            }
+        })
+
+    output = json.dumps(output)
+
+    return HttpResponse(output, content_type='application/json')
 
 
 #CSRF exempt Turns off the need to provide a csrf token on a POST request. Temporary fix
@@ -41,7 +72,7 @@ def add(request):
 
     # Create a rule database object from the string
     try:
-        rulesmanager.db_add_rule(textrule)
+        RulesManager.add_rule(textrule)
     except Exception as err:
         # Return the error as JSON if exception
         print(traceback.format_exc())
@@ -67,7 +98,7 @@ def remove(request):
 
     # Remove the rule instance from database
     try:
-        rulesmanager.db_remove_rule_by_pk(pk)
+        RulesManager.remove_rule_by_pk(pk)
     except Exception as err:
         # Return the error as JSON if exception
         return JsonResponse({'FAIL' : 'Rule not removed from database',

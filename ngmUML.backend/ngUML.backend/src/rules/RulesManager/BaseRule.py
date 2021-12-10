@@ -1,16 +1,15 @@
 from abc import abstractmethod
 from rules.processors.ValidatorProcessor import add_keyword, get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
+from rules.RulesManager.Terms import Operator, Value
+from model.models import Classifier, Property
 
 class BaseRule:
     '''All rule classes should inherit from BaseRule and implement every variable and function (except for the constructor)'''
     # Every rule class should also contain a class docstring (a string literal comment at the top of the class definition such as above.)
 
-    def __init__(self, rule_db):
-        self.rule_db = rule_db
-
-    # Identifying string, should be unique for each child class of BaseRule
-    # Should be a string
-    rule_type = "BASE_CLASS"
+    def __init__(self, termlist, pk):
+        self.termlist = termlist
+        self.pk = pk
 
     # Any keys in this list need to match a key in operatorsets.json
     # Should be a list of strings
@@ -23,10 +22,10 @@ class BaseRule:
         "Example rule 2"
     ]
 
-    # Should test if an incoming rule dictionary fits the syntax of the rule
-    # Returns rule_type or False
+    # Should test if an incoming termlist fits the syntax of the rule
+    # Returns True or False
     @abstractmethod
-    def is_type(dict):
+    def is_type(termlist):
         pass
 
     # Returns the rule as clear, processed (simplified) text
