@@ -170,7 +170,6 @@ def indent(text, indentation, depth):
     new_text = ""
     for line in text.splitlines():
         new_text += " " * indentation * depth + line + "\n"
-    print(new_text)
     return new_text
 
 
@@ -181,14 +180,11 @@ def generate_model_definition(classifier):
 #adds a block of code to a method in a classifier in shared/models.py
 #adds the method if it doesn't exist yet
 def add_to_method_in_classifier(classifier, method, block):
-    print( "HERE")
-    print(block)
     # if ValidationError is not already imported in models.py, import it
     # needed to throw validationErrors
     #add_import_statement("from django.core.exceptions import ValidationError")
     model_text = read_from_shared_file("models").splitlines()
-    for line in model_text:
-        print(line)
+    model_text.replace("pass", "")
     #generate model definition so we can find it
     model_definition = generate_model_definition(classifier)
     #the number of spaces for indentation of the models file
@@ -223,10 +219,7 @@ def add_to_method_in_classifier(classifier, method, block):
         index += 1
         depth += 1
     model_text.insert(index, indent(block, indentation, depth))
-    
-    for line in model_text:
-        print(line)
     model_text = "\n".join(model_text)
-    #write_to_shared_file("models", model_text)
+    write_to_shared_file("models", model_text)
 
 

@@ -180,7 +180,6 @@ def process_text(original_text):
                     if property.name.lower() == term.name:
                         terms.value[index] = property
 
-
      # Warning: This assumes that every rules at least contains a classifier, a property and an operator, but this might become outdated
     if terms.size(Classifier) == 0:
         raise Exception("No classifiers were recognized or present in this rules.") 

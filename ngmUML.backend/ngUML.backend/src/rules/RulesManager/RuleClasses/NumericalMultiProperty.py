@@ -32,10 +32,9 @@ class NumericalTwoProperties(BaseRule):
         )
 
     def add_validator(self):
-        targetMethod = "def clean(self):"
         VP_add_to_method_in_classifier(
             self.termlist[Classifier, 0],
-            targetMethod,
+            "def clean(self):",
             self.get_validator()
         )
     def remove_validator(self):

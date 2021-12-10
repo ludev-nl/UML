@@ -9,5 +9,5 @@
     ">": [">", "more", "greater", "higher", "larger"],
     ">=": [">=", "least", "fewest", "minimum"],
     "<=": ["<=", "most", "max", "maximum"],
-    "RELATIONSHIP": ["relationship"]
+    "SUM": ["sum"]
 }
