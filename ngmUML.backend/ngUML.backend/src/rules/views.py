@@ -128,16 +128,3 @@ def description(request):
         'message' : str(err)},
         )
     return JsonResponse({'SUCCES' : description})
-
-
-def debug(request):
-    ''' Function to test code in.
-    Serves no practical purpose.'''
-    from shared.models import Product
-
-    prod = Product(price="21",name="John", location="store", description="type of grain")
-    prod.full_clean()
-    prod.save()
-
-
-    return JsonResponse({'SUCCES' : 'it worked!'})
