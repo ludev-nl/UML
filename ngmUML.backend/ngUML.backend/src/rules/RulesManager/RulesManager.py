@@ -25,8 +25,8 @@ def generate_rule(input, pk):
 
 
 class RulesManager:
-    def add_rule(self, messy_text):
-        '''Saves the rule to the database and adds the validator. '''
+    def add_rule(messy_text):
+        '''Saves the rule to the database and adds the validator. Also returns the primary key of the new rule. '''
         generate_rule(messy_text, -1) # Test if generating rule throws no errors
         new_rule_db = RuleDB(original_input = messy_text)
         new_rule_db.save()
@@ -34,8 +34,10 @@ class RulesManager:
         rule = generate_rule(messy_text, new_rule_db.pk)
         rule.add_validator()
 
+        return new_rule_db.pk
 
-    def remove_rule_by_pk(self, pk):
+
+    def remove_rule_by_pk(pk):
         """ Saves the rules. """
         rule = RuleDB.objects.get(pk=pk)
         generate_rule(rule, pk).remove_validator()

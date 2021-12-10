@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from rules.RulesManager.TermList import TermList
 from rules.processors.ValidatorProcessor import add_keyword, get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator
-from rules.processors.ModelPaths import get_pathing_from_classifier, get_possible_classifiers
+from rules.processors.ModelPaths import extract_data_from
 from rules.RulesManager.BaseRule import BaseRule
 from rules.RulesManager.Terms  import Operator, Value
 from model.models import Class, Classifier, Property
@@ -34,8 +34,9 @@ class RelationshipRule(BaseRule):
     # Returns a string
     @abstractmethod
     def get_validator(self, termlist):
-        classifier = self.termlist[Classifier, 0]
-        print(get_pathing_from_classifier(classifier)) # Call to get path in graph
+        source = self.termlist[Classifier, 0]
+        target = self.termlist[Classifier, 1]
+        print(extract_data_from(source, target)) # Call to get path in graph
 
     # Adds the validator to the application
     # Returns nothing

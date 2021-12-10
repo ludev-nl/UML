@@ -126,25 +126,37 @@ def process_text(original_text):
 
     # Cycle through every word in the text
     for word in text:
+        continue_flag = False
         # If word is equal to a classifier
         for classifier in classifiers_in_text:
             if classifier.name.lower() == word:
                 terms.append(classifier)
-                continue
+                continue_flag = True
+                break
+
+        if continue_flag:
+            continue
+            
         # If word is equal to a property from any of the present classifiers
         for property in properties_in_text:
             if property.name.lower() == word:
                 terms.append(AwaitingDesignation(word))
-                continue
+                continue_flag = True
+                break
+
+        if continue_flag:
+            continue
+
         # If word is numeric
         if word.isnumeric():
             terms.append(Value(word))
             continue
+
         # If word is equal to any operator aliases, save the key operator
         for key in operator_keywords:
             if word in operator_keywords[key]:
                 terms.append(Operator(key))
-                continue
+                break
 
     
     # If a property has the same name as another property, get the property of the closest classifier

@@ -14,14 +14,12 @@ from rules.RulesManager.Terms import Operator, Value
 from model.models import Classifier, Property
 import json
 
-rulesmanager = RulesManager()
-
 
 def index(request):
     ''' Accepts GET requests to return all currently saved rules from the database as text. '''
 
     # Get rules from database
-    rules_query = rulesmanager.get_all_rules()
+    rules_query = RulesManager.get_all_rules()
 
     output = []
 
@@ -74,7 +72,7 @@ def add(request):
 
     # Create a rule database object from the string
     try:
-        rulesmanager.add_rule(textrule)
+        RulesManager.add_rule(textrule)
     except Exception as err:
         # Return the error as JSON if exception
         print(traceback.format_exc())
@@ -100,7 +98,7 @@ def remove(request):
 
     # Remove the rule instance from database
     try:
-        rulesmanager.remove_rule_by_pk(pk)
+        RulesManager.remove_rule_by_pk(pk)
     except Exception as err:
         # Return the error as JSON if exception
         return JsonResponse({'FAIL' : 'Rule not removed from database',

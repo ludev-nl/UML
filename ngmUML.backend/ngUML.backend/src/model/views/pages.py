@@ -181,6 +181,7 @@ def get_data(current_data, model, children, all_children):
 
 
 def fill_data(page, queryset):
+    print(queryset)
     data_paths = json.loads(page.data_paths)
     children = make_children_list(data_paths)
     data = {page.type: get_data(queryset, page.type, children[page.type], children)}
