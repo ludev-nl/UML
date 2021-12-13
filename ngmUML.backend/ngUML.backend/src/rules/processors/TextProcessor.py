@@ -2,6 +2,7 @@
 from nltk.corpus.reader.conll import ConllSRLInstance
 import nltk
 import re
+import contractions
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
@@ -99,6 +100,7 @@ def get_first_index_of_classifier(list):
 def process_text(original_text):
     '''Maps messy user input to a singular representation'''
     original_text = str(TextBlob(original_text).correct())
+    contractions.fix(original_text)
     text = split_rule(original_text)
 
     all_classifiers = get_classifiers()
@@ -136,7 +138,7 @@ def process_text(original_text):
 
         if continue_flag:
             continue
-            
+
         # If word is equal to a property from any of the present classifiers
         for property in properties_in_text:
             if property.name.lower() == word:
@@ -158,7 +160,7 @@ def process_text(original_text):
                 terms.append(Operator(key))
                 break
 
-    
+
     # If a property has the same name as another property, get the property of the closest classifier
     for term in terms:
         if isinstance(term, AwaitingDesignation):
@@ -168,7 +170,7 @@ def process_text(original_text):
             reversed = terms.value[:index]
             reversed.reverse()
             backwards = get_first_index_of_classifier(reversed)
-            forwards = get_first_index_of_classifier(terms.value[index:]) 
+            forwards = get_first_index_of_classifier(terms.value[index:])
 
             # If forwards is closer than the backwards property, add the property from the forwards classifier
             if backwards > forwards and forwards != -1:
@@ -182,7 +184,7 @@ def process_text(original_text):
 
      # Warning: This assumes that every rules at least contains a classifier, a property and an operator, but this might become outdated
     if terms.size(Classifier) == 0:
-        raise Exception("No classifiers were recognized or present in this rules.") 
+        raise Exception("No classifiers were recognized or present in this rules.")
     elif terms.size(Property) == 0:
         raise Exception("No properties were recognized or present in this rules.")
     elif terms.size(Operator) == 0:
