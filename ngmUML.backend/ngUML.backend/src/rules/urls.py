@@ -6,5 +6,5 @@ urlpatterns = [
     path('add/', views.add),
     path('remove/', views.remove),
     path('description/', views.description),
-    path('debug/', views.debug),
+    #path('debug/', views.debug),
 ]

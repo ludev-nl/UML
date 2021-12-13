@@ -1,7 +1,7 @@
 from abc import abstractmethod
 from rules.RulesManager.TermList import TermList
 from rules.processors.ValidatorProcessor import add_keyword, get_standard_if_statement, add_validator as VP_add_validator, remove_validator as VP_remove_validator, add_to_method_in_classifier as VP_add_to_method_in_classifier, get_standard_if_statement_spaces
-from rules.processors.ModelPaths import get_pathing_from_classifier
+#from rules.processors.ModelPaths import get_pathing_from_classifier
 from rules.RulesManager.BaseRule import BaseRule
 from rules.RulesManager.Terms  import Operator, Value
 from model.models import Class, Classifier, Property

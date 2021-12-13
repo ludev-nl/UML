@@ -2,7 +2,7 @@
 from nltk.corpus.reader.conll import ConllSRLInstance
 import nltk
 import re
-import contractions
+#import contractions
 from textblob import TextBlob
 from nltk.stem import WordNetLemmatizer
 from model.models import Classifier, Property
@@ -100,7 +100,7 @@ def get_first_index_of_classifier(list):
 def process_text(original_text):
     '''Maps messy user input to a singular representation'''
     original_text = str(TextBlob(original_text).correct())
-    contractions.fix(original_text)
+    #contractions.fix(original_text)
     text = split_rule(original_text)
 
     all_classifiers = get_classifiers()
